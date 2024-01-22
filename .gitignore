@@ -1,0 +1,4 @@
+/.config/*
+/.sheldon/*
+!/.config/nvim
+!/.sheldon/plugins.toml

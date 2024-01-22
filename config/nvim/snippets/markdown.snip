@@ -1,0 +1,16 @@
+# vim: set ft=neosnippet:
+
+snippet     today
+abbr        today
+options     word
+    `strftime("%Y-%m-%d (%a)")`${0}
+
+snippet     tomorrow
+abbr        tomorrow
+options     word
+    `strftime("%Y-%m-%d (%a)", localtime() + (60*60*24))`${0}
+
+snippet     yesterday
+abbr        yesterday
+options     word
+    `strftime("%Y-%m-%d (%a)", localtime() - (60*60*24))`${0}

@@ -4,56 +4,6 @@ path=($HOME/.volta/bin(N-/) /home/linuxbrew/.linuxbrew/bin(N-/) $HOME/.local/bin
 autoload -U colors && colors
 autoload -U compinit && compinit
 
-#######################################################################
-## tmux
-#######################################################################
-function is_exists() { type "$1" >/dev/null 2>&1; return $? }
-function is_screen_running() { ! test -z "$STY" }
-function is_tmux_runnning() { ! test -z "$TMUX" }
-function is_screen_or_tmux_running() { is_screen_running || is_tmux_runnning }
-function shell_has_started_interactively() { ! test -z "$PS1" }
-
-function tmux_automatically_attach_session()
-{
-	if is_screen_or_tmux_running; then
-		! is_exists 'tmux' && return 1
-
-		if is_tmux_runnning; then
-			echo "${fg_bold[red]} _____ __  __ _   _ __  __ ${reset_color}"
-			echo "${fg_bold[red]}|_   _|  \/  | | | |\ \/ / ${reset_color}"
-			echo "${fg_bold[red]}  | | | |\/| | | | | \  /  ${reset_color}"
-			echo "${fg_bold[red]}  | | | |  | | |_| | /  \  ${reset_color}"
-			echo "${fg_bold[red]}  |_| |_|  |_|\___/ /_/\_\ ${reset_color}"
-		elif is_screen_running; then
-			echo "This is on screen."
-		fi
-	else
-		if shell_has_started_interactively; then
-			if ! is_exists 'tmux'; then
-				echo 'Error: tmux command not found' 2>&1
-				return 1
-			fi
-
-			# アタッチされていないセッションがある場合だけ
-			#if tmux has-session >/dev/null 2>&1 && tmux list-sessions | grep -qE '.*]$'; then
-			# セッションが既にある場合は常に
-			if tmux has-session >/dev/null 2>&1; then
-				# detached session exists
-				tmux list-sessions
-				echo -n "Tmux: attach? (y/N/num) "
-				read
-				if [[ "$REPLY" =~ ^[Yy]$ ]] || [[ "$REPLY" == '' ]]; then
-					exec tmux attach-session
-				elif [[ "$REPLY" =~ ^[0-9]+$ ]]; then
-					exec tmux attach -t "$REPLY"
-				fi
-			fi
-			exec tmux new-session && echo "tmux created new session"
-		fi
-	fi
-}
-tmux_automatically_attach_session
-
 ######################################################################
 # environment
 ######################################################################
@@ -64,8 +14,6 @@ bindkey -e
 ######################################################################
 # alias
 ######################################################################
-alias zreload="exec zsh -l"
-alias cdg='cd-ghq'
 alias cdu='cd-gitroot'
 alias ls="ls -F --color=always"
 
@@ -121,8 +69,6 @@ bindkey '.' multi-dot
 if ! which sheldon >/dev/null 2>&1; then
 	curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh | bash -s -- --repo rossmacarthur/sheldon --to ~/.local/bin
 	sheldon init --shell zsh
-	sheldon add async --github mafredri/zsh-async
-	sheldon add pure  --github sindresorhus/pure
 fi
 eval "$(sheldon source)"
 
@@ -136,17 +82,8 @@ fi
 if ! which direnv >/dev/null 2>&1; then
 	brew install direnv
 fi
-if ! which ghq >/dev/null 2>&1; then
-	brew install ghq
-fi
 if ! which peco >/dev/null 2>&1; then
 	brew install peco
-fi
-if ! which pyenv >/dev/null 2>&1; then
-	brew install pyenv
-fi
-if ! which pt >/dev/null 2>&1; then
-	brew install the_platinum_searcher
 fi
 if ! which volta >/dev/null 2>&1; then
 	brew install volta
@@ -156,4 +93,3 @@ fi
 # other
 ######################################################################
 if (( $+commands[direnv] )); then eval "$(direnv hook zsh)"; fi
-if (( $+commands[pyenv] ));  then eval "$(pyenv init -)"; fi

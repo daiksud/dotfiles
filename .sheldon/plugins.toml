@@ -14,12 +14,6 @@ shell = "zsh"
 
 [plugins]
 
-[plugins.async]
-github = "mafredri/zsh-async"
-
-[plugins.pure]
-github = "sindresorhus/pure"
-
 [plugins.ohmyzsh-completion]
 github = "ohmyzsh/ohmyzsh"
 use = ["lib/completion.zsh"]
@@ -38,8 +32,3 @@ github = 'zsh-users/zsh-history-substring-search'
 
 [plugins.zsh-syntax-highlighting]
 github = 'zsh-users/zsh-syntax-highlighting'
-
-# For example:
-#
-# [plugins.base16]
-# github = "chriskempson/base16-shell"

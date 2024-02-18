@@ -8,7 +8,6 @@ autoload -U compinit && compinit
 # environment
 ######################################################################
 export EDITOR=nvim
-
 bindkey -e
 
 ######################################################################
@@ -66,28 +65,7 @@ bindkey '.' multi-dot
 ######################################################################
 # sheldon
 ######################################################################
-if ! which sheldon >/dev/null 2>&1; then
-	curl --proto '=https' -fLsS https://rossmacarthur.github.io/install/crate.sh | bash -s -- --repo rossmacarthur/sheldon --to ~/.local/bin
-	sheldon init --shell zsh
-fi
 eval "$(sheldon source)"
-
-######################################################################
-# Linuxbrew
-######################################################################
-if ! which brew >/dev/null 2>&1; then
-	/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-	path=(/home/linuxbrew/.linuxbrew/bin(N-/) $path)
-fi
-if ! which direnv >/dev/null 2>&1; then
-	brew install direnv
-fi
-if ! which peco >/dev/null 2>&1; then
-	brew install peco
-fi
-if ! which volta >/dev/null 2>&1; then
-	brew install volta
-fi
 
 ######################################################################
 # other

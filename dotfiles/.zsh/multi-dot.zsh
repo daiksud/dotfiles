@@ -12,10 +12,10 @@
 # Editor (ZLE), which is the command line interface for Zsh. This means that the
 # function will be called whenever the user types ".." in the command line.
 function multi-dot() {
-  local dots=$LBUFFER[-2,-1]
-  if [[ $dots == ".." ]]; then
-    LBUFFER=$LBUFFER[1,-3]'../.'
-  fi
-  zle self-insert
+	local dots=$LBUFFER[-2,-1]
+	if [[ $dots == ".." ]]; then
+		LBUFFER=$LBUFFER[1,-3]'../.'
+	fi
+	zle self-insert
 }
 zle -N multi-dot

@@ -8,9 +8,9 @@ DIR=$(dirname "${FILE}")
 sudo chsh "$(id -un)" --shell "/usr/bin/zsh"
 
 # make symlinks
-for src in "${DIR}"/.*; do
-	# Skip if it's . or .. or .git
-	[ "${src}" = "${DIR}/." ] || [ "${src}" = "${DIR}/.." ] || [ "${src}" = "${DIR}/.git" ] && continue
+for src in "${DIR}"/dotfiles/.*; do
+	# Skip if it's . or ..
+	[ "${src}" = "${DIR}/dotfiles/." ] || [ "${src}" = "${DIR}/dotfiles/.." ] && continue
 
 	name=$(basename "${src}")
 	dst="${HOME}/${name}"
@@ -21,8 +21,8 @@ for src in "${DIR}"/.*; do
 		rm -rf "${dst}"
 	fi
 
-	echo "Make symlink ${src} -> ${dst}"
-	ln -sf "${src}" "${dst}"
+	echo "Copy ${src} -> ${dst}"
+	cp -rf "${src}" "${dst}"
 done
 
 if [[ "$(uname -s)" != "Linux" ]]; then

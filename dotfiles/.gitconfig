@@ -1,0 +1,14 @@
+[user]
+  name               = Daiki Sudo
+  email              = daiksud@proton.me
+[core]
+  quotepath          = false
+[init]
+  defaultBranch      = main
+[push]
+  default            = current
+[pull]
+  rebase             = true
+[rebase]
+  abbreviateCommands = true
+  autoSquash         = true

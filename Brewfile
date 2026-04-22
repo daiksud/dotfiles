@@ -1,0 +1,36 @@
+brew "gcc"
+
+brew "ast-grep"
+brew "awscli"
+brew "chafa"
+brew "fd"
+brew "fish"
+brew "fzf"
+brew "gh"
+brew "ghq"
+brew "git"
+brew "gs"
+brew "imagemagick"
+brew "jq"
+brew "lazygit"
+brew "lua"
+brew "luarocks"
+brew "mise"
+brew "neovim"
+brew "ripgrep"
+brew "sheldon"
+brew "starship"
+brew "tmux"
+brew "viu"
+brew "wget"
+
+# tokyo-night-tmux dependencies
+brew "bash"
+brew "bc"
+brew "coreutils"
+brew "gawk"
+brew "gsed"
+brew "nowplaying-cli" if OS.mac?
+
+cask "copilot-cli"
+cask "font-moralerspace-hw" if OS.mac?

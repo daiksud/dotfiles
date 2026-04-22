@@ -16,6 +16,3 @@ indent_size = 4
 
 [*.json]
 max_line_length = 1
-
-[*.sh]
-indent_style = tab

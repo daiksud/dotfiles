@@ -28,6 +28,11 @@ setopt hist_verify
 setopt share_history
 setopt extended_history
 
+# Directory
+setopt auto_cd
+setopt auto_pushd
+setopt pushd_ignore_dups
+
 # Completion style (case-insensitive, hyphen-insensitive)
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 

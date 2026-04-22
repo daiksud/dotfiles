@@ -1,0 +1,4 @@
+dotfiles/.config/gh/config.yml
+dotfiles/.config/gh/hosts.yml
+dotfiles/.config/tmux/plugins/
+Brewfile.lock.json

@@ -1,36 +1,41 @@
 {
   "build": {
-    "dockerfile": "Dockerfile"
+    "dockerfile": "Dockerfile",
+    "context": ".."
   },
+
   "remoteUser": "codespace",
   "containerUser": "codespace",
+
+  // An object of Dev Container Feature IDs and related options to be added into your primary container. The specific options that are available varies by feature, so see its documentation for additional details.
+  // https://containers.dev/features
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
-      "configureZshAsDefaultShell": "true",
-      "username": "codespace"
+      "installZsh": true,
+      "configureZshAsDefaultShell": true,
+      "installOhMyZsh": false,
+      "installOhMyZshConfig": false,
+      "username": "codespace",
+      "userUid": "1001",
+      "userGid": "1001"
     },
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers/features/git:1": {
-      "version": "latest",
-      "ppa": true
-    },
-    "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/sshd:1": {},
-    "ghcr.io/devcontainers/features/node:1": {}
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/sshd:1": {}
   },
-  "postCreateCommand": ".devcontainer/postCreateCommand.sh",
+
+  "postCreateCommand": "git pull",
+
+  // Configure tool-specific properties.
   "customizations": {
+    // Configure properties specific to VS Code.
     "vscode": {
+      // Add the IDs of extensions you want installed when the container is created.
       "extensions": [
         "eamodio.gitlens",
-        "editorconfig.editorconfig",
+        "EditorConfig.EditorConfig",
         "esbenp.prettier-vscode",
-        "github.copilot-chat",
-        "github.copilot",
-        "github.vscode-github-actions",
-        "github.vscode-pull-request-github",
-        "visualstudioexptteam.vscodeintellicode-completions",
-        "visualstudioexptteam.vscodeintellicode"
+        "GitHub.copilot-chat"
       ]
     }
   }

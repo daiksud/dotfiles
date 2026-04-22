@@ -1,0 +1,13 @@
+*
+!/.gitignore
+!/ghostty/
+!/ghostty/**
+!/mise/
+!/mise/**
+!/nvim/
+!/nvim/**
+!/sheldon/
+!/sheldon/**
+!/starship.toml
+!/tmux/
+!/tmux/**

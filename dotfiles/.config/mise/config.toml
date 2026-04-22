@@ -1,0 +1,7 @@
+[tools]
+marp-cli = "latest"
+node = "lts"
+"npm:markdown-toc" = "latest"
+"npm:neovim" = "latest"
+pnpm = "latest"
+python = "3"

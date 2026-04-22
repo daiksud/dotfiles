@@ -1,7 +1,8 @@
 function go-to-ghq-repository() {
+  local query="${1:-${LBUFFER:-}}"
   local selected_dir
 
-  selected_dir="$(gh q -- pwd)"
+  selected_dir="$(gh q list | fzf --query "$query" --select-1 --reverse --height=20)"
   if [[ -n "$selected_dir" ]]; then
     cd "$selected_dir"
 

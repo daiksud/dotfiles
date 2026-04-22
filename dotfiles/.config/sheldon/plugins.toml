@@ -1,0 +1,41 @@
+shell = "zsh"
+
+[templates]
+fpath = "fpath=(\"{{ dir }}\" $fpath)"
+
+# fzf-tab: replace zsh default completion with fzf (must be loaded after compinit)
+[plugins.fzf-tab]
+github = "Aloxaf/fzf-tab"
+
+# Oh-My-Zsh lib/git.zsh (utility functions required by the git plugin)
+[plugins.ohmyzsh-lib-git]
+github = "ohmyzsh/ohmyzsh"
+dir = "lib"
+use = ["git.zsh"]
+
+# Oh-My-Zsh git plugin (aliases: gst, gco, gcm, gp, etc.)
+[plugins.ohmyzsh-git]
+github = "ohmyzsh/ohmyzsh"
+dir = "plugins/git"
+
+# Additional completions
+[plugins.zsh-completions]
+github = "zsh-users/zsh-completions"
+dir = "src"
+apply = ["fpath"]
+
+# Fish-like autosuggestions
+[plugins.zsh-autosuggestions]
+github = "zsh-users/zsh-autosuggestions"
+
+# Auto-close brackets, quotes, etc.
+[plugins.zsh-autopair]
+github = "hlissner/zsh-autopair"
+
+# Fast syntax highlighting (improved zsh-syntax-highlighting)
+[plugins.fast-syntax-highlighting]
+github = "zdharma-continuum/fast-syntax-highlighting"
+
+# History substring search (must be after syntax highlighting)
+[plugins.zsh-history-substring-search]
+github = "zsh-users/zsh-history-substring-search"

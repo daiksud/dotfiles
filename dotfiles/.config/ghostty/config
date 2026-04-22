@@ -1,0 +1,41 @@
+background-image = hololive-en-advent.jpg
+background-image-fit = cover
+background-image-opacity = 0.06
+background-image-position = center
+font-family = Moralerspace Neon HW
+font-size = 13.5
+fullscreen = non-native-visible-menu
+macos-non-native-fullscreen = visible-menu
+macos-option-as-alt = true
+macos-titlebar-style = hidden
+mouse-hide-while-typing = true
+theme = TokyoNight Storm
+window-inherit-working-directory = false
+window-padding-y = 0
+
+# Disable tab-related keybinds
+keybind = super+t=unbind
+keybind = super+shift+left_bracket=unbind
+keybind = super+shift+right_bracket=unbind
+keybind = super+one=unbind
+keybind = super+two=unbind
+keybind = super+three=unbind
+keybind = super+four=unbind
+keybind = super+five=unbind
+keybind = super+six=unbind
+keybind = super+seven=unbind
+keybind = super+eight=unbind
+keybind = super+nine=unbind
+
+# Disable split-related keybinds
+keybind = super+d=unbind
+keybind = super+shift+d=unbind
+keybind = super+opt+up=unbind
+keybind = super+opt+down=unbind
+keybind = super+opt+left=unbind
+keybind = super+opt+right=unbind
+keybind = super+ctrl+up=unbind
+keybind = super+ctrl+down=unbind
+keybind = super+ctrl+left=unbind
+keybind = super+ctrl+right=unbind
+keybind = super+shift+enter=unbind

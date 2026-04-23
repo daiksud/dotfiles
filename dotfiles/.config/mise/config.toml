@@ -1,6 +1,8 @@
 [tools]
 marp-cli = "latest"
 node = "lts"
+"npm:markdownlint-cli2" = "latest"
+"npm:markdownlint-rule-table-format" = "latest"
 "npm:markdown-toc" = "latest"
 "npm:neovim" = "latest"
 pnpm = "latest"

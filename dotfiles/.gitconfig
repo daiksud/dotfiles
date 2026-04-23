@@ -1,19 +1,19 @@
-[user]
-	signingKey = ~/.ssh/id_ed25519.pub
-[init]
-	defaultBranch = main
 [push]
+	autosetupremote = true
 	default = current
-	autoSetupRemote = true
-[pull]
-	rebase = true
-[rebase]
-	autoSquash = true
 [commit]
 	gpgsign = true
+[core]
+	quotepath = false
 [gpg]
 	format = ssh
 [gpg "ssh"]
-	allowedSignersFile = ~/.ssh/allowed_signers
-[core]
-	quotepath = false
+	allowedsignersfile = ~/.ssh/allowed_signers
+[init]
+	defaultbranch = main
+[pull]
+	rebase = true
+[rebase]
+	autosquash = true
+[user]
+	signingkey = ~/.ssh/id_ed25519.pub

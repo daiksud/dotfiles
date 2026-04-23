@@ -3,6 +3,10 @@ return {
   opts = {
     image = {
       enabled = true,
+      doc = {
+        -- tmux + Ghostty can leak terminal responses as typed keys in markdown docs.
+        enabled = vim.env.TMUX == nil,
+      },
     },
     terminal = {
       win = {

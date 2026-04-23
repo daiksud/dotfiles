@@ -6,7 +6,7 @@ function resolveTableFormatRule() {
   const home = process.env.HOME || "";
   const miseRule = join(
     home,
-    ".local/share/mise/installs/npm-markdownlint-rule-table-format/latest/lib/node_modules/markdownlint-rule-table-format/rule.js"
+    ".local/share/mise/installs/npm-markdownlint-rule-table-format/latest/lib/node_modules/markdownlint-rule-table-format/rule.js",
   );
   if (existsSync(miseRule)) {
     return miseRule;
@@ -32,6 +32,7 @@ const tableFormatRule = resolveTableFormatRule();
 module.exports = {
   customRules: tableFormatRule ? [tableFormatRule] : [],
   config: {
+    MD013: false,
     MD060: {
       style: "compact",
     },

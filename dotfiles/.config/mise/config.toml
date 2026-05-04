@@ -7,3 +7,6 @@ node = "lts"
 "npm:neovim" = "latest"
 pnpm = "latest"
 python = "3"
+
+[settings]
+lockfile = true

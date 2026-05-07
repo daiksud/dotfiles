@@ -13,13 +13,11 @@
 
 ## 変更内容
 
-### 1. 黄色い表示（依存パッケージ不足）
-- **根本原因**: [tokyo-night-tmux の Quick Start](https://github.com/janoamaral/tokyo-night-tmux#quick-start) に記載されている必要パッケージがインストールされていなかった
-- **修正**: macOS で必要な依存パッケージをインストール:
-  ```sh
-  brew install bash bc coreutils gawk gh glab gsed jq nowplaying-cli
-  ```
-- 当初 `window_last_flag` の条件式が原因と思われたが、関係なかった
+### 1. 黄色い表示（upstream バグ）
+- `~/.tmux/plugins/tokyo-night-tmux/tokyo-night.tmux`
+  - `window-status-format` の `window_last_flag` 条件式を修正
+  - **修正前**: `#[fg=${THEME[yellow]}]#{?window_last_flag,󰁯  , }` — false 時のスペースにも yellow が適用
+  - **修正後**: `#{?window_last_flag,#[fg=${THEME[yellow]}]󰁯  ,  }` — yellow を true 時のみ適用
 
 ### 2. テーマが適用されない問題（根本原因）
 - `dotfiles/.config/tmux/tmux.conf`
@@ -29,5 +27,5 @@
 
 ## 備考
 
-- `window_last_flag` の条件式修正は不要だった（プラグインを `tpm` で再インストールしても問題ない）
+- プラグイン側の修正（黄色の問題）は `tpm` でアップデートすると上書きされる可能性がある
 - PATH / TMUX_PLUGIN_MANAGER_PATH の設定は `tmux.conf` 側の変更なので永続する

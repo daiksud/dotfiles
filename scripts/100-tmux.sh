@@ -9,3 +9,20 @@ fi
 
 tmux start-server \; set-environment -g TMUX_PLUGIN_MANAGER_PATH "${TPM_ROOT}/"
 "${TPM_DIR}/bin/install_plugins"
+
+pkgs=(
+  bash
+  bc
+  coreutils
+  gawk
+  gh
+  git
+  jq
+)
+brew install --quiet "${pkgs[@]}"
+
+if [[ "$(uname)" == "Darwin" ]]; then
+  brew install --quiet glab gsed nowplaying-cli font-noto-sans-symbols-2
+else
+  brew install --quiet playerctl
+fi

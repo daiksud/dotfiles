@@ -2,7 +2,7 @@
 
 format = """
 [░▒▓](#a3aed2)\
-${custom.local}${custom.ssh_info}\
+[  ](bg:#a3aed2 fg:#090c0c)\
 [](bg:#769ff0 fg:#a3aed2)\
 $directory\
 [](fg:#769ff0 bg:#394260)\
@@ -10,6 +10,7 @@ $git_branch\
 $git_status\
 [](fg:#394260 bg:#212736)\
 $nodejs\
+$bun\
 $rust\
 $golang\
 $php\
@@ -44,6 +45,11 @@ symbol = ""
 style = "bg:#212736"
 format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
 
+[bun]
+symbol = ""
+style = "bg:#212736"
+format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
+
 [rust]
 symbol = ""
 style = "bg:#212736"
@@ -61,20 +67,6 @@ format = '[[ $symbol ($version) ](fg:#769ff0 bg:#212736)]($style)'
 
 [time]
 disabled = false
-time_format = "%R" # Hour:Minute Format
+time_format = "%R"                                      # Hour:Minute Format
 style = "bg:#1d2230"
 format = '[[  $time ](fg:#a0a9cb bg:#1d2230)]($style)'
-
-[custom.local]
-command = 'true'
-when = 'test -z "$SSH_CONNECTION"'
-symbol = ""
-style = "bg:#a3aed2 fg:#090c0c"
-format = "[ $symbol ]($style)"
-
-[custom.ssh_info]
-command = 'CNAME=$(echo "${CODESPACE_NAME}" | sed "s/-[^-]*$//"); [ -n "$CNAME" ] && printf " %s" "$CNAME" || true'
-when = 'test -n "$SSH_CONNECTION"'
-symbol = "⚡"
-style = "bg:#a3aed2 fg:#090c0c"
-format = "[ $symbol$output ]($style)"

@@ -7,17 +7,12 @@ else
 fi
 
 pkgs=(
-  ast-grep
-  fd
   fish
   fzf
   git
-  gs
-  imagemagick
   lazygit
   lua
   luarocks
-  mermaid-cli
   neovim
   ripgrep
   wget

@@ -17,5 +17,4 @@ pkgs=(
   ripgrep
   wget
 )
-
 brew install --quiet "${pkgs[@]}"

@@ -16,3 +16,8 @@ for extension in "${extensions[@]}"; do
 
   gh extension install "${extension}"
 done
+
+pkgs=(
+  fd
+)
+brew install --quiet "${pkgs[@]}"

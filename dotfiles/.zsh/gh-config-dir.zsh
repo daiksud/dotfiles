@@ -58,9 +58,17 @@ sync_signing_key_from_gh() {
   if [[ -n "$email" ]]; then
     local signers_file="$HOME/.ssh/allowed_signers"
     local key_content
+    local tmp_signers_file
     key_content="$(cat "$key_path")"
-    # Replace file with current identity (single-user machine)
-    echo "${email} ${key_content}" > "$signers_file"
+    tmp_signers_file="${signers_file}.tmp.$$"
+    # Keep other accounts and only upsert the current email entry.
+    if [[ -f "$signers_file" ]]; then
+      awk -v target_email="$email" '$1 != target_email' "$signers_file" > "$tmp_signers_file"
+    else
+      : > "$tmp_signers_file"
+    fi
+    printf '%s %s\n' "$email" "$key_content" >> "$tmp_signers_file"
+    mv "$tmp_signers_file" "$signers_file"
     git config --local gpg.ssh.allowedSignersFile "$signers_file"
   fi
 }

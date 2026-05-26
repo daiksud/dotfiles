@@ -31,6 +31,40 @@ resolve_gh_identity() {
   return 0
 }
 
+sync_signing_key_from_gh() {
+  local login key_path current_signingkey email
+
+  # Resolve login from gh auth status for the current GH_CONFIG_DIR
+  login="$(gh api user --jq '.login // empty' 2>/dev/null)" || return 0
+  [[ -n "$login" ]] || return 0
+
+  # Convention: signing key is ~/.ssh/<login>.pub
+  key_path="$HOME/.ssh/${login}.pub"
+  if [[ ! -f "$key_path" ]]; then
+    echo "Warning: Signing key not found at ${key_path}. Skipping commit signing setup."
+    return 0
+  fi
+
+  current_signingkey="$(git config --local --get user.signingkey 2>/dev/null || true)"
+  if [[ "$current_signingkey" != "$key_path" ]]; then
+    git config --local user.signingkey "$key_path"
+    git config --local gpg.format ssh
+    git config --local commit.gpgsign true
+    echo "Set local signing key to '${key_path}'."
+  fi
+
+  # Update allowed_signers so local signature verification works
+  email="$(git config --local --get user.email 2>/dev/null || true)"
+  if [[ -n "$email" ]]; then
+    local signers_file="$HOME/.ssh/allowed_signers"
+    local key_content
+    key_content="$(cat "$key_path")"
+    # Replace file with current identity (single-user machine)
+    echo "${email} ${key_content}" > "$signers_file"
+    git config --local gpg.ssh.allowedSignersFile "$signers_file"
+  fi
+}
+
 sync_git_identity_from_gh() {
   local login profile_name email emails_status current_name current_email identity_line
 
@@ -41,6 +75,7 @@ sync_git_identity_from_gh() {
   current_name="$(git config --local --get user.name 2>/dev/null || true)"
   current_email="$(git config --local --get user.email 2>/dev/null || true)"
   if [[ -n "$current_name" && -n "$current_email" ]]; then
+    sync_signing_key_from_gh
     return 0
   fi
 
@@ -80,6 +115,8 @@ sync_git_identity_from_gh() {
       echo "Warning: Could not resolve your GitHub email. It may be private or unset on your GitHub profile."
     fi
   fi
+
+  sync_signing_key_from_gh
 }
 
 set_gh_config_dir() {

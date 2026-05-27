@@ -1,5 +1,6 @@
 [tools]
 node = "latest"
+bun = "latest"
 "npm:markdownlint-cli2" = "latest"
 
 [settings]

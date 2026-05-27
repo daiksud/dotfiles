@@ -1,0 +1,9 @@
+[tools]
+bun = "latest"
+
+[hooks]
+postinstall = "bun install --frozen-lockfile"
+
+[settings]
+lockfile = true
+experimental = true

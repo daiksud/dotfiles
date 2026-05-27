@@ -14,7 +14,7 @@ Documentation lives under `docs/` as GitHub Flavored Markdown files, built with 
 - `docs/guides/` — User guides (setup and usage)
 - `docs/reference/` — Reference (tool lists, config specs)
 - `docs/development/` — Contributor info (structure, style guide)
-- `docs/development/adr/` — Architecture Decision Records
+- `docs/development/99-adr/` — Architecture Decision Records
 
 ### Documentation Map
 
@@ -38,7 +38,7 @@ Documentation lives under `docs/` as GitHub Flavored Markdown files, built with 
 | Tools (Brewfile) | `docs/reference/tools.md` | Users |
 | Project structure | `docs/development/01-project-structure.md` | Contributors |
 | Docs style | `docs/development/02-docs-style.md` | Contributors |
-| ADR index | `docs/development/adr/README.md` | Contributors |
+| ADR index | `docs/development/99-adr/README.md` | Contributors |
 
 Key style references (read before editing docs):
 
@@ -50,7 +50,7 @@ Key style references (read before editing docs):
 2. When changing code, scripts, or configuration, always update `docs/` in the same change.
 3. If the current document structure reduces clarity, reorganize docs as needed.
 4. Keep documentation accurate to the current implementation.
-5. If an architecture or technology choice is made from multiple options, always record it in `docs/development/adr/`.
+5. If an architecture or technology choice is made from multiple options, always record it in `docs/development/99-adr/`.
 
 ## Docusaurus conventions
 

@@ -1,0 +1,12 @@
+{
+  "name": "dotfiles",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "docs:install": "bun install --cwd .docusaurus",
+    "docs:start": "bun run --cwd .docusaurus start",
+    "docs:build": "bun run --cwd .docusaurus build",
+    "docs:serve": "bun run --cwd .docusaurus serve"
+  }
+}

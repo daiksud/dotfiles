@@ -24,6 +24,7 @@ Documentation lives under `docs/` as GitHub Flavored Markdown files, built with 
 | Installation | `docs/guides/02-installation.md` | Users |
 | Managing links | `docs/guides/03-managing-links.md` | Users |
 | Git identity | `docs/guides/04-git-identity.md` | Users |
+| Skills usage | `docs/guides/06-skills.md` | Users |
 | Ghostty | `docs/reference/ghostty.md` | Users |
 | Git | `docs/reference/git.md` | Users |
 | mise | `docs/reference/mise.md` | Users |
@@ -36,9 +37,11 @@ Documentation lives under `docs/` as GitHub Flavored Markdown files, built with 
 | install_map.json | `docs/reference/install-map.md` | Users |
 | Scripts | `docs/reference/scripts.md` | Users |
 | Tools (Brewfile) | `docs/reference/tools.md` | Users |
+| Copilot Skills | `docs/reference/skills.md` | Users |
 | Project structure | `docs/development/01-project-structure.md` | Contributors |
 | Docs style | `docs/development/02-docs-style.md` | Contributors |
 | ADR index | `docs/development/99-adr/README.md` | Contributors |
+| Skills development | `docs/development/03-skills-development.md` | Contributors |
 
 Key style references (read before editing docs):
 
@@ -47,10 +50,12 @@ Key style references (read before editing docs):
 ## Mandatory workflow
 
 1. Before editing code, always read relevant documents under `docs/` (at minimum the section README and related pages).
-2. When changing code, scripts, or configuration, always update `docs/` in the same change.
-3. If the current document structure reduces clarity, reorganize docs as needed.
-4. Keep documentation accurate to the current implementation.
-5. If an architecture or technology choice is made from multiple options, always record it in `docs/development/99-adr/`.
+2. Before editing docs, always read `docs/development/02-docs-style.md` to understand the documentation strategy and conventions.
+3. When changing code, scripts, or configuration, always update `docs/` in the same change. Refer to the "Documentation Strategy" section in `docs/development/02-docs-style.md` for the change checklist and scope mapping.
+4. After any change, verify: documentation accuracy, link integrity, and completeness against the current implementation.
+5. If the current document structure reduces clarity, reorganize docs as needed.
+6. Keep documentation accurate to the current implementation. Never defer documentation updates to a later commit.
+7. If an architecture or technology choice is made from multiple options, always record it in `docs/development/99-adr/`.
 
 ## Docusaurus conventions
 

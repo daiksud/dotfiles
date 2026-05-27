@@ -1,3 +1,7 @@
+---
+description: A skill that drives a Pull Request toward merge-readiness by fixing CI failures and addressing review comments
+name: fix-pr
+---
 # fix-pr
 
 A skill that drives a Pull Request toward merge-readiness by fixing CI failures and addressing review comments.

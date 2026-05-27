@@ -2,99 +2,61 @@
 
 FILE=$(readlink -f "$0")
 DIR=$(dirname "${FILE}")
-DOTFILES_GITCONFIG="${DIR}/dotfiles/.gitconfig"
-HOME_GITCONFIG="${HOME}/.gitconfig"
 
-is_excluded_gitconfig_key() {
-  local key="$1"
-  [[ "${key}" = "user.name" || "${key}" = "user.email" ]]
+parse_links() {
+  python3 -c "
+import json, os, sys
+with open(sys.argv[1]) as f:
+    data = json.load(f)
+for src, dst in data.get('links', {}).items():
+    print(src + '\t' + dst.replace('~', os.path.expanduser('~')))
+" "$1"
 }
 
-non_user_gitconfig_snapshot() {
-  local config_file="$1"
-  git config -f "${config_file}" --list \
-    | awk -F= '$1 != "user.name" && $1 != "user.email" { print }' \
-    | LC_ALL=C sort
-}
+# If the parent directory of dst is a symlink, convert it to a real directory
+# and migrate existing contents from the old symlink target.
+ensure_real_parent_dir() {
+  local dst="$1"
+  local parent
+  parent="$(dirname "${dst}")"
 
-has_non_user_gitconfig_diff() {
-  local left="$1"
-  local right="$2"
-  local left_tmp
-  local right_tmp
-
-  left_tmp=$(mktemp)
-  right_tmp=$(mktemp)
-  non_user_gitconfig_snapshot "${left}" > "${left_tmp}"
-  non_user_gitconfig_snapshot "${right}" > "${right_tmp}"
-
-  if cmp -s "${left_tmp}" "${right_tmp}"; then
-    rm -f "${left_tmp}" "${right_tmp}"
-    return 1
-  fi
-
-  rm -f "${left_tmp}" "${right_tmp}"
-  return 0
-}
-
-sync_dotfiles_gitconfig_from_home() {
-  local key
-  local value
-
-  while IFS= read -r key; do
-    [[ -z "${key}" ]] && continue
-    is_excluded_gitconfig_key "${key}" && continue
-
-    if ! git config -f "${HOME_GITCONFIG}" --get-all "${key}" >/dev/null 2>&1; then
-      git config -f "${DOTFILES_GITCONFIG}" --unset-all "${key}"
+  if [[ -L "${parent}" ]]; then
+    local target
+    target="$(readlink "${parent}")"
+    echo "Converting symlink ${parent} to real directory (was -> ${target})"
+    rm "${parent}"
+    mkdir -p "${parent}"
+    if [[ -d "${target}" ]]; then
+      for item in "${target}"/.[!.]* "${target}"/*; do
+        [[ -e "${item}" || -L "${item}" ]] || continue
+        local name
+        name="$(basename "${item}")"
+        if [[ ! -e "${parent}/${name}" && ! -L "${parent}/${name}" ]]; then
+          echo "  Migrating ${item} -> ${parent}/${name}"
+          mv "${item}" "${parent}/${name}"
+        fi
+      done
     fi
-  done < <(git config -f "${DOTFILES_GITCONFIG}" --name-only --list | LC_ALL=C sort -u)
-
-  while IFS= read -r key; do
-    [[ -z "${key}" ]] && continue
-    is_excluded_gitconfig_key "${key}" && continue
-
-    while git config -f "${DOTFILES_GITCONFIG}" --get-all "${key}" >/dev/null 2>&1; do
-      git config -f "${DOTFILES_GITCONFIG}" --unset-all "${key}"
-    done
-
-    while IFS= read -r value; do
-      git config -f "${DOTFILES_GITCONFIG}" --add "${key}" "${value}"
-    done < <(git config -f "${HOME_GITCONFIG}" --get-all "${key}")
-  done < <(git config -f "${HOME_GITCONFIG}" --name-only --list | LC_ALL=C sort -u)
+  else
+    mkdir -p "${parent}"
+  fi
 }
 
-# Create symlinks for dotfiles
-for src in "${DIR}"/dotfiles/.*; do
-  # Skip if it's . or ..
-  [ "${src}" = "${DIR}/dotfiles/." ] || [ "${src}" = "${DIR}/dotfiles/.." ] && continue
+MAP_FILE="${DIR}/install_map.json"
 
-  name=$(basename "${src}")
-  if [[ "${name}" = ".gitconfig" ]]; then
-    continue
-  fi
+while IFS=$'\t' read -r src dst; do
+  full_src="${DIR}/dotfiles/${src}"
 
-  dst="${HOME}/${name}"
+  ensure_real_parent_dir "${dst}"
 
-  # Remove if it already exists
   if [[ -e "${dst}" || -L "${dst}" ]]; then
     echo "Removing existing ${dst}"
     rm -rf "${dst}"
   fi
 
-  echo "Linking ${src} -> ${dst}"
-  ln -s "${src}" "${dst}"
-done
-
-if [[ ! -e "${HOME_GITCONFIG}" && ! -L "${HOME_GITCONFIG}" ]]; then
-  echo "Copying ${DOTFILES_GITCONFIG} -> ${HOME_GITCONFIG}"
-  cp "${DOTFILES_GITCONFIG}" "${HOME_GITCONFIG}"
-elif [[ -f "${HOME_GITCONFIG}" || -L "${HOME_GITCONFIG}" ]]; then
-  if has_non_user_gitconfig_diff "${HOME_GITCONFIG}" "${DOTFILES_GITCONFIG}"; then
-    echo "Syncing non-user keys from ${HOME_GITCONFIG} -> ${DOTFILES_GITCONFIG}"
-    sync_dotfiles_gitconfig_from_home
-  fi
-fi
+  echo "Linking ${full_src} -> ${dst}"
+  ln -s "${full_src}" "${dst}"
+done < <(parse_links "${MAP_FILE}")
 
 is_brew_dependent_100_script() {
   case "$(basename "$1")" in

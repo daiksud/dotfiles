@@ -15,5 +15,3 @@
 	rebase = true
 [rebase]
 	autosquash = true
-[user]
-	signingkey = ~/.ssh/id_ed25519.pub

@@ -25,7 +25,7 @@ RUN eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && HOMEBREW_BUNDLE_NO
 RUN /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh)"
 
 # Pre-install tools via mise using repository config
-COPY dotfiles/.config/mise/config.toml /root/.config/mise/config.toml
+COPY dotfiles/mise/config.toml /root/.config/mise/config.toml
 RUN eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)" && mise install
 
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* && \

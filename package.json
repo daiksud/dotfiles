@@ -8,5 +8,9 @@
     "docs:start": "bun run --cwd .docusaurus start",
     "docs:build": "bun run --cwd .docusaurus build",
     "docs:serve": "bun run --cwd .docusaurus serve"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.3.14",
+    "typescript": "^6.0.3"
   }
 }

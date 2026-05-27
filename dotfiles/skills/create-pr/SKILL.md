@@ -61,6 +61,7 @@ commit messages and PR descriptions, and creates the PR.
   - Listing "files changed" verbatim (don't state what's obvious from the diff)
   - High-context explanations without providing reasoning
 - Create the PR with `gh pr create --draft`
+  - **PR title** must be in English and follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format: `<type>(<scope>): <description>`
   - Set labels appropriate to the PR content (e.g., `feature`, `bug`, `documentation`)
 
 ### Step 5: Assign the requesting user

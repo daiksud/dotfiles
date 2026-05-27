@@ -1,44 +1,68 @@
 # Copilot Instructions
 
-## コミットメッセージ
+## Commit messages
 
-- **英語**で記述する
-- **Conventional Commits** 形式に従う: `<type>(<scope>): <description>`
-  - 例: `feat(starship): add SSH indicator to prompt`
-  - 主な type: `feat`, `fix`, `docs`, `refactor`, `chore`
+- Write in **English**
+- Follow **Conventional Commits**: `<type>(<scope>): <description>`
+  - Example: `feat(starship): add SSH indicator to prompt`
+  - Types: `feat`, `fix`, `docs`, `refactor`, `chore`
 
-## 変更時のドキュメント記録
+## Documentation structure
 
-コードや設定ファイルに何らかの変更を行うときは、**必ず同時に** `docs/issues/issue-N.md` を作成すること。
+Documentation lives under `docs/` as GitHub Flavored Markdown files, built with Docusaurus:
 
-### ルール
+- `docs/guides/` — User guides (setup and usage)
+- `docs/reference/` — Reference (tool lists, config specs)
+- `docs/development/` — Contributor info (structure, style guide)
+- `docs/development/adr/` — Architecture Decision Records
 
-- `N` は既存の issue ファイルの最大番号 + 1 とする（例: `issue-1.md`, `issue-2.md`, ...）
-- 変更のコミットと同じタイミングで作成・コミットする
-- 変更が複数ファイルにまたがる場合でも、1 つの issue に統合してよい
-- **1 ユーザー指示ごとに issue を作るのではなく、一連の作業（最初の指示＋それへの修正・改善の指示）をまとめて 1 issue にする**
-  - 例: 「機能Aを追加して」→「表示がおかしい」→「さらに調整して」は 1 issue にまとめる
-  - 独立した別テーマの指示は別 issue にする
-- **main にマージ済みの issue ファイルは更新してはならない**（ローカルコミットや PR の段階での修正は問題ない）
+### Documentation Map
 
-### `docs/issues/issue-N.md` のフォーマット
+| Topic | Path | Audience |
+|-------|------|----------|
+| Quick start | `docs/guides/01-quick-start.md` | Users |
+| Installation | `docs/guides/02-installation.md` | Users |
+| Managing links | `docs/guides/03-managing-links.md` | Users |
+| Git identity | `docs/guides/04-git-identity.md` | Users |
+| Ghostty | `docs/reference/ghostty.md` | Users |
+| Git | `docs/reference/git.md` | Users |
+| mise | `docs/reference/mise.md` | Users |
+| Neovim | `docs/reference/nvim.md` | Users |
+| Sheldon | `docs/reference/sheldon.md` | Users |
+| Starship | `docs/reference/starship.md` | Users |
+| tmux | `docs/reference/tmux.md` | Users |
+| Zsh | `docs/reference/zsh/README.md` | Users |
+| Zsh plugins | `docs/reference/zsh/plugins.md` | Users |
+| install_map.json | `docs/reference/install-map.md` | Users |
+| Scripts | `docs/reference/scripts.md` | Users |
+| Tools (Brewfile) | `docs/reference/tools.md` | Users |
+| Project structure | `docs/development/01-project-structure.md` | Contributors |
+| Docs style | `docs/development/02-docs-style.md` | Contributors |
+| ADR index | `docs/development/adr/README.md` | Contributors |
 
-```markdown
-# Issue N: <タイトル>
+Key style references (read before editing docs):
 
-## 日付
+- `docs/development/02-docs-style.md` — Documentation writing style guide
 
-YYYY-MM-DD
+## Mandatory workflow
 
-## 背景・目的
+1. Before editing code, always read relevant documents under `docs/` (at minimum the section README and related pages).
+2. When changing code, scripts, or configuration, always update `docs/` in the same change.
+3. If the current document structure reduces clarity, reorganize docs as needed.
+4. Keep documentation accurate to the current implementation.
+5. If an architecture or technology choice is made from multiple options, always record it in `docs/development/adr/`.
 
-なぜこの変更が必要か、何を解決しようとしているかを記述する。
+## Docusaurus conventions
 
-## 変更内容
+- File names use `01-` style numeric prefixes for sidebar ordering.
+- Section directories (`guides/`, `reference/`, `development/`) do **not** use numeric prefixes.
+- `README.md` in each directory serves as the index page.
+- Links must use relative paths with `.md` extension.
+- Each page starts with an `# h1` title, followed by a description paragraph.
 
-- 変更したファイルと変更の概要を箇条書きで記述する
+## Required quality bar
 
-## 備考
-
-追加の注意点や参考リンクなどがあれば記述する。
-```
+- Documentation must explain **what changed**, **why**, and **how to operate it**.
+- Examples and commands must be copy-paste ready.
+- Avoid stale or duplicated guidance.
+- Decision records must include explicit rationale.

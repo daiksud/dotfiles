@@ -1,5 +1,5 @@
 ---
-description: A skill that creates draft Pull Requests
+description: Use when creating a pull request, including when /pr create is invoked. A skill that creates draft Pull Requests following repository conventions.
 name: create-pr
 ---
 # create-pr

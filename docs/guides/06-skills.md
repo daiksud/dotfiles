@@ -1,0 +1,65 @@
+# スキルの使い方
+
+Copilot CLI のカスタムスキルをすぐに使い始めるためのガイドです。
+
+## 前提
+
+- dotfiles がインストール済み（`install.sh` 実行済み）
+- GitHub Copilot CLI がインストール済み
+
+## 使えるスキル
+
+| スキル | やること |
+|--------|---------|
+| `create-pr` | 今の変更からドラフト PR を自動作成 |
+| `fix-pr` | 指定した PR の CI エラー修正 + レビュー対応 |
+
+## create-pr を使う
+
+変更をステージした状態で：
+
+```bash
+copilot -p "/create-pr"
+```
+
+変更理由を伝えたい場合：
+
+```bash
+copilot -p "/create-pr 認証ロジックのリファクタリング、#42 に関連"
+```
+
+### 何が起きるか
+
+1. 差分を読んでコミットメッセージを考える
+2. feature ブランチを作ってプッシュ
+3. ドラフト PR を作成
+4. あなたを Assignee に設定
+
+## fix-pr を使う
+
+```bash
+copilot -p "/fix-pr PR #42"
+```
+
+### 何が起きるか
+
+1. CI の失敗をログから特定して修正（通るまで繰り返し）
+2. レビューコメントを確認し、妥当なものは修正
+3. ローカルレビューを実施してからプッシュ
+4. 各レビューコメントに対応内容をリプライ
+
+## エイリアス設定（おすすめ）
+
+`.zshrc` や `.bashrc` に追加：
+
+```bash
+alias create-pr='f() { copilot --model ${COPILOT_MODEL:-claude-sonnet-4.6} -p "/create-pr skill $*"; }; f'
+alias fix-pr='f() { copilot --model ${COPILOT_MODEL:-claude-sonnet-4.6} -p "/fix-pr skill $*"; }; f'
+```
+
+使い方：
+
+```bash
+create-pr
+fix-pr PR #42
+```

@@ -4,7 +4,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 import remarkGithubAdmonitionsToDirectives from 'remark-github-admonitions-to-directives';
 
 const config: Config = {
-  title: 'dotfiles',
+  title: 'daiksud/dotfiles',
   tagline: 'macOS / Ubuntu 統一開発環境',
   trailingSlash: false,
 
@@ -65,7 +65,7 @@ const config: Config = {
       },
     },
     navbar: {
-      title: 'dotfiles',
+      title: 'daiksud/dotfiles',
       items: [
         {
           type: 'docSidebar',

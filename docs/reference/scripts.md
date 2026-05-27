@@ -31,7 +31,7 @@ Homebrew が未インストールの場合にインストールします。
 - macOS: `/opt/homebrew/bin/brew`
 - Linux: `/home/linuxbrew/.linuxbrew/bin/brew`
 
-インストール後に `gcc` をアップグレードします。
+インストール後に `gcc` をインストールし、全パッケージを `brew upgrade` でアップグレードします。
 
 ### 002-brewfile.sh
 

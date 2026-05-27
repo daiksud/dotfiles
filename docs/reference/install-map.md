@@ -40,6 +40,7 @@
 | `nvim` | `~/.config/nvim` | Neovim 設定 (LazyVim) |
 | `sheldon` | `~/.config/sheldon` | sheldon プラグイン設定 |
 | `starship.toml` | `~/.config/starship.toml` | Starship プロンプト設定 |
+| `skills` | `~/.copilot/skills` | Copilot CLI カスタムスキル |
 
 ## 処理の仕様
 

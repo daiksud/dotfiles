@@ -1,5 +1,5 @@
 ---
-description: Use when fixing a pull request by addressing CI failures, review feedback, or merge conflicts, including when /pr fix, /pr fix ci, /pr fix feedback, or /pr fix conflicts is invoked.
+description: Use when fixing a pull request by addressing CI failures, review feedback, or merge conflicts, including when /pr fix, /pr fix all, /pr fix ci, /pr fix feedback, or /pr fix conflicts is invoked.
 name: fix-pr
 ---
 # fix-pr
@@ -11,7 +11,8 @@ A skill that drives a Pull Request toward merge-readiness.
 Invoke with a PR number and an optional mode:
 
 ```
-/pr fix #42              # Fix everything (ci → conflicts → feedback)
+/pr fix #42              # Fix everything (conflicts → ci → feedback)
+/pr fix all #42          # Same as above (explicit)
 /pr fix ci #42           # Fix CI failures only
 /pr fix feedback #42     # Address review comments only
 /pr fix conflicts #42    # Resolve merge conflicts only
@@ -46,9 +47,11 @@ Invoke with a PR number and an optional mode:
   - If not fixed: explain why the comment was deemed not applicable.
 - After sending the reply, resolve the review comment thread.
 
-### (default) — Fix Everything
+### (default / all) — Fix Everything
 
-When no mode is specified, run all three modes in order: **ci → conflicts → feedback**.
+When no mode is specified, or when `all` is specified, run all three modes in order: **conflicts → ci → feedback**.
+
+Conflicts must be resolved before CI can run correctly.
 
 ## Common Steps (all modes)
 

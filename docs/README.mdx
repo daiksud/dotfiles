@@ -4,19 +4,74 @@ displayed_sidebar: null
 hide_table_of_contents: true
 ---
 
+<Hero>
+<HeroLeft>
+
 # 🏠 dotfiles
 
 macOS / Ubuntu (Codespaces) で統一された開発環境を再現するための dotfiles リポジトリです。
 
-[クイックスタート →](./guides/01-quick-start.md)
-[GitHub](https://github.com/daiksud/dotfiles)
+[クイックスタート →](./guides/01-quick-start.md) [GitHub](https://github.com/daiksud/dotfiles)
+
+</HeroLeft>
+<HeroRight>
+<Terminal>
+
+```bash
+$ git clone git@github.com:daiksud/dotfiles ~/.dotfiles
+$ cd ~/.dotfiles && ./install.sh
+```
+
+</Terminal>
+</HeroRight>
+</Hero>
 
 ## 特徴
 
-- **ワンコマンドセットアップ** — `install.sh` を実行するだけで、シェル・エディタ・ツール群がすべて揃う
-- **JSON マッピング** — `install_map.json` でシンボリックリンク先を柔軟に制御
-- **マルチプラットフォーム** — macOS (Apple Silicon) と Ubuntu (Codespaces) の両方に対応
-- **自動 Git ID** — `gh-config-dir.zsh` がリポジトリごとに GitHub アカウントと SSH 署名鍵を切り替え
+<FeatureGrid>
+<Feature>
+
+⚡ **ワンコマンドセットアップ**
+
+`install.sh` を実行するだけで、シェル・エディタ・ツール群がすべて揃います。
+
+</Feature>
+<Feature>
+
+🗺️ **JSON マッピング**
+
+`install_map.json` でシンボリックリンク先を柔軟に制御。追加も簡単。
+
+</Feature>
+<Feature>
+
+🌍 **マルチプラットフォーム**
+
+macOS (Apple Silicon) と Ubuntu (Codespaces) の両方に対応しています。
+
+</Feature>
+<Feature>
+
+🔑 **自動 Git ID 切り替え**
+
+リポジトリごとに GitHub アカウントと SSH 署名鍵を自動で切り替えます。
+
+</Feature>
+<Feature>
+
+🎨 **Tokyo Night Storm 統一テーマ**
+
+ターミナル・エディタ・プロンプトすべてを同じカラースキームで統一。
+
+</Feature>
+<Feature>
+
+🔌 **モダンツールチェイン**
+
+mise・Sheldon・Starship・Neovim で高速かつ再現性の高い環境を構築。
+
+</Feature>
+</FeatureGrid>
 
 ## ドキュメント
 

@@ -11,7 +11,7 @@
 | チュートリアル | `guides/01-quick-start.md` | 学習目標を持つ体験型ガイド |
 | How-to ガイド | `guides/02-*` 〜 `guides/04-*` | タスク指向の手順書 |
 | リファレンス | `reference/` | 仕様の網羅的記述 |
-| 説明 | `guides/04-git-identity.md`, `development/adr/` | 設計思想・背景・意思決定 |
+| 説明 | `guides/04-git-identity.md`, `development/99-adr/` | 設計思想・背景・意思決定 |
 
 ## ページの基本構造
 

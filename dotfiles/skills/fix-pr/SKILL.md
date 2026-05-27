@@ -1,5 +1,5 @@
 ---
-description: A skill that drives a Pull Request toward merge-readiness by fixing CI failures and addressing review comments
+description: Use when fixing a pull request by addressing CI failures and review comments, including when /pr fix is invoked.
 name: fix-pr
 ---
 # fix-pr

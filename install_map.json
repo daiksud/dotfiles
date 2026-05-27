@@ -9,6 +9,7 @@
     "nvim": "~/.config/nvim",
     "sheldon": "~/.config/sheldon",
     "starship.toml": "~/.config/starship.toml",
-    "skills": "~/.copilot/skills"
+    "skills": "~/.copilot/skills",
+    "copilot-instructions.md": "~/.copilot/copilot-instructions.md"
   }
 }

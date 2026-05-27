@@ -18,7 +18,8 @@
 │   ├── mise/               # -> ~/.config/mise
 │   ├── nvim/               # -> ~/.config/nvim (LazyVim)
 │   ├── sheldon/            # -> ~/.config/sheldon
-│   └── starship.toml       # -> ~/.config/starship.toml
+│   ├── starship.toml       # -> ~/.config/starship.toml
+│   └── skills/             # -> ~/.copilot/skills（Copilot スキル）
 ├── scripts/                # セットアップスクリプト群
 │   ├── 000-codespace.sh
 │   ├── 001-homebrew.sh
@@ -30,8 +31,12 @@
 │   ├── reference/
 │   └── development/
 ├── .devcontainer/          # Codespaces 設定
+├── .docusaurus/            # Docusaurus サイト構築
 ├── .github/
-│   └── copilot-instructions.md
+│   ├── copilot-instructions.md
+│   └── workflows/docs.yml
+├── mise.toml               # リポジトリローカルの mise 設定
+├── package.json            # ドキュメントビルド用スクリプト
 ├── .editorconfig
 └── LICENSE
 ```

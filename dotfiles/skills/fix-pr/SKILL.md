@@ -40,6 +40,7 @@ fix PR #42
 - After pushing, reply to each review comment explaining what action was taken:
   - If fixed: describe the change made.
   - If not fixed: explain why the comment was deemed not applicable.
+- After sending the reply, resolve the review comment thread.
 
 ## Constraints
 

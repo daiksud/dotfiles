@@ -20,6 +20,16 @@
 | `[pull]` | `rebase` | `true` | pull 時にマージではなくリベース |
 | `[rebase]` | `autosquash` | `true` | `fixup!` / `squash!` コミットを自動整理 |
 
+## 認証ヘルパー
+
+`gh auth setup-git` 相当の設定として、GitHub と Gist の credential helper に `gh auth git-credential` を使います。
+`gh` は絶対パスではなく `PATH` から解決するため、インストール先に依存しません。
+
+| 対象 | helper |
+|------|--------|
+| `https://github.com` | `!gh auth git-credential` |
+| `https://gist.github.com` | `!gh auth git-credential` |
+
 ## グローバルに設定しないもの
 
 以下はリポジトリローカルで `gh-config-dir.zsh` が自動設定するため、グローバルには記述しない:

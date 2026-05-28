@@ -4,69 +4,69 @@ name: fix-pr
 ---
 # fix-pr
 
-A skill that drives a Pull Request toward merge-readiness.
+Pull Request をマージ可能な状態に導くスキルです。
 
-## Usage
+## 使い方
 
-Invoke with a PR number and an optional mode:
+PR 番号と任意のモードを指定して呼び出します:
 
 ```
-/pr fix #42              # Fix everything (conflicts → ci → feedback)
-/pr fix all #42          # Same as above (explicit)
-/pr fix ci #42           # Fix CI failures only
-/pr fix feedback #42     # Address review comments only
-/pr fix conflicts #42    # Resolve merge conflicts only
+/pr fix #42              # すべて修正（conflicts → ci → feedback）
+/pr fix all #42          # 上記と同じ（明示的指定）
+/pr fix ci #42           # CI 失敗のみ修正
+/pr fix feedback #42     # レビューコメントのみ対処
+/pr fix conflicts #42    # マージコンフリクトのみ解消
 ```
 
-## Modes
+## モード
 
-### ci — Fix CI Failures
+### ci — CI 失敗の修正
 
-- Fetch the CI status of the specified PR.
-- If any checks have failed, inspect the logs to identify the root cause.
-- Apply fixes iteratively until all CI checks pass.
-- Commit and push after CI is green.
-- If a CI failure cannot be resolved after 3 attempts, stop and report the issue.
+- 指定された PR の CI ステータスを取得する
+- 失敗しているチェックがあればログを確認し、根本原因を特定する
+- すべての CI チェックが通るまで反復的に修正を適用する
+- CI がグリーンになったらコミット・プッシュする
+- 3 回試行しても CI 失敗を解消できない場合、作業を中止して問題を報告する
 
-### conflicts — Resolve Merge Conflicts
+### conflicts — マージコンフリクトの解消
 
-- Fetch the PR's base branch and rebase or merge to surface conflicts.
-- Identify all files with merge conflicts.
-- Resolve each conflict, preserving the intent of the PR's changes unless the base branch change is clearly correct.
-- Commit the resolved files with a clear message.
-- Push the resolved branch.
+- PR のベースブランチを fetch し、rebase またはマージでコンフリクトを表面化させる
+- コンフリクトが発生しているすべてのファイルを特定する
+- ベースブランチの変更が明らかに正しい場合を除き、PR の変更意図を保持しながら各コンフリクトを解消する
+- 解消したファイルを明確なメッセージでコミットする
+- 解消済みブランチをプッシュする
 
-### feedback — Address Review Comments
+### feedback — レビューコメントへの対処
 
-- Retrieve all unresolved review comments on the PR.
-- For each comment, evaluate whether the feedback is valid:
-  - **Valid** — Apply the suggested fix or improvement.
-  - **Invalid / not applicable** — Do not modify the code. Prepare a reply explaining why.
-- After pushing, reply to each comment explaining what action was taken:
-  - If fixed: describe the change made.
-  - If not fixed: explain why the comment was deemed not applicable.
-- After sending the reply, resolve the review comment thread.
+- PR の未解決レビューコメントをすべて取得する
+- 各コメントについて、フィードバックの妥当性を評価する:
+  - **妥当** — 提案された修正・改善を適用する
+  - **妥当でない / 該当しない** — コードは変更せず、理由を説明するリプライを準備する
+- プッシュ後、各コメントに対してどのような対応を行ったかリプライする:
+  - 修正した場合: 行った変更を説明する
+  - 修正しなかった場合: 該当しないと判断した理由を説明する
+- リプライ送信後、レビューコメントのスレッドを resolve する
 
-### (default / all) — Fix Everything
+### (default / all) — すべて修正
 
-When no mode is specified, or when `all` is specified, run all three modes in order: **conflicts → ci → feedback**.
+モードが指定されない場合、または `all` が指定された場合、3 つのモードを順に実行する: **conflicts → ci → feedback**
 
-Conflicts must be resolved before CI can run correctly.
+CI が正しく動作するためには、先にコンフリクトを解消する必要がある。
 
-## Common Steps (all modes)
+## 共通ステップ（全モード共通）
 
-### Local Review Before Push
+### プッシュ前のローカルレビュー
 
-- Before committing and pushing any changes, run a local code review using a sub-agent (`code-review` agent type).
-- Only commit and push once the local review passes with no critical issues.
+- 変更をコミット・プッシュする前に、サブエージェント（`code-review` エージェントタイプ）を使用してローカルコードレビューを実行する
+- ローカルレビューで重大な問題がないことを確認してからコミット・プッシュする
 
-### Update PR Description
+### PR Description の更新
 
-- After making any fixes and pushing, always update the PR description to accurately reflect the current state of the changes.
-- Use `gh pr edit <PR_NUMBER> --body` to update.
+- 修正を行いプッシュした後、PR Description が変更の現状を正確に反映するよう更新する
+- `gh pr edit <PR_NUMBER> --body` を使用して更新する
 
-## Constraints
+## 制約事項
 
-- Always work on the PR's branch (checkout the branch before making changes).
-- Each logical fix should be a single commit with a clear message.
-- Never force-push unless explicitly instructed.
+- 必ず PR のブランチ上で作業する（変更前にブランチをチェックアウトする）
+- 論理的な修正ごとに 1 つのコミットとし、明確なメッセージを付ける
+- 明示的に指示されない限り force-push しない

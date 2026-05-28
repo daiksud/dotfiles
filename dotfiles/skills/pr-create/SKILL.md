@@ -1,8 +1,8 @@
 ---
 description: Use when creating a pull request, including when /pr-create is invoked. A skill that creates draft Pull Requests following repository conventions.
-name: create-pr
+name: pr-create
 ---
-# create-pr
+# pr-create
 
 この `SKILL.md` では "Pull Request" を "PR" と略記します。
 
@@ -46,7 +46,7 @@ PR Description を作成して PR を発行します。
 ### ステップ 3: feature ブランチにプッシュする
 
 - 現在 main にいる場合は feature ブランチを作成してチェックアウトする
-- ブランチ名は変更内容を反映する（例: `feat/add-create-pr-skill`, `fix/pin-terraform-provider-github-660`）
+- ブランチ名は変更内容を反映する（例: `feat/add-pr-create-skill`, `fix/pin-terraform-provider-github-660`）
 - `git push --set-upstream origin <branch>` でプッシュする
 
 ### ステップ 4: PR Description を作成してドラフト PR を作る

@@ -37,6 +37,7 @@
 │   └── workflows/docs.yml
 ├── mise.toml               # リポジトリローカルの mise 設定
 ├── package.json            # ドキュメントビルド用スクリプト
+├── .gitignore              # 追跡しない生成物やローカルファイルの定義
 ├── .editorconfig
 └── LICENSE
 ```
@@ -51,6 +52,7 @@
 | `dotfiles/` | シンボリックリンクされる設定ファイル群 | 各ツールの設定を変えるとき |
 | `scripts/` | セットアップスクリプト群 | ツールのインストール手順を変えるとき |
 | `.devcontainer/` | GitHub Codespaces のコンテナ定義 | Codespaces 環境を変えるとき |
+| `.gitignore` | Git で追跡しないファイルの除外設定 | `node_modules/` などの生成物を追加するとき |
 
 ## どのファイルを一緒に触るべきか
 

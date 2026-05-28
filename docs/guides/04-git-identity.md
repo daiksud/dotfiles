@@ -23,6 +23,7 @@ graph TD
 ## 前提条件
 
 - `gh auth login` で認証済みであること
+- `gh` コマンドが `PATH` から実行できること
 - SSH 鍵が `~/.ssh/<github-login>.pub` に配置されていること
 
 ## 動作の詳細

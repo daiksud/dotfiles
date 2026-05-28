@@ -1,5 +1,5 @@
 ---
-description: Use when fixing a pull request by addressing CI failures, review feedback, or merge conflicts, including when /pr fix, /pr fix all, /pr fix ci, /pr fix feedback, or /pr fix conflicts is invoked.
+description: Use when fixing a pull request by addressing CI failures, review feedback, or merge conflicts, including when /pr-fix, /pr-fix all, /pr-fix ci, /pr-fix feedback, or /pr-fix conflicts is invoked.
 name: fix-pr
 ---
 # fix-pr
@@ -11,11 +11,11 @@ Pull Request をマージ可能な状態に導くスキルです。
 PR 番号と任意のモードを指定して呼び出します:
 
 ```
-/pr fix #42              # すべて修正（conflicts → ci → feedback）
-/pr fix all #42          # 上記と同じ（明示的指定）
-/pr fix ci #42           # CI 失敗のみ修正
-/pr fix feedback #42     # レビューコメントのみ対処
-/pr fix conflicts #42    # マージコンフリクトのみ解消
+/pr-fix #42              # すべて修正（conflicts → ci → feedback）
+/pr-fix all #42          # 上記と同じ（明示的指定）
+/pr-fix ci #42           # CI 失敗のみ修正
+/pr-fix feedback #42     # レビューコメントのみ対処
+/pr-fix conflicts #42    # マージコンフリクトのみ解消
 ```
 
 ## モード

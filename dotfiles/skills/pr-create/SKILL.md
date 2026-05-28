@@ -1,5 +1,5 @@
 ---
-description: Use when creating a pull request, including when /pr-create is invoked. A skill that creates draft Pull Requests following repository conventions.
+description: Use when creating a pull request, including when /pr create is invoked. A skill that creates draft Pull Requests following repository conventions.
 name: pr-create
 ---
 # pr-create
@@ -15,7 +15,7 @@ PR Description を作成して PR を発行します。
 ## 使用タイミング
 
 - 「PR を作成して」と依頼されたとき
-- GitHub Copilot CLI で `/pr-create` が呼び出されたとき
+- GitHub Copilot CLI で `/pr create` が呼び出されたとき
 
 ## 手順
 

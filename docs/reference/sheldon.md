@@ -6,6 +6,12 @@ Zsh プラグインマネージャ（sheldon）の設定リファレンスです
 
 `dotfiles/sheldon/plugins.toml` → `~/.config/sheldon/plugins.toml`
 
+## トップレベル設定
+
+```toml
+shell = "zsh"
+```
+
 ## テンプレート
 
 ```toml

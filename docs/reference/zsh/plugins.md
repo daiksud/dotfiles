@@ -27,11 +27,12 @@
 
 `chpwd` フックで `cd` のたびに自動実行:
 
-1. Git リポジトリ内かつ GitHub origin であることを確認
+1. Git リポジトリ内であることを確認
 2. `.git/gh/` を作成し `GH_CONFIG_DIR` に設定（`gh` の認証を分離）
-3. ローカルに `user.name` / `user.email` が未設定なら `gh api` で取得して設定
-4. `~/.ssh/<login>.pub` を `user.signingkey` に設定
-5. `~/.ssh/allowed_signers` を更新
+3. GitHub origin の場合のみ、以下の identity 同期を実行:
+   - ローカルに `user.name` / `user.email` が未設定なら `gh api` で取得して設定
+   - `~/.ssh/<login>.pub` を `user.signingkey` に設定
+   - `~/.ssh/allowed_signers` を更新
 
 ### 提供する関数
 
@@ -83,11 +84,11 @@
 
 ## edit-selected-file.zsh
 
-カレントディレクトリ配下のファイルを fzf で選択して Neovim で開く。
+fzf でファイルを選択して Neovim で開く。
 
 ### 動作
 
-1. `fzf` でファイルを選択
+1. `fzf` でファイルを選択（リスト元は `$FZF_DEFAULT_COMMAND` または fzf のデフォルト）
 2. `run-selected-command` を経由して `nvim <file>` を実行
 
 ### エイリアス

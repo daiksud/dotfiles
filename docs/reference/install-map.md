@@ -41,6 +41,7 @@
 | `sheldon` | `~/.config/sheldon` | sheldon プラグイン設定 |
 | `starship.toml` | `~/.config/starship.toml` | Starship プロンプト設定 |
 | `skills` | `~/.copilot/skills` | Copilot CLI カスタムスキル |
+| `copilot-instructions.md` | `~/.copilot/copilot-instructions.md` | Copilot CLI パーソナル指示ファイル |
 
 ## 処理の仕様
 
@@ -56,6 +57,4 @@
 
 ## 制約
 
-- `source` は `dotfiles/` 直下の名前のみ（サブパスは不可）
-- `target` は絶対パスまたは `~` 始まりのパスのみ
 - JSON としてバリッドであること（末尾カンマ不可）

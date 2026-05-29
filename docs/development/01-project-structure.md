@@ -19,7 +19,8 @@
 │   ├── nvim/               # -> ~/.config/nvim (LazyVim)
 │   ├── sheldon/            # -> ~/.config/sheldon
 │   ├── starship.toml       # -> ~/.config/starship.toml
-│   └── skills/             # -> ~/.copilot/skills（Copilot スキル）
+│   ├── skills/             # -> ~/.copilot/skills（Copilot スキル）
+│   └── copilot-instructions.md # -> ~/.copilot/copilot-instructions.md
 ├── scripts/                # セットアップスクリプト群
 │   ├── 000-codespace.sh
 │   ├── 001-homebrew.sh
@@ -66,6 +67,5 @@
 
 ### Zsh プラグインを追加するとき
 
-1. `dotfiles/zsh/<name>.zsh` — プラグイン作成
-2. `dotfiles/zshrc` — source 追加
-3. `docs/reference/zsh/plugins.md` — 一覧更新
+1. `dotfiles/zsh/<name>.zsh` — プラグイン作成（`.zshrc` は編集不要、自動 source される）
+2. `docs/reference/zsh/plugins.md` — 一覧更新

@@ -26,6 +26,20 @@ nvim/
 └── stylua.toml           # Lua フォーマッタ設定
 ```
 
+## LazyVim Extras
+
+`lazyvim.json` で有効化している extras:
+
+| Extra | 説明 |
+|-------|------|
+| `ai.copilot` | GitHub Copilot 補完 |
+| `editor.fzf` | fzf ファイル検索 |
+| `lang.json` | JSON LSP・ハイライト |
+| `lang.toml` | TOML LSP・ハイライト |
+| `lang.typescript` | TypeScript / JavaScript LSP |
+| `lang.vue` | Vue.js LSP |
+| `linting.eslint` | ESLint 統合 |
+
 ## カスタムキーマップ
 
 インサートモードで Emacs 風カーソル移動を追加:

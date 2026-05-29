@@ -26,21 +26,35 @@ nvim/
 └── stylua.toml           # Lua フォーマッタ設定
 ```
 
+## LazyVim Extras
+
+`lazyvim.json` で有効化している extras:
+
+| Extra             | 説明                        |
+| ----------------- | --------------------------- |
+| `ai.copilot`      | GitHub Copilot 補完         |
+| `editor.fzf`      | fzf ファイル検索            |
+| `lang.json`       | JSON LSP・ハイライト        |
+| `lang.toml`       | TOML LSP・ハイライト        |
+| `lang.typescript` | TypeScript / JavaScript LSP |
+| `lang.vue`        | Vue.js LSP                  |
+| `linting.eslint`  | ESLint 統合                 |
+
 ## カスタムキーマップ
 
 インサートモードで Emacs 風カーソル移動を追加:
 
-| キー | 動作 |
-|------|------|
-| `C-a` | 行頭 |
-| `C-e` | 行末 |
-| `C-b` | 左 |
-| `C-f` | 右 |
-| `C-n` | 下 |
-| `C-p` | 上 |
-| `C-d` | Delete |
+| キー  | 動作      |
+| ----- | --------- |
+| `C-a` | 行頭      |
+| `C-e` | 行末      |
+| `C-b` | 左        |
+| `C-f` | 右        |
+| `C-n` | 下        |
+| `C-p` | 上        |
+| `C-d` | Delete    |
 | `C-v` | Page Down |
-| `M-v` | Page Up |
+| `M-v` | Page Up   |
 
 ## カラースキーム
 
@@ -62,12 +76,12 @@ Tokyo Night Storm を透過モードで使用:
 
 ## lazy.nvim 設定
 
-| 設定 | 値 | 説明 |
-|------|-----|------|
-| `defaults.lazy` | `false` | カスタムプラグインは起動時にロード |
-| `defaults.version` | `false` | 常に最新の git commit を使用 |
-| `checker.enabled` | `true` | プラグイン更新を定期チェック |
-| `checker.notify` | `false` | 更新通知を表示しない |
+| 設定                  | 値                          | 説明                                     |
+| --------------------- | --------------------------- | ---------------------------------------- |
+| `defaults.lazy`       | `false`                     | カスタムプラグインは起動時にロード       |
+| `defaults.version`    | `false`                     | 常に最新の git commit を使用             |
+| `checker.enabled`     | `true`                      | プラグイン更新を定期チェック             |
+| `checker.notify`      | `false`                     | 更新通知を表示しない                     |
 | `install.colorscheme` | `["tokyonight", "habamax"]` | 初回インストール時のフォールバックテーマ |
 
 ### 無効化された rtp プラグイン

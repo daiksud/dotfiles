@@ -19,7 +19,8 @@
 │   ├── nvim/               # -> ~/.config/nvim (LazyVim)
 │   ├── sheldon/            # -> ~/.config/sheldon
 │   ├── starship.toml       # -> ~/.config/starship.toml
-│   └── skills/             # -> ~/.copilot/skills（Copilot スキル）
+│   ├── skills/             # -> ~/.copilot/skills（Copilot スキル）
+│   └── copilot-instructions.md # -> ~/.copilot/copilot-instructions.md
 ├── scripts/                # セットアップスクリプト群
 │   ├── 000-codespace.sh
 │   ├── 001-homebrew.sh
@@ -44,15 +45,15 @@
 
 ## 主要ファイルの役割
 
-| パス | 役割 | 変更するタイミング |
-|---|---|---|
-| `install.sh` | セットアップのエントリポイント。リンク作成とスクリプト実行を統括 | リンク処理やスクリプト実行ロジックを変えるとき |
-| `install_map.json` | シンボリックリンクの対応表 | リンク先を追加・変更するとき |
-| `Brewfile` | Homebrew で管理するパッケージ一覧 | ツールを追加・削除するとき |
-| `dotfiles/` | シンボリックリンクされる設定ファイル群 | 各ツールの設定を変えるとき |
-| `scripts/` | セットアップスクリプト群 | ツールのインストール手順を変えるとき |
-| `.devcontainer/` | GitHub Codespaces のコンテナ定義 | Codespaces 環境を変えるとき |
-| `.gitignore` | Git で追跡しないファイルの除外設定 | `node_modules/` などの生成物を追加するとき |
+| パス               | 役割                                                             | 変更するタイミング                             |
+| ------------------ | ---------------------------------------------------------------- | ---------------------------------------------- |
+| `install.sh`       | セットアップのエントリポイント。リンク作成とスクリプト実行を統括 | リンク処理やスクリプト実行ロジックを変えるとき |
+| `install_map.json` | シンボリックリンクの対応表                                       | リンク先を追加・変更するとき                   |
+| `Brewfile`         | Homebrew で管理するパッケージ一覧                                | ツールを追加・削除するとき                     |
+| `dotfiles/`        | シンボリックリンクされる設定ファイル群                           | 各ツールの設定を変えるとき                     |
+| `scripts/`         | セットアップスクリプト群                                         | ツールのインストール手順を変えるとき           |
+| `.devcontainer/`   | GitHub Codespaces のコンテナ定義                                 | Codespaces 環境を変えるとき                    |
+| `.gitignore`       | Git で追跡しないファイルの除外設定                               | `node_modules/` などの生成物を追加するとき     |
 
 ## どのファイルを一緒に触るべきか
 
@@ -66,6 +67,5 @@
 
 ### Zsh プラグインを追加するとき
 
-1. `dotfiles/zsh/<name>.zsh` — プラグイン作成
-2. `dotfiles/zshrc` — source 追加
-3. `docs/reference/zsh/plugins.md` — 一覧更新
+1. `dotfiles/zsh/<name>.zsh` — プラグイン作成（`.zshrc` は編集不要、自動 source される）
+2. `docs/reference/zsh/plugins.md` — 一覧更新

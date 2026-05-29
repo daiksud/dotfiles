@@ -21,11 +21,11 @@
 
 すべてのツールのカラースキームを **Tokyo Night Storm** に統一している。
 
-| ツール | 設定 |
-|--------|------|
-| Ghostty | `theme = TokyoNight Storm` |
-| Neovim | `tokyonight.nvim` (style = `"storm"`, transparent) |
-| tmux | `tokyo-night-tmux` (theme = `storm`) |
+| ツール   | 設定                                                   |
+| -------- | ------------------------------------------------------ |
+| Ghostty  | `theme = TokyoNight Storm`                             |
+| Neovim   | `tokyonight.nvim` (style = `"storm"`, transparent)     |
+| tmux     | `tokyo-night-tmux` (theme = `storm`)                   |
 | Starship | Tokyo Night Storm の配色に合わせたカスタムフォーマット |
 
 ターミナル → tmux → エディタ間で色の断絶がなく、視覚的に一貫した環境になる。

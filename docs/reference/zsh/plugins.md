@@ -4,18 +4,18 @@
 
 ## 一覧
 
-| ファイル | エイリアス | キーバインド | 説明 |
-|---------|-----------|-------------|------|
-| `gh-config-dir.zsh` | — | — | Git identity + GH_CONFIG_DIR 自動設定 |
-| `go-to-ghq-repository.zsh` | `ggr` | `C-]` | リポジトリ選択して `cd` |
-| `edit-ghq-repository.zsh` | `egr` | — | リポジトリ選択して nvim で開く |
-| `edit-selected-file.zsh` | `esf` | — | ファイル選択して nvim で開く |
-| `fzf-select-history.zsh` | — | `C-r` | fzf で履歴検索 |
-| `browse-github-notifications.zsh` | `bgn` | — | GitHub 通知を閲覧 |
-| `open-lazygit.zsh` | `olg` | — | lazygit を起動 |
-| `run-selected-command.zsh` | — | — | コマンド実行ユーティリティ |
-| `history-substring-search.zsh` | — | `↑` / `↓` | サブストリング履歴検索 |
-| `zshaddhistory.zsh` | — | — | 失敗コマンドを履歴から除外 |
+| ファイル                          | エイリアス | キーバインド | 説明                                  |
+| --------------------------------- | ---------- | ------------ | ------------------------------------- |
+| `gh-config-dir.zsh`               | —          | —            | Git identity + GH_CONFIG_DIR 自動設定 |
+| `go-to-ghq-repository.zsh`        | `ggr`      | `C-]`        | リポジトリ選択して `cd`               |
+| `edit-ghq-repository.zsh`         | `egr`      | —            | リポジトリ選択して nvim で開く        |
+| `edit-selected-file.zsh`          | `esf`      | —            | ファイル選択して nvim で開く          |
+| `fzf-select-history.zsh`          | —          | `C-r`        | fzf で履歴検索                        |
+| `browse-github-notifications.zsh` | `bgn`      | —            | GitHub 通知を閲覧                     |
+| `open-lazygit.zsh`                | `olg`      | —            | lazygit を起動                        |
+| `run-selected-command.zsh`        | —          | —            | コマンド実行ユーティリティ            |
+| `history-substring-search.zsh`    | —          | `↑` / `↓`    | サブストリング履歴検索                |
+| `zshaddhistory.zsh`               | —          | —            | 失敗コマンドを履歴から除外            |
 
 ---
 
@@ -27,21 +27,22 @@
 
 `chpwd` フックで `cd` のたびに自動実行:
 
-1. Git リポジトリ内かつ GitHub origin であることを確認
+1. Git リポジトリ内であることを確認
 2. `.git/gh/` を作成し `GH_CONFIG_DIR` に設定（`gh` の認証を分離）
-3. ローカルに `user.name` / `user.email` が未設定なら `gh api` で取得して設定
-4. `~/.ssh/<login>.pub` を `user.signingkey` に設定
-5. `~/.ssh/allowed_signers` を更新
+3. GitHub origin の場合のみ、以下の identity 同期を実行:
+   - ローカルに `user.name` / `user.email` が未設定なら `gh api` で取得して設定
+   - `~/.ssh/<login>.pub` を `user.signingkey` に設定
+   - `~/.ssh/allowed_signers` を更新
 
 ### 提供する関数
 
-| 関数 | 説明 |
-|------|------|
-| `is_github_origin_repo` | origin が github.com か判定 |
-| `resolve_gh_identity` | `gh api` からログイン名・名前・メールを取得 |
-| `sync_signing_key_from_gh` | SSH 署名鍵と allowed_signers を設定 |
+| 関数                        | 説明                                                |
+| --------------------------- | --------------------------------------------------- |
+| `is_github_origin_repo`     | origin が github.com か判定                         |
+| `resolve_gh_identity`       | `gh api` からログイン名・名前・メールを取得         |
+| `sync_signing_key_from_gh`  | SSH 署名鍵と allowed_signers を設定                 |
 | `sync_git_identity_from_gh` | user.name / user.email / signing key をまとめて同期 |
-| `set_gh_config_dir` | GH_CONFIG_DIR を設定し identity 同期を呼び出す |
+| `set_gh_config_dir`         | GH_CONFIG_DIR を設定し identity 同期を呼び出す      |
 
 詳細は [Git ID の自動切り替え](../../guides/04-git-identity.md) を参照。
 
@@ -83,11 +84,11 @@
 
 ## edit-selected-file.zsh
 
-カレントディレクトリ配下のファイルを fzf で選択して Neovim で開く。
+fzf でファイルを選択して Neovim で開く。
 
 ### 動作
 
-1. `fzf` でファイルを選択
+1. `fzf` でファイルを選択（リスト元は `$FZF_DEFAULT_COMMAND` または fzf のデフォルト）
 2. `run-selected-command` を経由して `nvim <file>` を実行
 
 ### エイリアス
@@ -170,8 +171,8 @@ run-selected-command "command_line_string" cmd arg1 arg2 ...
 
 ### キーバインド
 
-| キー | 動作 |
-|------|------|
+| キー         | 動作                             |
+| ------------ | -------------------------------- |
 | `↑` (`^[[A`) | 入力中の文字列で上方向に履歴検索 |
 | `↓` (`^[[B`) | 入力中の文字列で下方向に履歴検索 |
 

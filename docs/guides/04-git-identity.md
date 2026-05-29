@@ -10,10 +10,10 @@
 graph TD
     A[cd でディレクトリ移動] --> B{Git リポジトリ内?}
     B -- No --> Z[何もしない]
-    B -- Yes --> C{GitHub origin?}
+    B -- Yes --> D[GH_CONFIG_DIR を .git/gh に設定]
+    D --> C{GitHub origin?}
     C -- No --> Z
-    C -- Yes --> D[GH_CONFIG_DIR を .git/gh に設定]
-    D --> E{ローカル user.name/email が設定済み?}
+    C -- Yes --> E{ローカル user.name/email が設定済み?}
     E -- Yes --> F[SSH 署名鍵だけ同期]
     E -- No --> G[gh API で identity 取得]
     G --> H[git config --local に設定]
@@ -30,7 +30,7 @@ graph TD
 
 ### GH_CONFIG_DIR
 
-リポジトリごとに `.git/gh/` ディレクトリを作成し、`GH_CONFIG_DIR` 環境変数に設定します。これにより `gh` コマンドの認証情報がリポジトリ単位で分離されます。
+すべての Git リポジトリで `.git/gh/` ディレクトリを作成し、`GH_CONFIG_DIR` 環境変数に設定します。これにより `gh` コマンドの認証情報がリポジトリ単位で分離されます。GitHub origin でないリポジトリでも `GH_CONFIG_DIR` は設定されますが、identity 同期（以下）は実行されません。
 
 ### Git identity の自動設定
 

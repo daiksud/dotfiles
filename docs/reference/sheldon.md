@@ -23,16 +23,16 @@ fpath = "fpath=(\"{{ dir }}\" $fpath)"
 
 ## プラグイン一覧
 
-| プラグイン名 | リポジトリ | 説明 |
-|-------------|-----------|------|
-| `fzf-tab` | `Aloxaf/fzf-tab` | zsh 標準補完を fzf に置き換え |
-| `ohmyzsh-lib-git` | `ohmyzsh/ohmyzsh` (lib/git.zsh) | git プラグインが依存するユーティリティ関数 |
-| `ohmyzsh-git` | `ohmyzsh/ohmyzsh` (plugins/git) | Git エイリアス群（`gst`, `gco`, `gcm`, `gp` 等） |
-| `zsh-completions` | `zsh-users/zsh-completions` | 追加の補完定義（fpath のみ） |
-| `zsh-autosuggestions` | `zsh-users/zsh-autosuggestions` | Fish 風の入力候補表示 |
-| `zsh-autopair` | `hlissner/zsh-autopair` | 括弧・クォートの自動ペア |
-| `fast-syntax-highlighting` | `zdharma-continuum/fast-syntax-highlighting` | コマンドのシンタックスハイライト |
-| `zsh-history-substring-search` | `zsh-users/zsh-history-substring-search` | 入力中の文字列で履歴をサブストリング検索 |
+| プラグイン名                   | リポジトリ                                   | 説明                                             |
+| ------------------------------ | -------------------------------------------- | ------------------------------------------------ |
+| `fzf-tab`                      | `Aloxaf/fzf-tab`                             | zsh 標準補完を fzf に置き換え                    |
+| `ohmyzsh-lib-git`              | `ohmyzsh/ohmyzsh` (lib/git.zsh)              | git プラグインが依存するユーティリティ関数       |
+| `ohmyzsh-git`                  | `ohmyzsh/ohmyzsh` (plugins/git)              | Git エイリアス群（`gst`, `gco`, `gcm`, `gp` 等） |
+| `zsh-completions`              | `zsh-users/zsh-completions`                  | 追加の補完定義（fpath のみ）                     |
+| `zsh-autosuggestions`          | `zsh-users/zsh-autosuggestions`              | Fish 風の入力候補表示                            |
+| `zsh-autopair`                 | `hlissner/zsh-autopair`                      | 括弧・クォートの自動ペア                         |
+| `fast-syntax-highlighting`     | `zdharma-continuum/fast-syntax-highlighting` | コマンドのシンタックスハイライト                 |
+| `zsh-history-substring-search` | `zsh-users/zsh-history-substring-search`     | 入力中の文字列で履歴をサブストリング検索         |
 
 ## 読み込み順序の制約
 

@@ -6,12 +6,12 @@
 
 `docs/` 以下は [Diátaxis フレームワーク](https://diataxis.fr/) の 4 象限に基づいて構成されています。
 
-| Diátaxis 象限 | セクション | 内容 |
-|---|---|---|
-| チュートリアル | `guides/01-quick-start.md` | 学習目標を持つ体験型ガイド |
-| How-to ガイド | `guides/02-*` 〜 `guides/04-*` | タスク指向の手順書 |
-| リファレンス | `reference/` | 仕様の網羅的記述 |
-| 説明 | `guides/04-git-identity.md`, `development/99-adr/` | 設計思想・背景・意思決定 |
+| Diátaxis 象限  | セクション                                         | 内容                       |
+| -------------- | -------------------------------------------------- | -------------------------- |
+| チュートリアル | `guides/01-quick-start.md`                         | 学習目標を持つ体験型ガイド |
+| How-to ガイド  | `guides/02-*` 〜 `guides/04-*`                     | タスク指向の手順書         |
+| リファレンス   | `reference/`                                       | 仕様の網羅的記述           |
+| 説明           | `guides/04-git-identity.md`, `development/99-adr/` | 設計思想・背景・意思決定   |
 
 ## ページの基本構造
 
@@ -23,6 +23,7 @@
 このページで何が分かるかを 1 文で説明します。
 
 ## 最初のセクション
+
 ...
 ```
 
@@ -38,9 +39,11 @@
 
 ```md
 <!-- ✅ 正しい -->
+
 [クイックスタート](../guides/01-quick-start.md)
 
 <!-- ❌ 間違い -->
+
 [クイックスタート](/guides/quick-start)
 ```
 
@@ -60,7 +63,19 @@ graph LR
 
 - コードブロックには必ず言語名を付ける
 - パス、コマンド、識別子はバッククォートで囲む
-- GitHub-flavored Alerts（`> [!NOTE]` など）を活用する
+- 注記・警告には `> **Note**:` ではなく GitHub Alerts 記法を使用する
+
+  ```md
+  > [!NOTE]
+  > 補足情報
+
+  > [!WARNING]
+  > 注意が必要な情報
+
+  > [!IMPORTANT]
+  > 重要な情報
+  ```
+
 - コマンド例の先頭に `$` を付けない
 
 ## 日本語の書き方
@@ -90,10 +105,10 @@ graph LR
 
 ### 対象範囲
 
-| 変更内容 | 確認すべきドキュメント |
-|---------|---------------------|
-| `install_map.json` の変更 | `reference/install-map.md`, `guides/03-managing-links.md` |
-| ツールの追加・削除 | `reference/tools.md`, 該当する個別リファレンス |
-| スクリプトの変更 | `reference/scripts.md` |
-| スキルの追加・変更 | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md` |
-| Docusaurus 設定変更 | `.docusaurus/README.md` |
+| 変更内容                  | 確認すべきドキュメント                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------ |
+| `install_map.json` の変更 | `reference/install-map.md`, `guides/03-managing-links.md`                            |
+| ツールの追加・削除        | `reference/tools.md`, 該当する個別リファレンス                                       |
+| スクリプトの変更          | `reference/scripts.md`                                                               |
+| スキルの追加・変更        | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md` |
+| Docusaurus 設定変更       | `.docusaurus/README.md`                                                              |

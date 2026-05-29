@@ -22,25 +22,25 @@
 
 シンボリックリンクのマッピングを定義するオブジェクトです。
 
-| キー | 型 | 説明 |
-|---|---|---|
+| キー       | 型     | 説明                                                           |
+| ---------- | ------ | -------------------------------------------------------------- |
 | `<source>` | string | `dotfiles/` ディレクトリ内のファイルまたはディレクトリの相対名 |
-| `<target>` | string | リンク先の絶対パス。`~` はホームディレクトリに展開される |
+| `<target>` | string | リンク先の絶対パス。`~` はホームディレクトリに展開される       |
 
 ## 現在のエントリ
 
-| Source | Target | 内容 |
-|---|---|---|
-| `zshrc` | `~/.zshrc` | Zsh 設定ファイル |
-| `zsh` | `~/.zsh` | Zsh カスタムプラグインディレクトリ |
-| `tmux.conf` | `~/.tmux.conf` | tmux 設定 |
-| `gitconfig` | `~/.gitconfig` | Git グローバル設定 |
-| `ghostty` | `~/.config/ghostty` | Ghostty ターミナル設定 |
-| `mise` | `~/.config/mise` | mise ツールバージョン設定 |
-| `nvim` | `~/.config/nvim` | Neovim 設定 (LazyVim) |
-| `sheldon` | `~/.config/sheldon` | sheldon プラグイン設定 |
-| `starship.toml` | `~/.config/starship.toml` | Starship プロンプト設定 |
-| `skills` | `~/.copilot/skills` | Copilot CLI カスタムスキル |
+| Source                    | Target                               | 内容                               |
+| ------------------------- | ------------------------------------ | ---------------------------------- |
+| `zshrc`                   | `~/.zshrc`                           | Zsh 設定ファイル                   |
+| `zsh`                     | `~/.zsh`                             | Zsh カスタムプラグインディレクトリ |
+| `tmux.conf`               | `~/.tmux.conf`                       | tmux 設定                          |
+| `gitconfig`               | `~/.gitconfig`                       | Git グローバル設定                 |
+| `ghostty`                 | `~/.config/ghostty`                  | Ghostty ターミナル設定             |
+| `mise`                    | `~/.config/mise`                     | mise ツールバージョン設定          |
+| `nvim`                    | `~/.config/nvim`                     | Neovim 設定 (LazyVim)              |
+| `sheldon`                 | `~/.config/sheldon`                  | sheldon プラグイン設定             |
+| `starship.toml`           | `~/.config/starship.toml`            | Starship プロンプト設定            |
+| `skills`                  | `~/.copilot/skills`                  | Copilot CLI カスタムスキル         |
 | `copilot-instructions.md` | `~/.copilot/copilot-instructions.md` | Copilot CLI パーソナル指示ファイル |
 
 ## 処理の仕様

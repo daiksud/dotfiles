@@ -4,18 +4,18 @@
 
 ## 一覧
 
-| ファイル | エイリアス | キーバインド | 説明 |
-|---------|-----------|-------------|------|
-| `gh-config-dir.zsh` | — | — | Git identity + GH_CONFIG_DIR 自動設定 |
-| `go-to-ghq-repository.zsh` | `ggr` | `C-]` | リポジトリ選択して `cd` |
-| `edit-ghq-repository.zsh` | `egr` | — | リポジトリ選択して nvim で開く |
-| `edit-selected-file.zsh` | `esf` | — | ファイル選択して nvim で開く |
-| `fzf-select-history.zsh` | — | `C-r` | fzf で履歴検索 |
-| `browse-github-notifications.zsh` | `bgn` | — | GitHub 通知を閲覧 |
-| `open-lazygit.zsh` | `olg` | — | lazygit を起動 |
-| `run-selected-command.zsh` | — | — | コマンド実行ユーティリティ |
-| `history-substring-search.zsh` | — | `↑` / `↓` | サブストリング履歴検索 |
-| `zshaddhistory.zsh` | — | — | 失敗コマンドを履歴から除外 |
+| ファイル                          | エイリアス | キーバインド | 説明                                  |
+| --------------------------------- | ---------- | ------------ | ------------------------------------- |
+| `gh-config-dir.zsh`               | —          | —            | Git identity + GH_CONFIG_DIR 自動設定 |
+| `go-to-ghq-repository.zsh`        | `ggr`      | `C-]`        | リポジトリ選択して `cd`               |
+| `edit-ghq-repository.zsh`         | `egr`      | —            | リポジトリ選択して nvim で開く        |
+| `edit-selected-file.zsh`          | `esf`      | —            | ファイル選択して nvim で開く          |
+| `fzf-select-history.zsh`          | —          | `C-r`        | fzf で履歴検索                        |
+| `browse-github-notifications.zsh` | `bgn`      | —            | GitHub 通知を閲覧                     |
+| `open-lazygit.zsh`                | `olg`      | —            | lazygit を起動                        |
+| `run-selected-command.zsh`        | —          | —            | コマンド実行ユーティリティ            |
+| `history-substring-search.zsh`    | —          | `↑` / `↓`    | サブストリング履歴検索                |
+| `zshaddhistory.zsh`               | —          | —            | 失敗コマンドを履歴から除外            |
 
 ---
 
@@ -36,13 +36,13 @@
 
 ### 提供する関数
 
-| 関数 | 説明 |
-|------|------|
-| `is_github_origin_repo` | origin が github.com か判定 |
-| `resolve_gh_identity` | `gh api` からログイン名・名前・メールを取得 |
-| `sync_signing_key_from_gh` | SSH 署名鍵と allowed_signers を設定 |
+| 関数                        | 説明                                                |
+| --------------------------- | --------------------------------------------------- |
+| `is_github_origin_repo`     | origin が github.com か判定                         |
+| `resolve_gh_identity`       | `gh api` からログイン名・名前・メールを取得         |
+| `sync_signing_key_from_gh`  | SSH 署名鍵と allowed_signers を設定                 |
 | `sync_git_identity_from_gh` | user.name / user.email / signing key をまとめて同期 |
-| `set_gh_config_dir` | GH_CONFIG_DIR を設定し identity 同期を呼び出す |
+| `set_gh_config_dir`         | GH_CONFIG_DIR を設定し identity 同期を呼び出す      |
 
 詳細は [Git ID の自動切り替え](../../guides/04-git-identity.md) を参照。
 
@@ -171,8 +171,8 @@ run-selected-command "command_line_string" cmd arg1 arg2 ...
 
 ### キーバインド
 
-| キー | 動作 |
-|------|------|
+| キー         | 動作                             |
+| ------------ | -------------------------------- |
 | `↑` (`^[[A`) | 入力中の文字列で上方向に履歴検索 |
 | `↓` (`^[[B`) | 入力中の文字列で下方向に履歴検索 |
 

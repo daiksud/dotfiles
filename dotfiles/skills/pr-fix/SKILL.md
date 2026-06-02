@@ -2,6 +2,7 @@
 description: Use when fixing a pull request by addressing CI failures, review feedback, or merge conflicts, including when /pr fix, /pr fix all, /pr fix ci, /pr fix feedback, or /pr fix conflicts is invoked.
 name: pr-fix
 ---
+
 # pr-fix
 
 Pull Request をマージ可能な状態に導くスキルです。

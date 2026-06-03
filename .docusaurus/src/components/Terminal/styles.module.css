@@ -8,7 +8,7 @@
     0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
-[data-theme='dark'] .terminal {
+[data-theme="dark"] .terminal {
   background: #1e1e2e;
   box-shadow:
     0 8px 32px rgba(0, 0, 0, 0.5),
@@ -22,7 +22,7 @@
   background: #e8e8ec;
 }
 
-[data-theme='dark'] .header {
+[data-theme="dark"] .header {
   background: #181825;
 }
 
@@ -38,15 +38,15 @@
   display: inline-block;
 }
 
-.dot[data-color='red'] {
+.dot[data-color="red"] {
   background: #ff5f57;
 }
 
-.dot[data-color='yellow'] {
+.dot[data-color="yellow"] {
   background: #febc2e;
 }
 
-.dot[data-color='green'] {
+.dot[data-color="green"] {
   background: #28c840;
 }
 
@@ -59,12 +59,12 @@
   margin-right: 54px;
 }
 
-[data-theme='dark'] .title {
+[data-theme="dark"] .title {
   color: #6c7086;
 }
 
 .body pre,
-.body div[class*='codeBlock'] {
+.body div[class*="codeBlock"] {
   border-radius: 0 !important;
   margin: 0 !important;
   box-shadow: none !important;

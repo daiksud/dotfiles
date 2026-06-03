@@ -6,30 +6,30 @@
 
 ## ディレクトリ構成
 
-| パス | 役割 |
-| --- | --- |
-| `docusaurus.config.ts` | サイト全体の設定（タイトル、URL、プラグイン、ナビバーなど） |
-| `plugins/` | カスタム Docusaurus プラグイン（Pagefind 検索インデックス生成） |
-| `sidebars.ts` | サイドバーの構成定義 |
-| `src/components/` | カスタム MDX コンポーネント（下記参照） |
-| `src/theme/` | Docusaurus テーマのオーバーライド（`MDXComponents.ts`、`SearchBar/`） |
-| `src/css/custom.css` | サイト全体のカスタム CSS（Tokyo Night Storm 配色） |
-| `src/pages/` | 独自ページ（React コンポーネント） |
-| `static/` | 静的アセット |
-| `build/` | `docs:build` の出力先（`.gitignore` 対象） |
-| `package.json` | Docusaurus とプラグインの依存関係 |
+| パス                   | 役割                                                                  |
+| ---------------------- | --------------------------------------------------------------------- |
+| `docusaurus.config.ts` | サイト全体の設定（タイトル、URL、プラグイン、ナビバーなど）           |
+| `plugins/`             | カスタム Docusaurus プラグイン（Pagefind 検索インデックス生成）       |
+| `sidebars.ts`          | サイドバーの構成定義                                                  |
+| `src/components/`      | カスタム MDX コンポーネント（下記参照）                               |
+| `src/theme/`           | Docusaurus テーマのオーバーライド（`MDXComponents.ts`、`SearchBar/`） |
+| `src/css/custom.css`   | サイト全体のカスタム CSS（Tokyo Night Storm 配色）                    |
+| `src/pages/`           | 独自ページ（React コンポーネント）                                    |
+| `static/`              | 静的アセット                                                          |
+| `build/`               | `docs:build` の出力先（`.gitignore` 対象）                            |
+| `package.json`         | Docusaurus とプラグインの依存関係                                     |
 
 ## カスタムコンポーネント
 
 `docs/` 内の MDX ファイルで使用できるコンポーネントです。`src/theme/MDXComponents.ts` でグローバル登録しています。
 
-| コンポーネント | 用途 |
-| --- | --- |
-| `<Hero>` | ランディングページのヒーローセクション |
-| `<HeroLeft>` / `<HeroRight>` | ヒーロー内の左右レイアウト |
-| `<Terminal>` | ターミナル風のコードブロック表示（ライト/ダーク両対応） |
-| `<FeatureGrid>` | 特徴一覧のグリッドレイアウト |
-| `<Feature>` | グリッド内の個別特徴カード |
+| コンポーネント               | 用途                                                    |
+| ---------------------------- | ------------------------------------------------------- |
+| `<Hero>`                     | ランディングページのヒーローセクション                  |
+| `<HeroLeft>` / `<HeroRight>` | ヒーロー内の左右レイアウト                              |
+| `<Terminal>`                 | ターミナル風のコードブロック表示（ライト/ダーク両対応） |
+| `<FeatureGrid>`              | 特徴一覧のグリッドレイアウト                            |
+| `<Feature>`                  | グリッド内の個別特徴カード                              |
 
 ## サイト内検索
 

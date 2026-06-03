@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - 'docs/**'
-      - '.docusaurus/**'
-      - 'package.json'
+      - "docs/**"
+      - ".docusaurus/**"
+      - "package.json"
   workflow_dispatch:
 
 permissions:

@@ -14,12 +14,12 @@
   transform: translateY(-2px);
 }
 
-[data-theme='dark'] .card {
+[data-theme="dark"] .card {
   background: #161b22;
   border-color: var(--ifm-color-emphasis-300);
 }
 
-[data-theme='dark'] .card:hover {
+[data-theme="dark"] .card:hover {
   border-color: var(--ifm-color-primary-dark);
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
 }
@@ -39,6 +39,6 @@
   margin-bottom: 0;
 }
 
-[data-theme='dark'] .card > p:last-child {
+[data-theme="dark"] .card > p:last-child {
   color: var(--ifm-color-emphasis-500);
 }

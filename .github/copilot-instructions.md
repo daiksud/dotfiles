@@ -1,73 +1,73 @@
 # Copilot Instructions
 
-## Commit messages
+## コミットメッセージ
 
-- Write in **English**
-- Follow **Conventional Commits**: `<type>(<scope>): <description>`
-  - Example: `feat(starship): add SSH indicator to prompt`
-  - Types: `feat`, `fix`, `docs`, `refactor`, `chore`
+- **英語**で書く
+- [Conventional Commits](https://www.conventionalcommits.org/) に従う: `<type>(<scope>): <description>`
+  - 例: `feat(starship): add SSH indicator to prompt`
+  - 種別: `feat`, `fix`, `docs`, `refactor`, `chore`
 
-## Documentation structure
+## ドキュメント構成
 
-Documentation lives under `docs/` as GitHub Flavored Markdown files, built with Docusaurus:
+`docs/` 以下には Docusaurus で構築された GitHub Flavored Markdown のドキュメントを置く:
 
-- `docs/guides/` — User guides (setup and usage)
-- `docs/reference/` — Reference (tool lists, config specs)
-- `docs/development/` — Contributor info (structure, style guide)
+- `docs/guides/` — ユーザー向けガイド（セットアップと使い方）
+- `docs/reference/` — リファレンス（ツール一覧、設定仕様）
+- `docs/development/` — 貢献者向け情報（構成、スタイルガイド）
 - `docs/development/99-adr/` — Architecture Decision Records
 
-### Documentation Map
+### ドキュメント対応表
 
-| Topic | Path | Audience |
-|-------|------|----------|
-| Quick start | `docs/guides/01-quick-start.md` | Users |
-| Installation | `docs/guides/02-installation.md` | Users |
-| Managing links | `docs/guides/03-managing-links.md` | Users |
-| Git identity | `docs/guides/04-git-identity.md` | Users |
-| Skills usage | `docs/guides/06-skills.md` | Users |
-| Ghostty | `docs/reference/ghostty.md` | Users |
-| Git | `docs/reference/git.md` | Users |
-| mise | `docs/reference/mise.md` | Users |
-| Neovim | `docs/reference/nvim.md` | Users |
-| Sheldon | `docs/reference/sheldon.md` | Users |
-| Starship | `docs/reference/starship.md` | Users |
-| tmux | `docs/reference/tmux.md` | Users |
-| Zsh | `docs/reference/zsh/README.md` | Users |
-| Zsh plugins | `docs/reference/zsh/plugins.md` | Users |
-| install_map.json | `docs/reference/install-map.md` | Users |
-| Scripts | `docs/reference/scripts.md` | Users |
-| Tools (Brewfile) | `docs/reference/tools.md` | Users |
-| Copilot Skills | `docs/reference/skills.md` | Users |
-| Project structure | `docs/development/01-project-structure.md` | Contributors |
-| Docs style | `docs/development/02-docs-style.md` | Contributors |
-| ADR index | `docs/development/99-adr/README.md` | Contributors |
-| Skills development | `docs/development/03-skills-development.md` | Contributors |
+| トピック           | パス                                        | 対象   |
+| ------------------ | ------------------------------------------- | ------ |
+| クイックスタート   | `docs/guides/01-quick-start.md`             | 利用者 |
+| インストール       | `docs/guides/02-installation.md`            | 利用者 |
+| リンク管理         | `docs/guides/03-managing-links.md`          | 利用者 |
+| Git identity       | `docs/guides/04-git-identity.md`            | 利用者 |
+| スキルの使い方     | `docs/guides/06-skills.md`                  | 利用者 |
+| Ghostty            | `docs/reference/ghostty.md`                 | 利用者 |
+| Git                | `docs/reference/git.md`                     | 利用者 |
+| mise               | `docs/reference/mise.md`                    | 利用者 |
+| Neovim             | `docs/reference/nvim.md`                    | 利用者 |
+| Sheldon            | `docs/reference/sheldon.md`                 | 利用者 |
+| Starship           | `docs/reference/starship.md`                | 利用者 |
+| tmux               | `docs/reference/tmux.md`                    | 利用者 |
+| Zsh                | `docs/reference/zsh/README.md`              | 利用者 |
+| Zsh plugins        | `docs/reference/zsh/plugins.md`             | 利用者 |
+| install_map.json   | `docs/reference/install-map.md`             | 利用者 |
+| Scripts            | `docs/reference/scripts.md`                 | 利用者 |
+| Tools (Brewfile)   | `docs/reference/tools.md`                   | 利用者 |
+| Copilot Skills     | `docs/reference/skills.md`                  | 利用者 |
+| Project structure  | `docs/development/01-project-structure.md`  | 貢献者 |
+| Docs style         | `docs/development/02-docs-style.md`         | 貢献者 |
+| ADR index          | `docs/development/99-adr/README.md`         | 貢献者 |
+| Skills development | `docs/development/03-skills-development.md` | 貢献者 |
 
-Key style references (read before editing docs):
+編集前に読むべきスタイル参照:
 
-- `docs/development/02-docs-style.md` — Documentation writing style guide
+- `docs/development/02-docs-style.md` — ドキュメント執筆スタイルガイド
 
-## Mandatory workflow
+## 必須ワークフロー
 
-1. Before editing code, always read relevant documents under `docs/` (at minimum the section README and related pages).
-2. Before editing docs, always read `docs/development/02-docs-style.md` to understand the documentation strategy and conventions.
-3. When changing code, scripts, or configuration, always update `docs/` in the same change. Refer to the "Documentation Strategy" section in `docs/development/02-docs-style.md` for the change checklist and scope mapping.
-4. After any change, verify: documentation accuracy, link integrity, and completeness against the current implementation.
-5. If the current document structure reduces clarity, reorganize docs as needed.
-6. Keep documentation accurate to the current implementation. Never defer documentation updates to a later commit.
-7. If an architecture or technology choice is made from multiple options, always record it in `docs/development/99-adr/`.
+1. コードを編集する前に、`docs/` 配下の関連文書を必ず読む（少なくとも該当セクションの `README` と関連ページ）。
+2. ドキュメントを編集する前に、`docs/development/02-docs-style.md` を必ず読んで、ドキュメント方針と規約を理解する。
+3. コード、スクリプト、設定を変更するときは、同じ変更内で必ず `docs/` も更新する。変更チェックリストと対象範囲の対応は `docs/development/02-docs-style.md` の "Documentation Strategy" セクションを参照する。
+4. 変更後は必ず、ドキュメントの正確性、リンク整合性、現在の実装に対する網羅性を確認する。
+5. 現在の文書構成が分かりにくい場合は、必要に応じて再編成する。
+6. ドキュメントは常に現在の実装と一致させる。更新を次のコミットに先送りしない。
+7. アーキテクチャや技術選定に複数の選択肢がある場合は、必ず `docs/development/99-adr/` に記録する。
 
-## Docusaurus conventions
+## Docusaurus の規約
 
-- File names use `01-` style numeric prefixes for sidebar ordering.
-- Section directories (`guides/`, `reference/`, `development/`) do **not** use numeric prefixes.
-- `README.md` in each directory serves as the index page.
-- Links must use relative paths with `.md` extension.
-- Each page starts with an `# h1` title, followed by a description paragraph.
+- ファイル名はサイドバー順のために `01-` 形式の番号プレフィックスを付ける
+- セクションディレクトリ（`guides/`, `reference/`, `development/`）には番号プレフィックスを付けない
+- 各ディレクトリの `README.md` をインデックスページとする
+- リンクは相対パスかつ `.md` 拡張子付きで記述する
+- 各ページは `# h1` タイトルで始め、その後に説明段落を置く
 
-## Required quality bar
+## 必須の品質基準
 
-- Documentation must explain **what changed**, **why**, and **how to operate it**.
-- Examples and commands must be copy-paste ready.
-- Avoid stale or duplicated guidance.
-- Decision records must include explicit rationale.
+- ドキュメントには **何が変わったか**、**なぜ変わったか**、**どう操作するか** を必ず書く
+- 例やコマンドはそのままコピーして使える形にする
+- 古い案内や重複した案内は避ける
+- 意思決定の記録には明確な理由を含める

@@ -1,6 +1,10 @@
 # Copilot Personal Instructions
 
-## Skills for PR operations
+## Pull Request 用スキル
 
-When the user invokes `/pr create` or asks to create a pull request, always use the `pr-create` skill.
-When the user invokes `/pr fix` or asks to fix, improve, or make a pull request merge-ready, always use the `pr-fix` skill.
+ユーザーが `/pr create` を実行するか、Pull Request の作成を依頼した場合は、必ず `pr-create` スキルを使う。
+ユーザーが `/pr fix` を実行するか、Pull Request を修正・改善・マージ可能な状態にするよう依頼した場合は、必ず `pr-fix` スキルを使う。
+
+## Issue / Pull Request へのコメント
+
+ユーザーの指示で Issue や Pull Request へコメントやリプライをする場合は、先頭に必ず `🤖` を付ける。

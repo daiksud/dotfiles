@@ -7,4 +7,4 @@
 
 ## Issue / Pull Request へのコメント
 
-ユーザーの指示で Issue や Pull Request へコメントやリプライをする場合は、先頭に必ず `🤖` を付ける。
+ユーザーの指示で Issue や Pull Request へコメントやリプライをする場合は、先頭に必ず `:robot:` を付ける。

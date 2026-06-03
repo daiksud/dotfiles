@@ -51,7 +51,7 @@
   }
 }
 
-[data-theme='dark'] .left p {
+[data-theme="dark"] .left p {
   color: var(--ifm-color-emphasis-500);
 }
 
@@ -92,7 +92,7 @@
   border-color: var(--ifm-color-primary-dark);
 }
 
-[data-theme='dark'] .left > p:last-of-type a:last-child:hover {
+[data-theme="dark"] .left > p:last-of-type a:last-child:hover {
   background: rgba(37, 194, 160, 0.1);
 }
 

@@ -12,14 +12,14 @@ bash install.sh
 
 ## 含まれるもの
 
-| カテゴリ | 内容 |
-|---|---|
-| シェル | Zsh + Starship プロンプト + sheldon プラグイン |
-| エディタ | Neovim (LazyVim) |
-| ターミナル | Ghostty + tmux |
-| ツール管理 | Homebrew + mise |
-| Git | マルチアカウント自動切り替え (gh-config-dir) + SSH 署名 |
-| CLI | gh, fzf, ripgrep, lazygit, jq |
+| カテゴリ   | 内容                                                    |
+| ---------- | ------------------------------------------------------- |
+| シェル     | Zsh + Starship プロンプト + sheldon プラグイン          |
+| エディタ   | Neovim (LazyVim)                                        |
+| ターミナル | Ghostty + tmux                                          |
+| ツール管理 | Homebrew + mise                                         |
+| Git        | マルチアカウント自動切り替え (gh-config-dir) + SSH 署名 |
+| CLI        | gh, fzf, ripgrep, lazygit, jq                           |
 
 ## 仕組み
 

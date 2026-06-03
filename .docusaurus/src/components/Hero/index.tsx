@@ -1,5 +1,5 @@
-import { Children, isValidElement, type ReactNode } from 'react';
-import styles from './styles.module.css';
+import { Children, isValidElement, type ReactNode } from "react";
+import styles from "./styles.module.css";
 
 type HeroProps = {
   children: ReactNode;
@@ -8,7 +8,7 @@ type HeroProps = {
 function getDisplayName(child: ReactNode): string | undefined {
   if (!isValidElement(child)) return undefined;
   const type = child.type;
-  if (typeof type === 'function' || typeof type === 'object') {
+  if (typeof type === "function" || typeof type === "object") {
     return (type as { displayName?: string }).displayName;
   }
   return undefined;
@@ -20,9 +20,9 @@ export function Hero({ children }: HeroProps) {
 
   Children.forEach(children, (child) => {
     const name = getDisplayName(child);
-    if (name === 'HeroRight') {
+    if (name === "HeroRight") {
       rightContent.push(child);
-    } else if (name === 'HeroLeft') {
+    } else if (name === "HeroLeft") {
       leftContent.push(child);
     } else {
       leftContent.push(child);
@@ -33,7 +33,9 @@ export function Hero({ children }: HeroProps) {
     <section className={styles.hero}>
       <div className={`container ${styles.layout}`}>
         <div className={styles.left}>{leftContent}</div>
-        {rightContent.length > 0 && <div className={styles.right}>{rightContent}</div>}
+        {rightContent.length > 0 && (
+          <div className={styles.right}>{rightContent}</div>
+        )}
       </div>
     </section>
   );
@@ -42,9 +44,9 @@ export function Hero({ children }: HeroProps) {
 export function HeroLeft({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
-HeroLeft.displayName = 'HeroLeft';
+HeroLeft.displayName = "HeroLeft";
 
 export function HeroRight({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
-HeroRight.displayName = 'HeroRight';
+HeroRight.displayName = "HeroRight";

@@ -9,7 +9,9 @@
   color: var(--ifm-color-emphasis-600);
   cursor: pointer;
   font-size: 14px;
-  transition: border-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    color 0.2s;
 }
 
 .searchButton:hover {

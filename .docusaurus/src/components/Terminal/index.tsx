@@ -1,12 +1,12 @@
-import type { ReactNode } from 'react';
-import styles from './styles.module.css';
+import type { ReactNode } from "react";
+import styles from "./styles.module.css";
 
 type TerminalProps = {
   title?: string;
   children: ReactNode;
 };
 
-export function Terminal({ title = 'Terminal', children }: TerminalProps) {
+export function Terminal({ title = "Terminal", children }: TerminalProps) {
   return (
     <div className={styles.terminal}>
       <div className={styles.header}>
@@ -21,4 +21,4 @@ export function Terminal({ title = 'Terminal', children }: TerminalProps) {
     </div>
   );
 }
-Terminal.displayName = 'Terminal';
+Terminal.displayName = "Terminal";

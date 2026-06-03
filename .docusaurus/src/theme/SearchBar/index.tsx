@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import useBaseUrl from '@docusaurus/useBaseUrl';
-import styles from './styles.module.css';
+import { useCallback, useEffect, useRef, useState } from "react";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import styles from "./styles.module.css";
 
 export default function SearchBar(): JSX.Element {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const pagefindRef = useRef<unknown>(null);
-  const pagefindCssUrl = useBaseUrl('/pagefind/pagefind-ui.css');
-  const pagefindJsUrl = useBaseUrl('/pagefind/pagefind-ui.js');
-  const pagefindBundlePath = useBaseUrl('/pagefind/');
+  const pagefindCssUrl = useBaseUrl("/pagefind/pagefind-ui.css");
+  const pagefindJsUrl = useBaseUrl("/pagefind/pagefind-ui.js");
+  const pagefindBundlePath = useBaseUrl("/pagefind/");
 
   const openModal = useCallback(() => setIsOpen(true), []);
   const closeModal = useCallback(() => setIsOpen(false), []);
@@ -16,16 +16,16 @@ export default function SearchBar(): JSX.Element {
   // Keyboard shortcut: Ctrl+K / ⌘+K
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setIsOpen((prev) => !prev);
       }
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         setIsOpen(false);
       }
     };
-    document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
   }, []);
 
   // Initialize Pagefind UI when modal opens
@@ -35,8 +35,8 @@ export default function SearchBar(): JSX.Element {
 
     // Load Pagefind UI CSS
     if (!document.querySelector('link[href*="pagefind-ui.css"]')) {
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
       link.href = pagefindCssUrl;
       document.head.appendChild(link);
     }
@@ -62,12 +62,12 @@ export default function SearchBar(): JSX.Element {
         resetStyles: false,
         autofocus: true,
         translations: {
-          placeholder: 'ドキュメントを検索...',
-          zero_results: '「[SEARCH_TERM]」に一致する結果がありません',
-          many_results: '[COUNT] 件の結果',
-          one_result: '1 件の結果',
-          searching: '検索中...',
-          load_more: 'さらに表示',
+          placeholder: "ドキュメントを検索...",
+          zero_results: "「[SEARCH_TERM]」に一致する結果がありません",
+          many_results: "[COUNT] 件の結果",
+          one_result: "1 件の結果",
+          searching: "検索中...",
+          load_more: "さらに表示",
         },
       });
     };
@@ -77,7 +77,7 @@ export default function SearchBar(): JSX.Element {
     if ((window as any).PagefindUI) {
       initPagefind();
     } else {
-      const script = document.createElement('script');
+      const script = document.createElement("script");
       script.src = pagefindJsUrl;
       script.onload = initPagefind;
       script.onerror = () => {
@@ -95,7 +95,7 @@ export default function SearchBar(): JSX.Element {
       // Reset on close so we re-init fresh next time
       pagefindRef.current = null;
       if (containerRef.current) {
-        containerRef.current.innerHTML = '';
+        containerRef.current.innerHTML = "";
       }
     };
   }, [isOpen, pagefindCssUrl, pagefindJsUrl, pagefindBundlePath]);

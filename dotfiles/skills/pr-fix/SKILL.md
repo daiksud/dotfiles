@@ -1,5 +1,5 @@
 ---
-description: Use when fixing a pull request by addressing CI failures, review feedback, or merge conflicts, including when /pr fix, /pr fix all, /pr fix ci, /pr fix feedback, or /pr fix conflicts is invoked.
+description: Pull Request を修正する際に使用するスキル。CI 失敗・レビューフィードバック・マージコンフリクトへの対処を行います。/pr fix、/pr fix all、/pr fix ci、/pr fix feedback、/pr fix conflicts が呼び出されたときも含む。
 name: pr-fix
 ---
 

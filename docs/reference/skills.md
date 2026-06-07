@@ -6,7 +6,7 @@
 
 | スキル      | 説明                                                                              |
 | ----------- | --------------------------------------------------------------------------------- |
-| `pr-create` | 変更内容を理解し、適切なコミットメッセージと Description でドラフト PR を作成する |
+| `pr-create` | 対応する Task を確認し、変更内容を理解して適切なコミットメッセージと Description でドラフト PR を作成する |
 | `pr-fix`    | CI エラーの修正とレビューコメントへの対処を行い、PR をマージ可能な状態にする      |
 
 ## インストール先
@@ -33,7 +33,7 @@ dotfiles/skills/
 
 ```markdown
 ---
-description: スキルの説明（1行、英語）
+description: スキルの説明（1行、日本語）
 name: スキル名
 ---
 
@@ -62,7 +62,7 @@ name: スキル名
 
 ```markdown
 ---
-description: スキルの説明（1行、英語）
+description: スキルの説明（1行、日本語）
 name: スキル名
 ---
 
@@ -96,7 +96,7 @@ name: スキル名
 
 ### 本文の記述言語
 
-- フロントマターの `description` は**英語**で記述する（CLI のスキル一覧表示に使用されるため）
+- フロントマターの `description` は**日本語**で記述する（CLI のスキル一覧表示に使用される）
 - 本文は**日本語**で記述する
 
 ### セクションガイドライン
@@ -113,11 +113,13 @@ name: スキル名
 
 ### 動作フロー
 
-1. `git diff` で変更内容を理解
-2. Conventional Commits 形式でコミット
-3. feature ブランチにプッシュ
-4. PR Description を作成し（本文は日本語で記述）、ドラフト PR を `gh pr create --draft` で作成
-5. 呼び出したユーザーを Assignee に設定
+1. 対応する Task (Issue) を確認（推測できない場合はユーザーに確認し、なければ作成を促す）
+2. `git diff` で変更内容を理解（Issue の Description・コメントも参照）
+3. Conventional Commits 形式でコミット
+4. feature ブランチにプッシュ
+5. PR Description を作成し（本文は日本語で記述）、ドラフト PR を `gh pr create --draft` で作成
+6. 呼び出したユーザーを Assignee に設定
+7. 対応する Task の Description を最終的な変更内容に合わせて更新（当初計画はコメントに退避）
 
 ### 入力
 

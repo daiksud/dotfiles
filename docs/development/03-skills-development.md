@@ -15,7 +15,7 @@ touch dotfiles/skills/<skill-name>/SKILL.md
 
 ```markdown
 ---
-description: What this skill does (one line, English)
+description: スキルの説明（1行、日本語）
 name: skill-name
 ---
 
@@ -58,7 +58,7 @@ copilot -p "/skill-name"
 
 | ルール                 | 理由                                      |
 | ---------------------- | ----------------------------------------- |
-| 英語で書く             | AI エージェントへの指示として使われるため |
+| 日本語で書く           | 本文も description も日本語で統一するため  |
 | ステップを具体的に書く | 曖昧だとエージェントが判断に迷う          |
 | 制約条件を明示する     | 無限ループや破壊的操作を防ぐ              |
 | 出力を定義する         | ユーザーが何を期待できるか明確にする      |

@@ -50,6 +50,8 @@ PR 番号と任意のモードを指定して呼び出します:
   - 修正した場合: 行った変更を説明する
   - 修正しなかった場合: 該当しないと判断した理由を説明する
 - リプライ送信後、レビューコメントのスレッドを resolve する
+- すべての対応が完了したら、Copilot Code Review にレビュー依頼をする
+  - `gh pr edit <PR_NUMBER> --add-reviewer copilot-code-review` を実行する
 
 ### (default / all) — すべて修正
 

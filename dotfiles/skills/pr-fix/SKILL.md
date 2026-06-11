@@ -51,7 +51,31 @@ PR 番号と任意のモードを指定して呼び出します:
   - 修正しなかった場合: 該当しないと判断した理由を説明する
 - リプライ送信後、レビューコメントのスレッドを resolve する
 - すべての対応が完了したら、Copilot Code Review にレビュー依頼をする
-  - `gh pr edit <PR_NUMBER> --add-reviewer copilot-code-review` を実行する
+  - PR の node ID を取得する: `gh pr view <PR_NUMBER> --json id -q .id`
+  - 取得した node ID を使って GraphQL mutation でレビュー依頼する:
+    ```
+    gh api graphql -f query='
+    mutation {
+      requestReviews(input: {
+        pullRequestId: "<PR_NODE_ID>",
+        botIds: ["BOT_kgDOCnlnWA"],
+        union: true
+      }) {
+        pullRequest {
+          reviewRequests(first: 5) {
+            nodes {
+              requestedReviewer {
+                __typename
+                ... on Bot { login }
+              }
+            }
+          }
+        }
+      }
+    }'
+    ```
+  - `BOT_kgDOCnlnWA` は `copilot-pull-request-reviewer` の GraphQL node ID
+  - REST API (`gh pr edit --add-reviewer`) では Bot は "not a collaborator" で弾かれるため使用不可
 
 ### (default / all) — すべて修正
 

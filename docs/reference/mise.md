@@ -10,11 +10,15 @@
 
 ### `dotfiles/mise/config.toml`（グローバル）
 
-| ツール                  | バージョン | 説明               |
-| ----------------------- | ---------- | ------------------ |
-| `node`                  | `latest`   | Node.js ランタイム |
-| `bun`                   | `latest`   | Bun ランタイム     |
-| `npm:markdownlint-cli2` | `latest`   | Markdown リンター  |
+グローバル設定ではツールを管理していません。`[settings.github]` のみを定義します。
+
+```toml
+[settings.github]
+credential_command = "gh auth token"
+```
+
+> [!NOTE]
+> 以前は `node` / `bun` / `npm:markdownlint-cli2` を mise で管理していましたが、`node` と `bun` は Homebrew（`Brewfile`）管理へ移行し、`markdownlint-cli2` は廃止しました。詳細は [ツール一覧](./tools.md) を参照してください。
 
 ### `mise.toml`（リポジトリルート）
 
@@ -28,18 +32,14 @@ dotfiles リポジトリ自体の開発環境を定義します。
 
 ## 設定
 
-### `[settings]`
+### `[settings]`（リポジトリルートの `mise.toml`）
 
-| キー           | 値      | 説明                                 |
-| -------------- | ------- | ------------------------------------ |
-| `lockfile`     | `true`  | ロックファイルを生成（再現性のため） |
-| `http_retries` | `5`     | HTTP リクエストのリトライ回数        |
-| `http_timeout` | `"20s"` | HTTP タイムアウト                    |
+| キー           | 値     | 説明                                 |
+| -------------- | ------ | ------------------------------------ |
+| `lockfile`     | `true` | ロックファイルを生成（再現性のため） |
+| `experimental` | `true` | 実験的機能を有効化                   |
 
-> [!NOTE]
-> リポジトリルートの `mise.toml` にも `lockfile = true` と `experimental = true` が設定されています。
-
-### `[settings.github]`
+### `[settings.github]`（グローバルの `config.toml`）
 
 | キー                 | 値                | 説明                                            |
 | -------------------- | ----------------- | ----------------------------------------------- |

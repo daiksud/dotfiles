@@ -29,12 +29,14 @@
 | Git                | `docs/reference/git.md`                     | 利用者 |
 | mise               | `docs/reference/mise.md`                    | 利用者 |
 | Neovim             | `docs/reference/nvim.md`                    | 利用者 |
+| RTK                | `docs/reference/rtk.md`                     | 利用者 |
 | Sheldon            | `docs/reference/sheldon.md`                 | 利用者 |
 | Starship           | `docs/reference/starship.md`                | 利用者 |
 | tmux               | `docs/reference/tmux.md`                    | 利用者 |
 | Zsh                | `docs/reference/zsh/README.md`              | 利用者 |
 | Zsh plugins        | `docs/reference/zsh/plugins.md`             | 利用者 |
 | install_map.json   | `docs/reference/install-map.md`             | 利用者 |
+| gh-infra           | `docs/reference/gh-infra.md`                | 利用者 |
 | Scripts            | `docs/reference/scripts.md`                 | 利用者 |
 | Tools (Brewfile)   | `docs/reference/tools.md`                   | 利用者 |
 | Copilot Skills     | `docs/reference/skills.md`                  | 利用者 |

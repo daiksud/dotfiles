@@ -6,4 +6,5 @@ else
   eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
 
+mise settings set github.credential_command "gh auth token"
 mise install

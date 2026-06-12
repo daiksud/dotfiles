@@ -13,6 +13,7 @@ fi
 
 extensions=(
   "HikaruEgashira/gh-q"
+  "babarot/gh-infra"
 )
 
 for extension in "${extensions[@]}"; do

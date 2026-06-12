@@ -2,23 +2,24 @@
 
 開発ツールバージョン管理（mise）の設定リファレンスです。
 
-## ファイル
+## グローバル設定
 
-`dotfiles/mise/config.toml` → `~/.config/mise/config.toml`
+グローバル設定（`~/.config/mise/config.toml`）は dotfiles では管理しません。セットアップ時に `scripts/100-mise.sh` が `mise settings` コマンドで自動的に設定します。
 
-## ツール定義
-
-### `dotfiles/mise/config.toml`（グローバル）
-
-グローバル設定ではツールを管理していません。`[settings.github]` のみを定義します。
-
-```toml
-[settings.github]
-credential_command = "gh auth token"
+```bash
+# 100-mise.sh が実行するコマンド（冪等）
+mise settings set github.credential_command "gh auth token"
 ```
 
-> [!NOTE]
-> 以前は `node` / `bun` / `npm:markdownlint-cli2` を mise で管理していましたが、`node` と `bun` は Homebrew（`Brewfile`）管理へ移行し、`markdownlint-cli2` は廃止しました。詳細は [ツール一覧](./tools.md) を参照してください。
+これにより `~/.config/mise/config.toml` はマシンごとに mise が管理するファイルとなり、`mise use -g <tool>` で追加したプライベートツールなども自由に記述できます。
+
+### `[settings.github]`
+
+| キー                 | 値                | 説明                                            |
+| -------------------- | ----------------- | ----------------------------------------------- |
+| `credential_command` | `"gh auth token"` | GitHub API アクセスに `gh` の認証トークンを使用 |
+
+## リポジトリローカル設定
 
 ### `mise.toml`（リポジトリルート）
 
@@ -30,20 +31,12 @@ dotfiles リポジトリ自体の開発環境を定義します。
 
 `[hooks]` セクションで `postinstall = "bun install --frozen-lockfile"` が設定されており、`mise install` 後に依存関係が自動インストールされます。
 
-## 設定
-
-### `[settings]`（リポジトリルートの `mise.toml`）
+### `[settings]`（`mise.toml`）
 
 | キー           | 値     | 説明                                 |
 | -------------- | ------ | ------------------------------------ |
 | `lockfile`     | `true` | ロックファイルを生成（再現性のため） |
 | `experimental` | `true` | 実験的機能を有効化                   |
-
-### `[settings.github]`（グローバルの `config.toml`）
-
-| キー                 | 値                | 説明                                            |
-| -------------------- | ----------------- | ----------------------------------------------- |
-| `credential_command` | `"gh auth token"` | GitHub API アクセスに `gh` の認証トークンを使用 |
 
 ## シェル統合
 
@@ -52,10 +45,10 @@ dotfiles リポジトリ自体の開発環境を定義します。
 ## ツールの追加
 
 ```bash
-# グローバルに追加
-mise use --global python@latest
+# グローバルに追加（~/.config/mise/config.toml に書き込まれる）
+mise use -g python@latest
 
-# config.toml に手動追加
-[tools]
-python = "latest"
+# ツールバージョンを確認
+mise ls --current
 ```
+

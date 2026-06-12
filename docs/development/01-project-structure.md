@@ -15,7 +15,6 @@
 │   ├── tmux.conf           # -> ~/.tmux.conf
 │   ├── gitconfig           # -> ~/.gitconfig
 │   ├── ghostty/            # -> ~/.config/ghostty
-│   ├── mise/               # -> ~/.config/mise
 │   ├── nvim/               # -> ~/.config/nvim (LazyVim)
 │   ├── sheldon/            # -> ~/.config/sheldon
 │   ├── starship.toml       # -> ~/.config/starship.toml

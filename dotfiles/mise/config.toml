@@ -1,12 +1,2 @@
-[tools]
-node = "latest"
-bun = "latest"
-"npm:markdownlint-cli2" = "latest"
-
-[settings]
-lockfile = true
-http_retries = 5
-http_timeout = "20s"
-
 [settings.github]
 credential_command = "gh auth token"

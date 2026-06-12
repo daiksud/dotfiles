@@ -35,6 +35,8 @@
 ├── .docusaurus/            # Docusaurus サイト構築
 ├── .github/
 │   ├── copilot-instructions.md
+│   ├── dependabot.yml      # bun / GitHub Actions の依存更新設定
+│   ├── settings.yml        # gh-infra による宣言的リポジトリ設定
 │   └── workflows/docs.yml
 ├── mise.toml               # リポジトリローカルの mise 設定
 ├── package.json            # ドキュメントビルド用スクリプト

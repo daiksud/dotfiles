@@ -42,6 +42,7 @@ Homebrew が未インストールの場合にインストールします。
 GitHub CLI の拡張機能をインストールし、関連ツールを追加します。
 
 - `gh-q`（HikaruEgashira/gh-q）拡張機能をインストール
+- `gh-infra`（babarot/gh-infra）拡張機能をインストール（`.github/settings.yml` による宣言的リポジトリ設定に使用。詳細は [gh-infra](./gh-infra.md) を参照）
 - `fd`（高速ファイル検索ツール）を Homebrew でインストール
 
 ### 100-ghostty.sh

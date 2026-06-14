@@ -1,67 +1,67 @@
-# インストール
+# Installation
 
-`install.sh` の動作と実行方法を説明します。
+This page explains how `install.sh` works and how to run it.
 
-## 前提条件
+## Prerequisites
 
-| プラットフォーム    | 必要なもの                                                        |
-| ------------------- | ----------------------------------------------------------------- |
-| macOS               | 特になし（`git` と `python3` はシステム標準で利用可能）           |
-| Ubuntu (Codespaces) | `build-essential`, `git`（`000-codespace.sh` が自動インストール） |
+| Platform            | Requirements                                                       |
+| ------------------- | ------------------------------------------------------------------ |
+| macOS               | None in particular (`git` and `python3` are available by default) |
+| Ubuntu (Codespaces) | `build-essential`, `git` (`000-codespace.sh` installs them automatically) |
 
-## 実行方法
+## How to run
 
 ```bash
 cd ~/.dotfiles
 bash install.sh
 ```
 
-## 処理の流れ
+## Processing flow
 
-`install.sh` は以下の順序で処理を行います。
+`install.sh` performs the following steps in order.
 
 ```mermaid
 graph TD
-    A[install_map.json を読み込み] --> B[シンボリックリンク作成]
-    B --> C[scripts/000-*.sh 実行]
-    C --> D[scripts/001-*.sh 実行<br/>Homebrew インストール]
-    D --> E[scripts/002-*.sh 実行<br/>Brewfile パッケージ]
-    E --> F[scripts/100-*.sh 実行<br/>各ツール設定]
-    F --> G[allowed_signers 生成]
+    A[Read `install_map.json`] --> B[Create symbolic links]
+    B --> C[Run `scripts/000-*.sh`]
+    C --> D[Run `scripts/001-*.sh`<br/>Install Homebrew]
+    D --> E[Run `scripts/002-*.sh`<br/>Brewfile packages]
+    E --> F[Run `scripts/100-*.sh`<br/>Configure each tool]
+    F --> G[Generate `allowed_signers`]
 ```
 
-### 1. シンボリックリンク作成
+### 1. Create symbolic links
 
-`install_map.json` を Python3 でパースし、各エントリについて:
+It parses `install_map.json` with Python3 and, for each entry:
 
-1. 宛先の親ディレクトリが存在しなければ `mkdir -p` で作成
-2. 親ディレクトリがシンボリックリンクの場合は実ディレクトリに変換（旧環境からの移行対応）
-3. 既存のファイル/リンクがあれば削除
-4. `dotfiles/<source>` → `<target>` のシンボリックリンクを作成
+1. Creates the destination parent directory with `mkdir -p` if it does not exist
+2. If the parent directory is a symbolic link, converts it to a real directory (to support migration from older environments)
+3. Removes any existing file or link
+4. Creates a symbolic link from `dotfiles/<source>` to `<target>`
 
-### 2. セットアップスクリプト実行
+### 2. Run setup scripts
 
-`scripts/` 以下のスクリプトをファイル名順に実行します。
+It runs the scripts under `scripts/` in filename order.
 
-| スクリプト         | 内容                                                                 |
+| Script             | Description                                                          |
 | ------------------ | -------------------------------------------------------------------- |
-| `000-codespace.sh` | Ubuntu 固有の初期設定（タイムゾーン、デフォルトシェル）              |
-| `001-homebrew.sh`  | Homebrew のインストールと gcc 更新                                   |
-| `002-brewfile.sh`  | `Brewfile` に定義されたパッケージのインストール                      |
-| `100-*.sh`         | 各ツール個別の設定（Ghostty, LazyVim, sheldon, mise, tmux, gh 拡張） |
+| `000-codespace.sh` | Ubuntu-specific initial setup (time zone, default shell)            |
+| `001-homebrew.sh`  | Installs Homebrew and updates gcc                                   |
+| `002-brewfile.sh`  | Installs the packages defined in `Brewfile`                         |
+| `100-*.sh`         | Per-tool setup (Ghostty, LazyVim, sheldon, mise, tmux, gh extension) |
 
-`100-*` スクリプトのうち Homebrew に依存するもの（`ghostty`, `lazyvim`, `sheldon`）は逐次実行、それ以外は並列実行されます（最大並列数: `DOTFILES_PARALLEL_JOBS` 環境変数、デフォルト 3）。
+Among the `100-*` scripts, those that depend on Homebrew (`ghostty`, `lazyvim`, `sheldon`) run sequentially, while the others run in parallel (maximum concurrency: the `DOTFILES_PARALLEL_JOBS` environment variable, default `3`).
 
-### 3. SSH allowed_signers 生成
+### 3. Generate SSH `allowed_signers`
 
-グローバル `user.email` と `~/.ssh/id_ed25519.pub` が存在する場合、Git の SSH 署名検証用 `~/.ssh/allowed_signers` を生成します。
+If global `user.email` and `~/.ssh/id_ed25519.pub` exist, it generates `~/.ssh/allowed_signers` for Git SSH signature verification.
 
-## 再実行
+## Re-running
 
-`install.sh` は冪等です。何度実行しても同じ状態に収束します。既存のシンボリックリンクは削除してから再作成されます。
+`install.sh` is idempotent. No matter how many times you run it, it converges to the same state. Existing symbolic links are removed and then recreated.
 
-## 環境変数
+## Environment variables
 
-| 変数                     | デフォルト | 説明                           |
-| ------------------------ | ---------- | ------------------------------ |
-| `DOTFILES_PARALLEL_JOBS` | `3`        | `100-*` スクリプトの並列実行数 |
+| Variable                 | Default | Description                          |
+| ------------------------ | ------- | ------------------------------------ |
+| `DOTFILES_PARALLEL_JOBS` | `3`     | Number of parallel `100-*` scripts |

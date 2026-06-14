@@ -1,41 +1,41 @@
 # Git
 
-グローバル Git 設定（`~/.gitconfig`）のリファレンスです。
+This is the reference for the global Git configuration (`~/.gitconfig`).
 
-## ファイル
+## File
 
 `dotfiles/gitconfig` → `~/.gitconfig`
 
-## 設定一覧
+## Settings list
 
-| セクション    | キー                 | 値                       | 説明                                            |
-| ------------- | -------------------- | ------------------------ | ----------------------------------------------- |
-| `[push]`      | `autosetupremote`    | `true`                   | push 時にリモートトラッキングブランチを自動設定 |
-| `[push]`      | `default`            | `current`                | 同名のリモートブランチに push                   |
-| `[commit]`    | `gpgsign`            | `true`                   | すべてのコミットを自動署名                      |
-| `[core]`      | `quotepath`          | `false`                  | 日本語ファイル名をエスケープせず表示            |
-| `[gpg]`       | `format`             | `ssh`                    | 署名方式に SSH を使用                           |
-| `[gpg "ssh"]` | `allowedsignersfile` | `~/.ssh/allowed_signers` | 署名検証用の許可済み署名者ファイル              |
-| `[init]`      | `defaultbranch`      | `main`                   | 新規リポジトリのデフォルトブランチ名            |
-| `[pull]`      | `rebase`             | `true`                   | pull 時にマージではなくリベース                 |
-| `[rebase]`    | `autosquash`         | `true`                   | `fixup!` / `squash!` コミットを自動整理         |
+| Section       | Key                  | Value                    | Description                                          |
+| ------------- | -------------------- | ------------------------ | ---------------------------------------------------- |
+| `[push]`      | `autosetupremote`    | `true`                   | Automatically set the remote tracking branch on push |
+| `[push]`      | `default`            | `current`                | Push to the remote branch with the same name         |
+| `[commit]`    | `gpgsign`            | `true`                   | Automatically sign all commits                       |
+| `[core]`      | `quotepath`          | `false`                  | Display Japanese file names without escaping         |
+| `[gpg]`       | `format`             | `ssh`                    | Use SSH for signing                                  |
+| `[gpg "ssh"]` | `allowedsignersfile` | `~/.ssh/allowed_signers` | Allowed signers file for signature verification      |
+| `[init]`      | `defaultbranch`      | `main`                   | Default branch name for new repositories             |
+| `[pull]`      | `rebase`             | `true`                   | Rebase instead of merge on pull                      |
+| `[rebase]`    | `autosquash`         | `true`                   | Automatically arrange `fixup!` / `squash!` commits   |
 
-## 認証ヘルパー
+## Authentication helper
 
-`gh auth setup-git` 相当の設定として、GitHub と Gist の credential helper に `gh auth git-credential` を使います。
-`gh` は絶対パスではなく `PATH` から解決するため、インストール先に依存しません。
+As the equivalent of `gh auth setup-git`, `gh auth git-credential` is used as the credential helper for GitHub and Gist.
+`gh` is resolved from `PATH` rather than an absolute path, so it does not depend on the installation location.
 
-| 対象                      | helper                    |
+| Target                    | helper                    |
 | ------------------------- | ------------------------- |
 | `https://github.com`      | `!gh auth git-credential` |
 | `https://gist.github.com` | `!gh auth git-credential` |
 
-## グローバルに設定しないもの
+## What is not configured globally
 
-以下はリポジトリローカルで `gh-config-dir.zsh` が自動設定するため、グローバルには記述しない:
+The following are not written globally because `gh-config-dir.zsh` sets them automatically locally for each repository:
 
 - `user.name`
 - `user.email`
 - `user.signingkey`
 
-詳細は [Git ID の自動切り替え](../guides/04-git-identity.md) を参照。
+For details, see [Automatic Git identity switching](../guides/04-git-identity.md).

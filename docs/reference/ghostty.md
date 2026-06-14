@@ -1,59 +1,59 @@
 # Ghostty
 
-Ghostty ターミナルエミュレータの設定ファイルリファレンスです。
+This is the reference for the Ghostty terminal emulator configuration files.
 
-## ファイル
+## File
 
 `dotfiles/ghostty/config` → `~/.config/ghostty/config`
 
-## 設定一覧
+## Settings list
 
-### 外観
+### Appearance
 
-| 設定                        | 値                       | 説明               |
-| --------------------------- | ------------------------ | ------------------ |
-| `theme`                     | `TokyoNight Storm`       | カラースキーム     |
-| `font-family`               | `Moralerspace Neon HW`   | フォント           |
-| `font-size`                 | `13.5`                   | フォントサイズ     |
-| `background-image`          | `hololive-en-advent.jpg` | 背景画像           |
-| `background-image-fit`      | `cover`                  | 画像のフィット方法 |
-| `background-image-opacity`  | `0.06`                   | 背景画像の透過率   |
-| `background-image-position` | `center`                 | 画像の配置         |
+| Setting                      | Value                    | Description        |
+| ---------------------------- | ------------------------ | ------------------ |
+| `theme`                      | `TokyoNight Storm`       | Color scheme       |
+| `font-family`                | `Moralerspace Neon HW`   | Font               |
+| `font-size`                  | `13.5`                   | Font size          |
+| `background-image`           | `hololive-en-advent.jpg` | Background image   |
+| `background-image-fit`       | `cover`                  | Image fit method   |
+| `background-image-opacity`   | `0.06`                   | Background opacity |
+| `background-image-position`  | `center`                 | Image placement    |
 
-### ウィンドウ
+### Window
 
-| 設定                               | 値                        | 説明                                             |
-| ---------------------------------- | ------------------------- | ------------------------------------------------ |
-| `fullscreen`                       | `non-native-visible-menu` | フルスクリーンモード                             |
-| `macos-non-native-fullscreen`      | `visible-menu`            | macOS 非ネイティブフルスクリーン                 |
-| `macos-titlebar-style`             | `hidden`                  | タイトルバーを非表示                             |
-| `window-inherit-working-directory` | `false`                   | 新ウィンドウでカレントディレクトリを引き継がない |
-| `window-padding-y`                 | `0`                       | 垂直パディング                                   |
+| Setting                             | Value                     | Description                                         |
+| ----------------------------------- | ------------------------- | --------------------------------------------------- |
+| `fullscreen`                        | `non-native-visible-menu` | Fullscreen mode                                     |
+| `macos-non-native-fullscreen`       | `visible-menu`            | macOS non-native fullscreen                         |
+| `macos-titlebar-style`              | `hidden`                  | Hide the title bar                                  |
+| `window-inherit-working-directory`  | `false`                   | Do not inherit the current directory in new windows |
+| `window-padding-y`                  | `0`                       | Vertical padding                                    |
 
-### 入力
+### Input
 
-| 設定                      | 値     | 説明                                 |
-| ------------------------- | ------ | ------------------------------------ |
-| `macos-option-as-alt`     | `true` | Option キーを Alt として使用         |
-| `mouse-hide-while-typing` | `true` | タイピング中にマウスカーソルを非表示 |
+| Setting                    | Value  | Description                        |
+| -------------------------- | ------ | ---------------------------------- |
+| `macos-option-as-alt`      | `true` | Use the Option key as Alt          |
+| `mouse-hide-while-typing`  | `true` | Hide the mouse cursor while typing |
 
-### 無効化したキーバインド
+### Disabled keybindings
 
-tmux でタブ・ペイン管理を行うため、Ghostty 組み込みのタブ・スプリット系キーバインドをすべて無効化している。
+To manage tabs and panes with tmux, all built-in Ghostty keybindings related to tabs and splits are disabled.
 
-**タブ系:**
+**Tab-related:**
 
-- `⌘T` (新規タブ)
-- `⌘⇧[` / `⌘⇧]` (タブ切り替え)
-- `⌘1` 〜 `⌘9` (タブ番号ジャンプ)
+- `⌘T` (new tab)
+- `⌘⇧[` / `⌘⇧]` (switch tabs)
+- `⌘1` through `⌘9` (jump to tab number)
 
-**スプリット系:**
+**Split-related:**
 
-- `⌘D` / `⌘⇧D` (分割)
-- `⌘⌥↑↓←→` (ペインリサイズ)
-- `⌘⌃↑↓←→` (ペイン移動)
-- `⌘⇧Enter` (ペイン追加)
+- `⌘D` / `⌘⇧D` (split)
+- `⌘⌥↑↓←→` (resize pane)
+- `⌘⌃↑↓←→` (move pane)
+- `⌘⇧Enter` (add pane)
 
-## 背景画像
+## Background image
 
-`dotfiles/ghostty/hololive-en-advent.jpg` が設定ディレクトリに含まれており、シンボリックリンク経由で配置される。
+`dotfiles/ghostty/hololive-en-advent.jpg` is included in the configuration directory and placed via a symbolic link.

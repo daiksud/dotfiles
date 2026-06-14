@@ -1,68 +1,68 @@
-# Zsh カスタムプラグイン
+# Zsh Custom Plugins
 
-`dotfiles/zsh/` に配置されたカスタムプラグインの詳細リファレンスです。
+This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 
-## 一覧
+## List
 
-| ファイル                          | エイリアス | キーバインド | 説明                                  |
-| --------------------------------- | ---------- | ------------ | ------------------------------------- |
-| `gh-config-dir.zsh`               | —          | —            | Git identity + GH_CONFIG_DIR 自動設定 |
-| `go-to-ghq-repository.zsh`        | `ggr`      | `C-]`        | リポジトリ選択して `cd`               |
-| `edit-ghq-repository.zsh`         | `egr`      | —            | リポジトリ選択して nvim で開く        |
-| `edit-selected-file.zsh`          | `esf`      | —            | ファイル選択して nvim で開く          |
-| `fzf-select-history.zsh`          | —          | `C-r`        | fzf で履歴検索                        |
-| `browse-github-notifications.zsh` | `bgn`      | —            | GitHub 通知を閲覧                     |
-| `open-lazygit.zsh`                | `olg`      | —            | lazygit を起動                        |
-| `run-selected-command.zsh`        | —          | —            | コマンド実行ユーティリティ            |
-| `history-substring-search.zsh`    | —          | `↑` / `↓`    | サブストリング履歴検索                |
-| `zshaddhistory.zsh`               | —          | —            | 失敗コマンドを履歴から除外            |
+| File                              | Alias | Keybinding | Description                                              |
+| --------------------------------- | ----- | ---------- | -------------------------------------------------------- |
+| `gh-config-dir.zsh`               | —     | —          | Automatically configure Git identity and `GH_CONFIG_DIR` |
+| `go-to-ghq-repository.zsh`        | `ggr` | `C-]`      | Select a repository and `cd` into it                     |
+| `edit-ghq-repository.zsh`         | `egr` | —          | Select a repository and open it in `nvim`                |
+| `edit-selected-file.zsh`          | `esf` | —          | Select a file and open it in `nvim`                      |
+| `fzf-select-history.zsh`          | —     | `C-r`      | Search history with fzf                                  |
+| `browse-github-notifications.zsh` | `bgn` | —          | Browse GitHub notifications                              |
+| `open-lazygit.zsh`                | `olg` | —          | Launch lazygit                                           |
+| `run-selected-command.zsh`        | —     | —          | Command execution utility                                |
+| `history-substring-search.zsh`    | —     | `↑` / `↓`  | Substring history search                                 |
+| `zshaddhistory.zsh`               | —     | —          | Exclude failed commands from history                     |
 
 ---
 
 ## gh-config-dir.zsh
 
-リポジトリごとに GitHub アカウント情報と SSH 署名鍵を自動設定する最重要プラグイン。
+The most important plugin, which automatically configures GitHub account information and the SSH signing key for each repository.
 
-### 動作
+### Behavior
 
-`chpwd` フックで `cd` のたびに自動実行:
+Runs automatically on every `cd` via the `chpwd` hook:
 
-1. Git リポジトリ内であることを確認
-2. `.git/gh/` を作成し `GH_CONFIG_DIR` に設定（`gh` の認証を分離）
-3. GitHub origin の場合のみ、以下の identity 同期を実行:
-   - ローカルに `user.name` / `user.email` が未設定なら `gh api` で取得して設定
-   - `~/.ssh/<login>.pub` を `user.signingkey` に設定
-   - `~/.ssh/allowed_signers` を更新
+1. Check whether the current directory is inside a Git repository
+2. Create `.git/gh/` and set it in `GH_CONFIG_DIR` (isolates `gh` authentication)
+3. Only for GitHub origins, perform the following identity sync:
+   - If local `user.name` / `user.email` are not set, fetch them with `gh api` and set them
+   - Set `~/.ssh/<login>.pub` as `user.signingkey`
+   - Update `~/.ssh/allowed_signers`
 
-### 提供する関数
+### Functions provided
 
-| 関数                        | 説明                                                |
-| --------------------------- | --------------------------------------------------- |
-| `is_github_origin_repo`     | origin が github.com か判定                         |
-| `resolve_gh_identity`       | `gh api` からログイン名・名前・メールを取得         |
-| `sync_signing_key_from_gh`  | SSH 署名鍵と allowed_signers を設定                 |
-| `sync_git_identity_from_gh` | user.name / user.email / signing key をまとめて同期 |
-| `set_gh_config_dir`         | GH_CONFIG_DIR を設定し identity 同期を呼び出す      |
+| Function                    | Description                                                 |
+| --------------------------- | ----------------------------------------------------------- |
+| `is_github_origin_repo`     | Determine whether `origin` is `github.com`                 |
+| `resolve_gh_identity`       | Get login name, name, and email from `gh api`              |
+| `sync_signing_key_from_gh`  | Set the SSH signing key and `allowed_signers`              |
+| `sync_git_identity_from_gh` | Sync `user.name`, `user.email`, and the signing key together |
+| `set_gh_config_dir`         | Set `GH_CONFIG_DIR` and call identity sync                 |
 
-詳細は [Git ID の自動切り替え](../../guides/04-git-identity.md) を参照。
+For details, see [Automatic Git identity switching](../../guides/04-git-identity.md).
 
 ---
 
 ## go-to-ghq-repository.zsh
 
-`gh q list` でリポジトリ一覧を取得し、fzf で選択して `cd` する。
+Get a repository list with `gh q list`, select one with fzf, and `cd` into it.
 
-### 動作
+### Behavior
 
-1. `gh q list` でローカルリポジトリのパス一覧を取得
-2. `github.com` プレフィックスを除去して表示
-3. fzf で選択されたパスに `cd`
+1. Get a list of local repository paths with `gh q list`
+2. Display them after removing the `github.com` prefix
+3. `cd` into the path selected with fzf
 
-### キーバインド
+### Keybinding
 
-- `C-]` — ZLE ウィジェットとして呼び出し
+- `C-]` — Invoke as a ZLE widget
 
-### エイリアス
+### Alias
 
 - `ggr`
 
@@ -70,13 +70,13 @@
 
 ## edit-ghq-repository.zsh
 
-`gh q nvim` でリポジトリを選択して Neovim で開く。
+Select a repository with `gh q nvim` and open it in Neovim.
 
-### 動作
+### Behavior
 
-`run-selected-command` を経由して `gh q nvim` を実行する。
+Runs `gh q nvim` via `run-selected-command`.
 
-### エイリアス
+### Alias
 
 - `egr`
 
@@ -84,14 +84,14 @@
 
 ## edit-selected-file.zsh
 
-fzf でファイルを選択して Neovim で開く。
+Select a file with fzf and open it in Neovim.
 
-### 動作
+### Behavior
 
-1. `fzf` でファイルを選択（リスト元は `$FZF_DEFAULT_COMMAND` または fzf のデフォルト）
-2. `run-selected-command` を経由して `nvim <file>` を実行
+1. Select a file with `fzf` (the source list comes from `$FZF_DEFAULT_COMMAND` or fzf's default)
+2. Run `nvim <file>` via `run-selected-command`
 
-### エイリアス
+### Alias
 
 - `esf`
 
@@ -99,35 +99,35 @@ fzf でファイルを選択して Neovim で開く。
 
 ## fzf-select-history.zsh
 
-fzf を使ったインタラクティブ履歴検索。
+Interactive history search using fzf.
 
-### 動作
+### Behavior
 
-1. `history -n -r 1` で全履歴を新しい順に取得
-2. 現在のコマンドライン（`$LBUFFER`）をクエリとして fzf に渡す
-3. 選択された履歴をコマンドラインにセット
+1. Get the full history in newest-first order with `history -n -r 1`
+2. Pass the current command line (`$LBUFFER`) to fzf as the query
+3. Set the selected history entry onto the command line
 
-### キーバインド
+### Keybinding
 
-- `C-r` — ZLE ウィジェットとして呼び出し
+- `C-r` — Invoke as a ZLE widget
 
 ---
 
 ## browse-github-notifications.zsh
 
-未読の GitHub 通知（Issue / PR）を一覧表示し、選択して詳細を開く。
+List unread GitHub notifications (Issues / PRs), then select one and open its details.
 
-### 動作
+### Behavior
 
-1. `gh api notifications` で未読通知を取得（全ページ）
-2. Issue / PR のみをフィルタしてテーブル表示（リポジトリ#番号 / タイトル / 理由）
-3. fzf で選択し、`gh pr view` または `gh issue view` を実行
+1. Get unread notifications with `gh api notifications` (all pages)
+2. Filter only Issues / PRs and display them as a table (`repository#number / title / reason`)
+3. Select one with fzf, then run `gh pr view` or `gh issue view`
 
-### 依存
+### Dependencies
 
 `gh`, `jq`, `fzf`, `column`
 
-### エイリアス
+### Alias
 
 - `bgn`
 
@@ -135,14 +135,14 @@ fzf を使ったインタラクティブ履歴検索。
 
 ## open-lazygit.zsh
 
-lazygit を起動し、終了時にカレントディレクトリを lazygit 内で移動した先に同期する。
+Launch lazygit and, on exit, synchronize the current directory with the location moved to inside lazygit.
 
-### 動作
+### Behavior
 
-1. `LAZYGIT_NEW_DIR_FILE` を設定して lazygit を起動
-2. lazygit 終了後、ファイルに書かれたディレクトリに `cd`
+1. Set `LAZYGIT_NEW_DIR_FILE` and launch lazygit
+2. After lazygit exits, `cd` into the directory written to the file
 
-### エイリアス
+### Alias
 
 - `olg`
 
@@ -150,14 +150,14 @@ lazygit を起動し、終了時にカレントディレクトリを lazygit 内
 
 ## run-selected-command.zsh
 
-他のプラグインから呼ばれるユーティリティ関数。
+A utility function called by other plugins.
 
-### 動作
+### Behavior
 
-- ZLE コンテキスト（`$WIDGET` が設定されている）: コマンドをバッファにセットして `accept-line`
-- 通常コンテキスト: 履歴に追加してから直接実行
+- ZLE context (`$WIDGET` is set): Put the command in the buffer and call `accept-line`
+- Normal context: Add it to history, then execute it directly
 
-### インターフェース
+### Interface
 
 ```zsh
 run-selected-command "command_line_string" cmd arg1 arg2 ...
@@ -167,21 +167,21 @@ run-selected-command "command_line_string" cmd arg1 arg2 ...
 
 ## history-substring-search.zsh
 
-`zsh-history-substring-search` プラグインのキーバインド設定。
+Keybinding settings for the `zsh-history-substring-search` plugin.
 
-### キーバインド
+### Keybindings
 
-| キー         | 動作                             |
-| ------------ | -------------------------------- |
-| `↑` (`^[[A`) | 入力中の文字列で上方向に履歴検索 |
-| `↓` (`^[[B`) | 入力中の文字列で下方向に履歴検索 |
+| Key          | Action                                                     |
+| ------------ | ---------------------------------------------------------- |
+| `↑` (`^[[A`) | Search backward through history using the text being typed |
+| `↓` (`^[[B`) | Search forward through history using the text being typed  |
 
 ---
 
 ## zshaddhistory.zsh
 
-直前のコマンドが失敗（終了コード ≠ 0）した場合に履歴への記録をスキップする。
+Skip recording a command in history if the immediately previous command failed (exit code ≠ 0).
 
-### 動作
+### Behavior
 
-`zshaddhistory` フック関数を定義し、`$?` が 0 でなければ `false` を返す（= 履歴に追加しない）。
+Define the `zshaddhistory` hook function and return `false` when `$?` is not 0 (= do not add to history).

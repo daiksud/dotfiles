@@ -1,63 +1,63 @@
 # tmux
 
-ターミナルマルチプレクサ（tmux）の設定リファレンスです。
+This is the configuration reference for the terminal multiplexer (tmux).
 
-## ファイル
+## File
 
 `dotfiles/tmux.conf` → `~/.tmux.conf`
 
-## 基本設定
+## Basic settings
 
-| 設定               | 値              | 説明                                              |
-| ------------------ | --------------- | ------------------------------------------------- |
-| prefix             | `C-t`           | プレフィックスキー（デフォルトの `C-b` を無効化） |
-| `default-terminal` | `xterm-ghostty` | Ghostty の機能を tmux 内でも維持                  |
-| `mode-keys`        | `vi`            | コピーモードで vi キーバインド                    |
+| Setting            | Value           | Description                                 |
+| ------------------ | --------------- | ------------------------------------------- |
+| prefix             | `C-t`           | Prefix key (disables the default `C-b`)     |
+| `default-terminal` | `xterm-ghostty` | Preserve Ghostty features even inside tmux  |
+| `mode-keys`        | `vi`            | vi keybindings in copy mode                 |
 
-## キーバインド
+## Keybindings
 
-### ウィンドウ・ペイン操作
+### Window and pane operations
 
-| キー             | 動作                                     |
-| ---------------- | ---------------------------------------- |
-| `prefix c`       | 新規ウィンドウ（カレントパスを引き継ぐ） |
-| `prefix \`       | 水平分割（カレントパスを引き継ぐ）       |
-| `prefix -`       | 垂直分割（カレントパスを引き継ぐ）       |
-| `prefix h/j/k/l` | ペイン移動（vim 風）                     |
-| `prefix r`       | 設定リロード                             |
+| Key              | Action                                       |
+| ---------------- | -------------------------------------------- |
+| `prefix c`       | New window (inherits the current path)       |
+| `prefix \`      | Horizontal split (inherits the current path) |
+| `prefix -`       | Vertical split (inherits the current path)   |
+| `prefix h/j/k/l` | Move between panes (vim-style)               |
+| `prefix r`       | Reload configuration                         |
 
-### コピーモード
+### Copy mode
 
-| キー | 動作                     |
-| ---- | ------------------------ |
-| `v`  | 選択開始                 |
-| `y`  | コピー＆コピーモード終了 |
+| Key | Action                  |
+| --- | ----------------------- |
+| `v` | Start selection         |
+| `y` | Copy and exit copy mode |
 
-### 特殊キー
+### Special keys
 
-| キー          | 動作                                         |
-| ------------- | -------------------------------------------- |
-| `Shift+Enter` | `\e[13;2u` を送信（kitty keyboard protocol） |
+| Key           | Action                                     |
+| ------------- | ------------------------------------------ |
+| `Shift+Enter` | Send `\e[13;2u` (kitty keyboard protocol) |
 
-## プラグイン
+## Plugins
 
-TPM (Tmux Plugin Manager) で管理。プラグインディレクトリ: `~/.tmux/plugins/`
+Managed by TPM (Tmux Plugin Manager). Plugin directory: `~/.tmux/plugins/`
 
-| プラグイン                    | 説明                           |
-| ----------------------------- | ------------------------------ |
-| `tmux-plugins/tpm`            | プラグインマネージャ本体       |
-| `tmux-plugins/tmux-sensible`  | 基本的なベストプラクティス設定 |
-| `janoamaral/tokyo-night-tmux` | Tokyo Night テーマ             |
+| Plugin                        | Description                  |
+| ----------------------------- | ---------------------------- |
+| `tmux-plugins/tpm`            | Plugin manager itself        |
+| `tmux-plugins/tmux-sensible`  | Basic best-practice settings |
+| `janoamaral/tokyo-night-tmux` | Tokyo Night theme            |
 
-### Tokyo Night 設定
+### Tokyo Night settings
 
-| キー                      | 値      | 説明             |
-| ------------------------- | ------- | ---------------- |
-| `@tokyo-night-tmux_theme` | `storm` | Storm バリアント |
+| Key                       | Value   | Description   |
+| ------------------------- | ------- | ------------- |
+| `@tokyo-night-tmux_theme` | `storm` | Storm variant |
 
-## 自動起動
+## Auto-start
 
-`.zshrc` で tmux セッションに自動接続する:
+In `.zshrc`, automatically connect to a tmux session:
 
 ```zsh
 if [[ -z "$TMUX" ]] && command -v tmux >/dev/null 2>&1; then
@@ -65,15 +65,15 @@ if [[ -z "$TMUX" ]] && command -v tmux >/dev/null 2>&1; then
 fi
 ```
 
-- `new-session -A -s main` — `main` セッションが存在すれば attach、なければ作成
-- `exec` — シェルを tmux に置き換え（tmux 終了時にターミナルが閉じる）
+- `new-session -A -s main` — Attach if the `main` session exists; otherwise create it
+- `exec` — Replace the shell with tmux (the terminal closes when tmux exits)
 
-## TPM の初期化
+## Initializing TPM
 
-Homebrew のパスをプリペンドして TPM を起動:
+Start TPM after prepending the Homebrew path:
 
 ```
 run 'PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH" ~/.tmux/plugins/tpm/tpm'
 ```
 
-これにより TPM のプラグインスクリプトが Homebrew の bash 5+ を使用できる。
+This allows TPM's plugin scripts to use Homebrew's bash 5+.

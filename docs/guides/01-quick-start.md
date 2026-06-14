@@ -1,52 +1,52 @@
-# クイックスタート
+# Quick Start
 
-新しいマシン（または Codespaces）で開発環境を再現する最短手順です。
+This is the shortest procedure for reproducing the development environment on a new machine (or in Codespaces).
 
-このガイドを終えると、シェル設定・エディタ (Neovim)・ターミナル (Ghostty)・各種 CLI ツールがすべて揃った状態になります。
+By the end of this guide, your shell configuration, editor (Neovim), terminal (Ghostty), and various CLI tools will all be set up.
 
-## 1. リポジトリをクローンする
+## 1. Clone the repository
 
 ```bash
 git clone https://github.com/daiksud/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
 ```
 
-## 2. インストールスクリプトを実行する
+## 2. Run the installation script
 
 ```bash
 bash install.sh
 ```
 
-このスクリプトが行うこと:
+What this script does:
 
-1. `install_map.json` に従ってシンボリックリンクを作成
-2. Homebrew をインストール（未導入の場合）
-3. `Brewfile` のパッケージをインストール
-4. 各セットアップスクリプト (`scripts/`) を実行
+1. Creates symbolic links according to `install_map.json`
+2. Installs Homebrew if it is not already installed
+3. Installs the packages listed in `Brewfile`
+4. Runs each setup script in `scripts/`
 
-## 3. シェルを再起動する
+## 3. Restart the shell
 
 ```bash
 exec zsh
 ```
 
-Starship プロンプトが表示されれば成功です。
+If the Starship prompt appears, the setup was successful.
 
-## 動作確認
+## Verification
 
 ```bash
-# Neovim が起動するか
+# Check whether Neovim starts
 nvim --version
 
-# mise でツールバージョンが管理されているか
+# Check whether tool versions are managed by mise
 mise list
 
-# gh CLI が認証済みか
+# Check whether gh CLI is authenticated
 gh auth status
 ```
 
-## 次のステップ
+## Next steps
 
-- [インストール詳細](./02-installation.md) — `install.sh` の詳しい動作を知る
-- [リンクの追加・変更](./03-managing-links.md) — 新しい設定ファイルを管理対象に加える
-- [Git ID の自動切り替え](./04-git-identity.md) — 複数 GitHub アカウントを使い分ける
+- [Installation details](./02-installation.md) — Learn how `install.sh` works in detail
+- [Adding and changing links](./03-managing-links.md) — Add a new configuration file to the managed set
+- [Automatic Git ID switching](./04-git-identity.md) — Use multiple GitHub accounts

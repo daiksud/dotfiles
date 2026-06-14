@@ -1,18 +1,18 @@
-# Issue 1: サイトタイトルを daiksud/dotfiles に変更
+# Issue 1: Change the site title to daiksud/dotfiles
 
-## 日付
+## Date
 
 2026-05-27
 
-## 背景・目的
+## Background and purpose
 
-GitHub Pages のサイトタイトルが `dotfiles` のみだと、他のユーザーの dotfiles リポジトリと区別がつかない。`daiksud/dotfiles` とすることでリポジトリを一意に識別できるようにする。
+If the GitHub Pages site title is only `dotfiles`, it cannot be distinguished from other users' dotfiles repositories. Changing it to `daiksud/dotfiles` makes the repository uniquely identifiable.
 
-## 変更内容
+## Changes
 
-- `.docusaurus/docusaurus.config.ts` の `title`（サイト全体）を `daiksud/dotfiles` に変更
-- 同ファイルの `navbar.title` も `daiksud/dotfiles` に変更
+- Change `title` (site-wide) in `.docusaurus/docusaurus.config.ts` to `daiksud/dotfiles`
+- Change `navbar.title` in the same file to `daiksud/dotfiles`
 
-## 備考
+## Notes
 
-なし
+None

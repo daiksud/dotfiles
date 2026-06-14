@@ -1,41 +1,41 @@
-# ツール一覧
+# Tool list
 
-Brewfile で管理しているツールの一覧と用途です。
+This is the list of tools managed in the Brewfile and their purposes.
 
-## CLI ツール
+## CLI tools
 
-| パッケージ | 用途                                           |
-| ---------- | ---------------------------------------------- |
-| `gcc`      | Homebrew ビルド依存                            |
-| `bun`      | JavaScript ランタイム / パッケージマネージャ   |
-| `fish`     | Fish shell（サブシェル用）                     |
-| `fzf`      | ファジーファインダー（ファイル選択、履歴検索） |
-| `gh`       | GitHub CLI                                     |
-| `git`      | バージョン管理                                 |
-| `jq`       | JSON プロセッサ                                |
-| `lazygit`  | Git の TUI クライアント                        |
-| `lua`      | Lua ランタイム（Neovim プラグイン用）          |
-| `luarocks` | Lua パッケージマネージャ                       |
-| `mise`     | 開発ツールバージョン管理                       |
-| `neovim`   | テキストエディタ                               |
-| `node`     | Node.js ランタイム                             |
-| `ripgrep`  | 高速テキスト検索                               |
-| `rtk`      | LLM トークン削減 CLI プロキシ                  |
-| `sheldon`  | Zsh プラグインマネージャ                       |
-| `starship` | クロスシェルプロンプト                         |
-| `tmux`     | ターミナルマルチプレクサ                       |
-| `wget`     | HTTP ダウンローダ                              |
+| Package    | Purpose                                       |
+| ---------- | --------------------------------------------- |
+| `gcc`      | Homebrew build dependency                     |
+| `bun`      | JavaScript runtime / package manager          |
+| `fish`     | Fish shell (for subshell use)                 |
+| `fzf`      | Fuzzy finder (file selection, history search) |
+| `gh`       | GitHub CLI                                    |
+| `git`      | Version control                               |
+| `jq`       | JSON processor                                |
+| `lazygit`  | TUI client for Git                            |
+| `lua`      | Lua runtime (for Neovim plugins)              |
+| `luarocks` | Lua package manager                           |
+| `mise`     | Development tool version management           |
+| `neovim`   | Text editor                                   |
+| `node`     | Node.js runtime                               |
+| `ripgrep`  | Fast text search                              |
+| `rtk`      | CLI proxy for reducing LLM token usage        |
+| `sheldon`  | Zsh plugin manager                            |
+| `starship` | Cross-shell prompt                            |
+| `tmux`     | Terminal multiplexer                          |
+| `wget`     | HTTP downloader                               |
 
-## GUI アプリケーション（cask）
+## GUI applications (cask)
 
-| パッケージ             | 用途                                   |
-| ---------------------- | -------------------------------------- |
-| `copilot-cli`          | GitHub Copilot CLI                     |
-| `font-moralerspace-hw` | プログラミング用フォント（macOS のみ） |
+| Package                | Purpose                       |
+| ---------------------- | ----------------------------- |
+| `copilot-cli`          | GitHub Copilot CLI            |
+| `font-moralerspace-hw` | Programming font (macOS only) |
 
-## ツールの追加
+## Adding tools
 
-`Brewfile` にエントリを追加し、`install.sh` を再実行するか `brew bundle` を直接実行します。
+Add an entry to `Brewfile`, then rerun `install.sh` or run `brew bundle` directly.
 
 ```bash
 echo 'brew "new-tool"' >> Brewfile

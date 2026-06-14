@@ -1,21 +1,21 @@
-# スキルの開発
+# Skill Development
 
-Copilot CLI カスタムスキルを新規作成・変更するためのガイドです。
+This is a guide for creating or modifying Copilot CLI custom skills.
 
-## 新しいスキルを作る
+## Create a New Skill
 
-### 1. ディレクトリとファイルを作成
+### 1. Create the directory and file
 
 ```bash
 mkdir dotfiles/skills/<skill-name>
 touch dotfiles/skills/<skill-name>/SKILL.md
 ```
 
-### 2. SKILL.md を書く
+### 2. Write `SKILL.md`
 
 ```markdown
 ---
-description: スキルの説明（1行、日本語）
+description: Skill description (one line, in Japanese)
 name: skill-name
 ---
 
@@ -44,43 +44,43 @@ What the user sees when the skill completes.
 - Limitations and failure behavior
 ```
 
-### 3. 動作確認
+### 3. Verify it works
 
-シンボリックリンクが設定済みなら、作成した時点でスキルは利用可能です：
+If the symbolic link is already set up, the skill is available as soon as you create it:
 
 ```bash
 copilot -p "/skill-name"
 ```
 
-ロードエラーが出る場合はフロントマターの `name` と `description` が正しいか確認してください。
+If you see a loading error, check whether the `name` and `description` in the frontmatter are correct.
 
-## 記述ルール
+## Writing Rules
 
-| ルール                 | 理由                                      |
-| ---------------------- | ----------------------------------------- |
-| 日本語で書く           | 本文も description も日本語で統一するため  |
-| ステップを具体的に書く | 曖昧だとエージェントが判断に迷う          |
-| 制約条件を明示する     | 無限ループや破壊的操作を防ぐ              |
-| 出力を定義する         | ユーザーが何を期待できるか明確にする      |
+| Rule                        | Reason                                              |
+| --------------------------- | --------------------------------------------------- |
+| Write in Japanese           | To keep both the body text and `description` in Japanese |
+| Write concrete steps        | Ambiguity makes the agent hesitate when deciding what to do |
+| State constraints clearly   | Prevents infinite loops and destructive operations  |
+| Define the output           | Clarifies what the user can expect                  |
 
-## ファイル配置
+## File Placement
 
 ```
 dotfiles/skills/
 └── <skill-name>/
-    └── SKILL.md       # 必須: スキル定義ファイル
+    └── SKILL.md       # Required: skill definition file
 ```
 
-- 1 スキル = 1 ディレクトリ
-- ディレクトリ名 = スキル名（ケバブケース）
-- 追加ファイル（テンプレートなど）を同ディレクトリに置くことも可能
+- 1 skill = 1 directory
+- Directory name = skill name (kebab-case)
+- You may also place additional files (such as templates) in the same directory
 
-## インストール
+## Installation
 
-`install_map.json` に `"skills": "~/.copilot/skills"` が登録済みのため、`install.sh` を実行すればシンボリックリンクが作成されます。既にリンクが存在する場合は何もしなくても新しいスキルが認識されます。
+Because `"skills": "~/.copilot/skills"` is already registered in `install_map.json`, running `install.sh` creates the symbolic link. If the link already exists, the new skill is recognized without any additional action.
 
-## テストのコツ
+## Testing Tips
 
-- スキルを書いたら実際に `copilot -p "/skill-name"` で呼び出して動作を確認する
-- エージェントが手順通りに動かない場合は、ステップの記述をより具体的にする
-- `Constraints` セクションで失敗時の振る舞い（リトライ回数、停止条件）を定義すると安定性が上がる
+- After writing a skill, actually invoke it with `copilot -p "/skill-name"` to confirm it works
+- If the agent does not follow the steps as intended, make the step descriptions more specific
+- Stability improves if you define failure behavior in the `Constraints` section, such as retry counts and stop conditions

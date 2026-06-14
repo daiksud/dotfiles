@@ -1,64 +1,64 @@
 # Neovim
 
-Neovim（LazyVim）の設定リファレンスです。
+This is the configuration reference for Neovim (LazyVim).
 
-## ファイル
+## File
 
 `dotfiles/nvim/` → `~/.config/nvim/`
 
-## 構成
+## Structure
 
-LazyVim をベースに最小限のカスタマイズを行っている。
+Minimal customizations are applied on top of LazyVim.
 
 ```
 nvim/
-├── init.lua              # エントリポイント（config.lazy を require）
+├── init.lua              # Entry point (requires config.lazy)
 ├── lua/
 │   ├── config/
-│   │   ├── lazy.lua      # lazy.nvim ブートストラップと設定
-│   │   ├── options.lua   # 追加オプション（現在は空）
-│   │   ├── keymaps.lua   # カスタムキーマップ
-│   │   └── autocmds.lua  # 追加 autocmd（現在は空）
+│   │   ├── lazy.lua      # lazy.nvim bootstrap and configuration
+│   │   ├── options.lua   # Additional options (currently empty)
+│   │   ├── keymaps.lua   # Custom keymaps
+│   │   └── autocmds.lua  # Additional autocmds (currently empty)
 │   └── plugins/
-│       ├── example.lua   # LazyVim サンプル（無効化済み）
-│       └── tokyonight.lua # カラースキーム設定
-├── lazyvim.json          # LazyVim extras 設定
-└── stylua.toml           # Lua フォーマッタ設定
+│       ├── example.lua   # LazyVim sample (disabled)
+│       └── tokyonight.lua # Color scheme settings
+├── lazyvim.json          # LazyVim extras settings
+└── stylua.toml           # Lua formatter settings
 ```
 
 ## LazyVim Extras
 
-`lazyvim.json` で有効化している extras:
+Extras enabled in `lazyvim.json`:
 
-| Extra             | 説明                        |
+| Extra             | Description                 |
 | ----------------- | --------------------------- |
-| `ai.copilot`      | GitHub Copilot 補完         |
-| `editor.fzf`      | fzf ファイル検索            |
-| `lang.json`       | JSON LSP・ハイライト        |
-| `lang.toml`       | TOML LSP・ハイライト        |
+| `ai.copilot`      | GitHub Copilot completion   |
+| `editor.fzf`      | fzf file search             |
+| `lang.json`       | JSON LSP and highlighting   |
+| `lang.toml`       | TOML LSP and highlighting   |
 | `lang.typescript` | TypeScript / JavaScript LSP |
 | `lang.vue`        | Vue.js LSP                  |
-| `linting.eslint`  | ESLint 統合                 |
+| `linting.eslint`  | ESLint integration          |
 
-## カスタムキーマップ
+## Custom keymaps
 
-インサートモードで Emacs 風カーソル移動を追加:
+Adds Emacs-style cursor movement in insert mode:
 
-| キー  | 動作      |
-| ----- | --------- |
-| `C-a` | 行頭      |
-| `C-e` | 行末      |
-| `C-b` | 左        |
-| `C-f` | 右        |
-| `C-n` | 下        |
-| `C-p` | 上        |
-| `C-d` | Delete    |
-| `C-v` | Page Down |
-| `M-v` | Page Up   |
+| Key   | Action     |
+| ----- | ---------- |
+| `C-a` | Line start |
+| `C-e` | Line end   |
+| `C-b` | Left       |
+| `C-f` | Right      |
+| `C-n` | Down       |
+| `C-p` | Up         |
+| `C-d` | Delete     |
+| `C-v` | Page Down  |
+| `M-v` | Page Up    |
 
-## カラースキーム
+## Color scheme
 
-Tokyo Night Storm を透過モードで使用:
+Uses Tokyo Night Storm in transparent mode:
 
 ```lua
 {
@@ -74,19 +74,19 @@ Tokyo Night Storm を透過モードで使用:
 }
 ```
 
-## lazy.nvim 設定
+## lazy.nvim settings
 
-| 設定                  | 値                          | 説明                                     |
-| --------------------- | --------------------------- | ---------------------------------------- |
-| `defaults.lazy`       | `false`                     | カスタムプラグインは起動時にロード       |
-| `defaults.version`    | `false`                     | 常に最新の git commit を使用             |
-| `checker.enabled`     | `true`                      | プラグイン更新を定期チェック             |
-| `checker.notify`      | `false`                     | 更新通知を表示しない                     |
-| `install.colorscheme` | `["tokyonight", "habamax"]` | 初回インストール時のフォールバックテーマ |
+| Setting               | Value                          | Description                                  |
+| --------------------- | ------------------------------ | -------------------------------------------- |
+| `defaults.lazy`       | `false`                        | Load custom plugins at startup               |
+| `defaults.version`    | `false`                        | Always use the latest git commit             |
+| `checker.enabled`     | `true`                         | Periodically check for plugin updates        |
+| `checker.notify`      | `false`                        | Do not show update notifications             |
+| `install.colorscheme` | `["tokyonight", "habamax"]` | Fallback themes for the initial installation |
 
-### 無効化された rtp プラグイン
+### Disabled rtp plugins
 
-パフォーマンス最適化のため以下を無効化:
+The following are disabled for performance optimization:
 
 - `gzip`
 - `tarPlugin`

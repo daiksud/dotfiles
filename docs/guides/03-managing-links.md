@@ -1,8 +1,8 @@
-# リンクの追加・変更
+# Adding and changing links
 
-`install_map.json` を編集して、シンボリックリンクの対応関係を管理する方法を説明します。
+This page explains how to manage symbolic link mappings by editing `install_map.json`.
 
-## install_map.json の形式
+## `install_map.json` format
 
 ```json
 {
@@ -13,22 +13,22 @@
 }
 ```
 
-| フィールド | 説明                                                       |
-| ---------- | ---------------------------------------------------------- |
-| `<source>` | `dotfiles/` ディレクトリ内のファイルまたはディレクトリ名   |
-| `<target>` | リンク先の絶対パス（`~` はホームディレクトリに展開される） |
+| Field      | Description                                                      |
+| ---------- | ---------------------------------------------------------------- |
+| `<source>` | File or directory name inside the `dotfiles/` directory         |
+| `<target>` | Absolute destination path (`~` expands to the home directory) |
 
-## リンクを追加する
+## Add a link
 
-### 例: Copilot skills を管理する
+### Example: manage Copilot skills
 
-1. 設定ファイルを `dotfiles/` に配置する:
+1. Place the configuration files in `dotfiles/`:
 
 ```bash
 cp -r ~/.copilot/skills dotfiles/skills
 ```
 
-2. `install_map.json` にエントリを追加する:
+2. Add an entry to `install_map.json`:
 
 ```json
 {
@@ -38,13 +38,13 @@ cp -r ~/.copilot/skills dotfiles/skills
 }
 ```
 
-3. `install.sh` を再実行する:
+3. Re-run `install.sh`:
 
 ```bash
 bash install.sh
 ```
 
-### 例: ~/.config 以下のアプリを追加する
+### Example: add an application under `~/.config`
 
 ```bash
 cp -r ~/.config/lazygit dotfiles/lazygit
@@ -58,15 +58,15 @@ cp -r ~/.config/lazygit dotfiles/lazygit
 }
 ```
 
-## リンクを削除する
+## Remove a link
 
-`install_map.json` から該当エントリを削除し、必要に応じて `dotfiles/` 内のファイルも削除します。
+Remove the relevant entry from `install_map.json`, and remove the file in `dotfiles/` as needed.
 
 > [!NOTE]
-> `install.sh` はエントリにないリンクを自動削除しません。既存のシンボリックリンクは手動で `rm` してください。
+> `install.sh` does not automatically remove links that are no longer in the entries. Remove existing symbolic links manually with `rm`.
 
-## 宛先の親ディレクトリについて
+## About destination parent directories
 
-`install.sh` は宛先の親ディレクトリを自動作成します（`mkdir -p`）。`~/.config/` が存在しなくても問題ありません。
+`install.sh` automatically creates the destination parent directory (`mkdir -p`). It is fine if `~/.config/` does not already exist.
 
-旧環境で `~/.config` がシンボリックリンクだった場合は、実ディレクトリに変換してから内容を移行します。
+If `~/.config` was a symbolic link in an older environment, it converts it to a real directory first and then migrates the contents.

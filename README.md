@@ -1,8 +1,8 @@
 # dotfiles
 
-macOS / Ubuntu (Codespaces) で統一された開発環境を再現するための dotfiles です。
+These dotfiles reproduce a unified development environment for macOS / Ubuntu (Codespaces).
 
-## セットアップ
+## Setup
 
 ```bash
 git clone https://github.com/daiksud/dotfiles.git ~/.dotfiles
@@ -10,20 +10,20 @@ cd ~/.dotfiles
 bash install.sh
 ```
 
-## 含まれるもの
+## Included
 
-| カテゴリ   | 内容                                                    |
-| ---------- | ------------------------------------------------------- |
-| シェル     | Zsh + Starship プロンプト + sheldon プラグイン          |
-| エディタ   | Neovim (LazyVim)                                        |
-| ターミナル | Ghostty + tmux                                          |
-| ツール管理 | Homebrew + mise                                         |
-| Git        | マルチアカウント自動切り替え (gh-config-dir) + SSH 署名 |
-| CLI        | gh, fzf, ripgrep, lazygit, jq                           |
+| Category        | Contents                                                |
+| --------------- | ------------------------------------------------------- |
+| Shell           | Zsh + Starship prompt + sheldon plugins                 |
+| Editor          | Neovim (LazyVim)                                        |
+| Terminal        | Ghostty + tmux                                          |
+| Tool management | Homebrew + mise                                         |
+| Git             | Automatic multi-account switching (gh-config-dir) + SSH signing |
+| CLI             | gh, fzf, ripgrep, lazygit, jq                           |
 
-## 仕組み
+## How it works
 
-`install_map.json` にシンボリックリンクの対応表を定義し、`install.sh` がそれに従ってリンクを作成します。
+`install_map.json` defines the symbolic link mapping table, and `install.sh` creates links based on it.
 
 ```json
 {
@@ -35,15 +35,15 @@ bash install.sh
 }
 ```
 
-詳細は [ドキュメント](./docs/README.mdx) を参照してください。
+For details, see the [documentation](./docs/README.mdx).
 
-## 対応プラットフォーム
+## Supported platforms
 
 - macOS (Apple Silicon)
 - Ubuntu (GitHub Codespaces)
 
-## ドキュメント
+## Documentation
 
-- [ガイド](./docs/guides/README.md) — セットアップから日常的な使い方まで
-- [リファレンス](./docs/reference/README.md) — 設定ファイル・ツール一覧の詳細
-- [開発者向け](./docs/development/README.md) — リポジトリ構造・カスタマイズ・ADR
+- [Guides](./docs/guides/README.md) — from setup to everyday usage
+- [Reference](./docs/reference/README.md) — details for configuration files and the tool list
+- [Development](./docs/development/README.md) — repository structure, customization, and ADRs

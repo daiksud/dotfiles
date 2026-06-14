@@ -2,19 +2,19 @@
 sidebar_position: 0
 ---
 
-# 🛠️ 開発者向けガイド
+# 🛠️ Developer Guide
 
-dotfiles リポジトリ自体を変更・拡張するための開発者向けドキュメントです。
+This is the developer documentation for changing and extending the dotfiles repository itself.
 
-## How-to ガイド
+## How-to Guides
 
-- [リポジトリ構成](./01-project-structure.md) — ディレクトリ構造と各ファイルの役割
-- [ドキュメントスタイル](./02-docs-style.md) — Markdown 執筆規約
+- [Project Structure](./01-project-structure.md) — Directory structure and the role of each file
+- [Documentation Style](./02-docs-style.md) — Markdown writing conventions
 
-## 設計と意思決定
+## Design and Decisions
 
-- [意思決定記録（ADR）](./99-adr/README.md) — 技術選定の意思決定記録
+- [Decision Records (ADR)](./99-adr/README.md) — Records of technical decision-making
 
-## 更新方針
+## Update Policy
 
-設定ファイル、スクリプト、ツール構成を変えたときは、このセクションと `docs/reference/` の関連ページも同じ変更で更新してください。
+When you change configuration files, scripts, or the tool setup, update this section and the related pages under `docs/reference/` in the same change as well.

@@ -1,19 +1,19 @@
 # Copilot Skills
 
-カスタムスキルの仕様リファレンスです。
+This is the specification reference for custom skills.
 
-## スキル一覧
+## Skill list
 
-| スキル      | 説明                                                                              |
-| ----------- | --------------------------------------------------------------------------------- |
-| `pr-create` | 対応する Task を確認し、変更内容を理解して適切なコミットメッセージと Description でドラフト PR を作成する |
-| `pr-fix`    | CI エラーの修正とレビューコメントへの対処を行い、PR をマージ可能な状態にする      |
+| Skill       | Description                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `pr-create` | Check the corresponding Task, understand the changes, and create a draft PR with an appropriate commit message and description |
+| `pr-fix`    | Fix CI errors and handle review comments to bring the PR into a mergeable state                                                |
 
-## インストール先
+## Installation destination
 
-`install.sh` 実行時に `dotfiles/skills/` → `~/.copilot/skills/` へシンボリックリンクされます。
+When `install.sh` runs, `dotfiles/skills/` is symlinked to `~/.copilot/skills/`.
 
-## ディレクトリ構成
+## Directory structure
 
 ```
 dotfiles/skills/
@@ -23,129 +23,129 @@ dotfiles/skills/
     └── SKILL.md
 ```
 
-## SKILL.md フォーマット仕様
+## `SKILL.md` format specification
 
-### 構造
+### Structure
 
-フロントマターは必須。本文のセクション構成はスキルの性質に応じて自由に定義する。
+Frontmatter is required. The section structure of the body can be freely defined according to the nature of the skill.
 
-**シンプルなスキルの例（`pr-create` 形式）:**
+**Example of a simple skill (`pr-create` style):**
 
 ```markdown
 ---
-description: スキルの説明（1行、日本語）
-name: スキル名
+description: Skill description (1 line, in Japanese)
+name: Skill name
 ---
 
-# スキル名
+# Skill name
 
-## 概要
+## Overview
 
-（スキルが何をするか）
+(What the skill does)
 
-## 使用タイミング
+## When to use
 
-（どのような状況で使うか）
+(What kind of situations it is used in)
 
-## 手順
+## Procedure
 
-### ステップ 1: ...
+### Step 1: ...
 
-### ステップ 2: ...
+### Step 2: ...
 
-## 出力
+## Output
 
-（スキルの出力内容）
+(What the skill outputs)
 ```
 
-**モード分岐があるスキルの例（`pr-fix` 形式）:**
+**Example of a skill with mode branching (`pr-fix` style):**
 
 ```markdown
 ---
-description: スキルの説明（1行、日本語）
-name: スキル名
+description: Skill description (1 line, in Japanese)
+name: Skill name
 ---
 
-# スキル名
+# Skill name
 
-## 使い方
+## Usage
 
-（呼び出し方と各モードの説明）
+(How to invoke it and an explanation of each mode)
 
-## モード
+## Modes
 
 ### mode-a — ...
 
 ### mode-b — ...
 
-## 共通ステップ
+## Common steps
 
-（全モードで行う処理）
+(Processing performed in all modes)
 
-## 制約事項
+## Constraints
 
-（制約条件）
+(Constraints)
 ```
 
-### フロントマター（必須）
+### Frontmatter (required)
 
-| フィールド    | 型     | 説明                                       |
-| ------------- | ------ | ------------------------------------------ |
-| `name`        | string | スキルの識別名。ディレクトリ名と一致させる |
-| `description` | string | スキルの概要。CLI のスキル一覧に表示される |
+| Field         | Type   | Description                                     |
+| ------------- | ------ | ----------------------------------------------- |
+| `name`        | string | Skill identifier. Must match the directory name |
+| `description` | string | Skill summary. Displayed in the CLI skill list  |
 
-### 本文の記述言語
+### Language used in the body
 
-- フロントマターの `description` は**日本語**で記述する（CLI のスキル一覧表示に使用される）
-- 本文は**日本語**で記述する
+- Write the frontmatter `description` in **Japanese** (used in the CLI skill list display)
+- Write the body in **Japanese**
 
-### セクションガイドライン
+### Section guidelines
 
-| セクション       | 必須 | 説明                                 |
-| ---------------- | ---- | ------------------------------------ |
-| 概要 or 使い方   | ✅   | スキルの目的や呼び出し方を説明       |
-| 手順 or モード   | ✅   | ステップまたはモード別の操作手順     |
-| 制約事項         | 推奨 | 制約事項・失敗時の振る舞い           |
-| 出力             | 推奨 | スキル完了時にユーザーに表示する内容 |
-| 開発者向けヒント | 任意 | エイリアス設定例など                 |
+| Section              | Required    | Description                                          |
+| -------------------- | ----------- | ---------------------------------------------------- |
+| Overview or Usage    | ✅          | Explain the purpose of the skill or how to invoke it |
+| Procedure or Modes   | ✅          | Step-by-step or mode-specific operating procedure    |
+| Constraints          | Recommended | Constraints and behavior on failure                  |
+| Output               | Recommended | What is shown to the user when the skill finishes    |
+| Hints for developers | Optional    | Example alias configuration, etc.                    |
 
-## pr-create の詳細仕様
+## Detailed specification for `pr-create`
 
-### 動作フロー
+### Workflow
 
-1. 対応する Task (Issue) を確認（推測できない場合はユーザーに確認し、なければ作成を促す）
-2. `git diff` で変更内容を理解（Issue の Description・コメントも参照）
-3. Conventional Commits 形式でコミット
-4. feature ブランチにプッシュ
-5. PR Description を作成し（本文は日本語で記述）、ドラフト PR を `gh pr create --draft` で作成
-6. 呼び出したユーザーを Assignee に設定
-7. 対応する Task の Description を最終的な変更内容に合わせて更新（当初計画はコメントに退避）
+1. Check the corresponding Task (Issue) (if it cannot be inferred, ask the user to confirm; if there is none, encourage them to create one)
+2. Understand the changes with `git diff` (also refer to the Issue description and comments)
+3. Commit using the Conventional Commits format
+4. Push to the feature branch
+5. Create the PR description (write the body in Japanese), then create a draft PR with `gh pr create --draft`
+6. Set the invoking user as the Assignee
+7. Finally, update the corresponding Task description to match the final changes (move the original plan to a comment)
 
-### 入力
+### Input
 
-- ステージされたファイル、またはコミット済みの差分
-- オプション: 変更理由、関連 Issue 番号
+- Staged files, or already committed diffs
+- Optional: reason for the change, related Issue number
 
-### 出力
+### Output
 
-- 作成されたドラフト PR の URL
+- URL of the created draft PR
 
-## pr-fix の詳細仕様
+## Detailed specification for `pr-fix`
 
-### 動作フロー
+### Workflow
 
-1. 指定された PR の CI ステータスを確認
-2. CI 失敗がある場合、ログを分析し修正を繰り返す（最大 3 回）
-3. レビューコメントを全件取得し、各コメントの妥当性を判断
-4. 妥当なコメントは修正、不当なコメントはスキップ
-5. コミット・プッシュ前に `code-review` サブエージェントでローカルレビュー実施
-6. プッシュ後、各レビューコメントに対応内容をリプライ
+1. Check the CI status of the specified PR
+2. If there are CI failures, analyze the logs and repeat fixes (up to 3 times)
+3. Retrieve all review comments and judge the validity of each one
+4. Fix valid comments and skip invalid ones
+5. Before committing and pushing, run a local review with the `code-review` sub-agent
+6. After pushing, reply to each review comment with how it was addressed
 
-### 入力
+### Input
 
-- PR 番号（必須）
+- PR number (required)
 
-### 出力
+### Output
 
-- 各レビューコメントへのリプライ
-- CI が通らない場合はエラーレポート
+- Replies to each review comment
+- Error report if CI still does not pass

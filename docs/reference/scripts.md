@@ -1,101 +1,101 @@
-# スクリプト一覧
+# Script list
 
-`scripts/` 以下のセットアップスクリプトの役割と実行順序を説明します。
+This page explains the role and execution order of the setup scripts under `scripts/`.
 
-## 実行順序
+## Execution order
 
-スクリプトはファイル名の番号プリフィックスによってグループ化されます。
+Scripts are grouped by the numeric prefix in the file name.
 
-| グループ             | 実行方法 | 説明                              |
-| -------------------- | -------- | --------------------------------- |
-| `000-*`              | 逐次     | OS 固有の初期設定                 |
-| `001-*`              | 逐次     | Homebrew のインストール           |
-| `002-*`              | 逐次     | Brewfile パッケージのインストール |
-| `100-*`（Brew 依存） | 逐次     | Homebrew パッケージに依存する設定 |
-| `100-*`（その他）    | 並列     | 独立したツール設定                |
+| Group                    | Execution method | Description                                     |
+| ------------------------ | ---------------- | ----------------------------------------------- |
+| `000-*`                  | Sequential       | OS-specific initial setup                       |
+| `001-*`                  | Sequential       | Homebrew installation                           |
+| `002-*`                  | Sequential       | Brewfile package installation                   |
+| `100-*` (Brew-dependent) | Sequential       | Configuration that depends on Homebrew packages |
+| `100-*` (others)         | Parallel         | Independent tool configuration                  |
 
-## スクリプト詳細
+## Script details
 
 ### 000-codespace.sh
 
-Codespaces (Ubuntu) 固有の初期設定を行います。macOS では何もしません。
+Performs Codespaces (Ubuntu)-specific initial setup. Does nothing on macOS.
 
-- タイムゾーンを `Asia/Tokyo` に設定
-- デフォルトシェルを zsh に変更
-- `build-essential`, `git` をインストール
+- Set the time zone to `Asia/Tokyo`
+- Change the default shell to zsh
+- Install `build-essential` and `git`
 
 ### 001-homebrew.sh
 
-Homebrew が未インストールの場合にインストールします。
+Installs Homebrew if it is not already installed.
 
 - macOS: `/opt/homebrew/bin/brew`
 - Linux: `/home/linuxbrew/.linuxbrew/bin/brew`
 
-インストール後に `gcc` をインストールし、全パッケージを `brew upgrade` でアップグレードします。
+After installation, it installs `gcc` and upgrades all packages with `brew upgrade`.
 
 ### 002-brewfile.sh
 
-`Brewfile` に定義されたパッケージを `brew bundle` でインストールします。
+Installs the packages defined in `Brewfile` with `brew bundle`.
 
 ### 100-gh-extensions.sh
 
-GitHub CLI の拡張機能をインストールし、関連ツールを追加します。
+Installs GitHub CLI extensions and adds related tools.
 
-- `gh-q`（HikaruEgashira/gh-q）拡張機能をインストール
-- `gh-infra`（babarot/gh-infra）拡張機能をインストール（`.github/settings.yml` による宣言的リポジトリ設定に使用。詳細は [gh-infra](./gh-infra.md) を参照）
-- `fd`（高速ファイル検索ツール）を Homebrew でインストール
+- Install the `gh-q` (`HikaruEgashira/gh-q`) extension
+- Install the `gh-infra` (`babarot/gh-infra`) extension (used for declarative repository settings with `.github/settings.yml`; see [gh-infra](./gh-infra.md) for details)
+- Install `fd` (a fast file search tool) with Homebrew
 
 ### 100-ghostty.sh
 
-Ghostty ターミナルエミュレータをインストールし、terminfo を設定します（未インストールの場合）。
+Installs the Ghostty terminal emulator and configures terminfo (if not already installed).
 
-- macOS: Homebrew cask からインストール
-- Linux: インストールスクリプトで導入
-- macOS では `/Applications/Ghostty.app` の terminfo を `~/.terminfo/` へコピー（`xterm-ghostty` 認識のため）
+- macOS: Install from Homebrew cask
+- Linux: Install with the installation script
+- On macOS, copy the terminfo from `/Applications/Ghostty.app` to `~/.terminfo/` (so `xterm-ghostty` is recognized)
 
 ### 100-lazyvim.sh
 
-LazyVim (Neovim 設定フレームワーク) の依存関係を設定します。
+Sets up dependencies for LazyVim (the Neovim configuration framework).
 
 ### 100-mise.sh
 
-mise で管理するツール群をインストールします（`mise install`）。
+Installs the tools managed by mise (`mise install`).
 
 ### 100-sheldon.sh
 
-sheldon と starship を Homebrew でインストールし、プラグインをロックファイルに従ってセットアップします。
+Installs sheldon and starship with Homebrew, then sets up plugins according to the lockfile.
 
-- `sheldon` と `starship` を Homebrew でインストール
-- `sheldon lock` でプラグインをインストール
+- Install `sheldon` and `starship` with Homebrew
+- Install plugins with `sheldon lock`
 
 ### 100-tmux.sh
 
-tmux Plugin Manager (tpm) をインストールし、プラグインと依存パッケージをセットアップします。
+Installs tmux Plugin Manager (tpm) and sets up plugins and dependency packages.
 
-- tpm を `~/.tmux/plugins/tpm/` にクローン（未インストールの場合）
-- tpm でプラグインをインストール
-- 共通パッケージを Homebrew でインストール: `bash`, `bc`, `coreutils`, `gawk`, `gh`, `git`, `jq`
-- macOS 追加: `glab`, `gsed`, `nowplaying-cli`, `font-noto-sans-symbols-2`
-- Linux 追加: `playerctl`
+- Clone tpm into `~/.tmux/plugins/tpm/` (if not already installed)
+- Install plugins with tpm
+- Install common packages with Homebrew: `bash`, `bc`, `coreutils`, `gawk`, `gh`, `git`, `jq`
+- Additional packages on macOS: `glab`, `gsed`, `nowplaying-cli`, `font-noto-sans-symbols-2`
+- Additional package on Linux: `playerctl`
 
-## Brew 依存スクリプト
+## Brew-dependent scripts
 
-以下のスクリプトは Homebrew パッケージに依存するため、並列実行されず逐次実行されます:
+The following scripts depend on Homebrew packages, so they are run sequentially instead of in parallel:
 
 - `100-ghostty.sh`
 - `100-lazyvim.sh`
 - `100-sheldon.sh`
 
-## スクリプトの追加
+## Adding scripts
 
-新しいスクリプトを追加する場合:
+When adding a new script:
 
-1. `scripts/` に `100-<name>.sh` を作成
-2. Homebrew に依存する場合は `install.sh` の `is_brew_dependent_100_script()` に追加
+1. Create `100-<name>.sh` in `scripts/`
+2. If it depends on Homebrew, add it to `is_brew_dependent_100_script()` in `install.sh`
 
 ```bash
 #!/bin/bash
 # scripts/100-new-tool.sh
 
-# ツールのセットアップ処理
+# Tool setup process
 ```

@@ -1,4 +1,4 @@
-# ADR 0003: Sheldon + Starship による Oh-My-Zsh の置き換え
+# ADR 0003: Replace Oh-My-Zsh with Sheldon + Starship
 
 ## Status
 
@@ -6,46 +6,46 @@ Accepted
 
 ## Context
 
-Oh-My-Zsh はプラグイン管理・テーマ・補完を一括提供するモノリシックなフレームワーク。以下の問題があった:
+Oh-My-Zsh is a monolithic framework that bundles plugin management, themes, and completion. It had the following problems:
 
-- フレームワーク全体（`lib/*.zsh`）をロードするためシェル起動が遅い
-- プラグイン管理が OMZ のディレクトリ構造に依存し、宣言的でない
-- テーマが OMZ 内部の関数に依存しており、他のシェルに移植できない
+- Shell startup was slow because the entire framework (`lib/*.zsh`) had to be loaded
+- Plugin management depended on OMZ's directory structure and was not declarative
+- Themes depended on internal OMZ functions and could not be ported to other shells
 
-目標は、高速な起動・宣言的で最小限のプラグイン管理・ポータブルなプロンプトの実現。
+The goal is to achieve fast startup, declarative and minimal plugin management, and a portable prompt.
 
 ## Decision
 
-Oh-My-Zsh を 2 つの専門ツールで置き換える:
+Replace Oh-My-Zsh with two specialized tools:
 
-- **Sheldon** — TOML 設定による宣言的プラグインマネージャ（`~/.config/sheldon/plugins.toml`）
-- **Starship** — Rust 製クロスシェルプロンプト（`~/.config/starship.toml`）
+- **Sheldon** — a declarative plugin manager configured with TOML (`~/.config/sheldon/plugins.toml`)
+- **Starship** — a Rust-based cross-shell prompt (`~/.config/starship.toml`)
 
-### プラグイン読み込み
+### Plugin loading
 
-必要なプラグインのみを `plugins.toml` に宣言する。OMZ の git プラグインは `ohmyzsh/ohmyzsh` リポジトリの `plugins/git` ディレクトリを直接参照する形で継続利用。
+Declare only the required plugins in `plugins.toml`. Continue using the OMZ git plugin by directly referencing the `plugins/git` directory in the `ohmyzsh/ohmyzsh` repository.
 
-### 重要な制約: compinit の順序
+### Important constraint: `compinit` order
 
-`compinit` は `sheldon source` の**前に**呼ぶ必要がある。fzf-tab など `compdef` を使うプラグインが正しく動作するため。
+`compinit` must be called **before** `sheldon source`. This is required so plugins that use `compdef`, such as fzf-tab, work correctly.
 
 ## Alternatives Considered
 
-### Oh-My-Zsh を維持
+### Keep Oh-My-Zsh
 
-不採用 — 不要なオーバーヘッドと非宣言的なプラグイン管理。
+Not adopted — unnecessary overhead and non-declarative plugin management.
 
 ### Zinit / Antidote
 
-検討した — いずれも有力な zsh プラグインマネージャ。Sheldon を選んだ理由は Rust 実装（高速）、TOML 設定（可読性）、ロックファイル機構。
+Considered — both are strong zsh plugin managers. Sheldon was chosen because of its Rust implementation (fast), TOML configuration (readable), and lockfile mechanism.
 
 ### Pure / Powerlevel10k
 
-プロンプトとして検討した — Starship を選んだ理由はクロスシェル互換性とシンプルな TOML 設定。
+Considered as prompts — Starship was chosen because of its cross-shell compatibility and simple TOML configuration.
 
 ## Consequences
 
-- シェル起動が高速化（宣言したプラグインのみロード）
-- `plugins.toml` が zsh プラグインの単一の信頼源
-- Starship の設定は bash, fish など他シェルでも再利用可能
-- Brew, gh, mise の OMZ プラグインは削除（これらのツールは独自のシェル統合を持つため）
+- Shell startup is faster because only declared plugins are loaded
+- `plugins.toml` becomes the single source of truth for zsh plugins
+- Starship configuration can be reused in other shells such as bash and fish
+- The OMZ plugins for Brew, gh, and mise are removed because those tools provide their own shell integrations

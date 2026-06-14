@@ -1,114 +1,114 @@
-# ドキュメントスタイル
+# Documentation Style
 
-このリポジトリのドキュメント執筆ルールを定義します。
+This page defines the documentation writing rules for this repository.
 
-## Diátaxis に基づくセクション構成
+## Section Structure Based on Diátaxis
 
-`docs/` 以下は [Diátaxis フレームワーク](https://diataxis.fr/) の 4 象限に基づいて構成されています。
+Everything under `docs/` is organized according to the four quadrants of the [Diátaxis framework](https://diataxis.fr/).
 
-| Diátaxis 象限  | セクション                                         | 内容                       |
-| -------------- | -------------------------------------------------- | -------------------------- |
-| チュートリアル | `guides/01-quick-start.md`                         | 学習目標を持つ体験型ガイド |
-| How-to ガイド  | `guides/02-*` 〜 `guides/04-*`                     | タスク指向の手順書         |
-| リファレンス   | `reference/`                                       | 仕様の網羅的記述           |
-| 説明           | `guides/04-git-identity.md`, `development/99-adr/` | 設計思想・背景・意思決定   |
+| Diátaxis Quadrant | Section                                            | Content                                             |
+| ----------------- | -------------------------------------------------- | --------------------------------------------------- |
+| Tutorial          | `guides/01-quick-start.md`                         | Guided, hands-on documentation with a learning goal |
+| How-to Guide      | `guides/02-*` to `guides/04-*`                     | Task-oriented procedures                            |
+| Reference         | `reference/`                                       | Comprehensive specification                         |
+| Explanation       | `guides/04-git-identity.md`, `development/99-adr/` | Design philosophy, background, and decisions        |
 
-## ページの基本構造
+## Basic Page Structure
 
-すべてのページは `# h1` タイトルで始め、直後にそのページの概要を 1 文で書きます。
+Every page begins with a `# h1` title, followed immediately by a one-sentence summary of what the page covers.
 
 ```md
-# ページタイトル
+# Page Title
 
-このページで何が分かるかを 1 文で説明します。
+Explain in one sentence what the reader will learn on this page.
 
-## 最初のセクション
+## First Section
 
 ...
 ```
 
-## ファイル名と並び順
+## File Names and Ordering
 
-- セクションの入口は `README.md`（または `README.mdx`）
-- 個別ページは `01-topic.md`、`02-topic.md` のように連番を付ける
-- `docs/` 直下のセクションディレクトリには番号プリフィックスを付けない
+- The entry point for a section is `README.md` (or `README.mdx`)
+- Individual pages use sequential numbering such as `01-topic.md` and `02-topic.md`
+- Section directories directly under `docs/` do not use numeric prefixes
 
-## リンクの書き方
+## How to Write Links
 
-ドキュメント間リンクは**相対パスかつ `.md` 拡張子付き**で記述します。
+Links between documents must be written using **relative paths with the `.md` extension**.
 
 ```md
-<!-- ✅ 正しい -->
+<!-- ✅ Correct -->
 
-[クイックスタート](../guides/01-quick-start.md)
+[Quick Start](../guides/01-quick-start.md)
 
-<!-- ❌ 間違い -->
+<!-- ❌ Incorrect -->
 
-[クイックスタート](/guides/quick-start)
+[Quick Start](/guides/quick-start)
 ```
 
-## 図の活用
+## Using Diagrams
 
-Mermaid を使い、フローやアーキテクチャを図示します。
+Use Mermaid to illustrate flows and architecture.
 
 ````md
 ```mermaid
 graph LR
   A[install.sh] --> B[parse_links]
-  B --> C[symlink 作成]
+  B --> C[Create symlink]
 ```
 ````
 
-## Markdown の書き方
+## Writing Markdown
 
-- コードブロックには必ず言語名を付ける
-- パス、コマンド、識別子はバッククォートで囲む
-- 注記・警告には `> **Note**:` ではなく GitHub Alerts 記法を使用する
+- Always specify a language name for code blocks
+- Wrap paths, commands, and identifiers in backticks
+- For notes and warnings, use GitHub Alerts syntax instead of `> **Note**:`
 
   ```md
   > [!NOTE]
-  > 補足情報
+  > Supplementary information
 
   > [!WARNING]
-  > 注意が必要な情報
+  > Information that requires caution
 
   > [!IMPORTANT]
-  > 重要な情報
+  > Important information
   ```
 
-- コマンド例の先頭に `$` を付けない
+- Do not prefix example commands with `$`
 
-## 日本語の書き方
+## Writing Japanese
 
-- 基本は「です・ます調」で統一する
-- 1 文を長くしすぎない
-- 曖昧な表現より、実際の操作や結果を書き切る
+- Use polite Japanese style consistently (`desu/masu` style)
+- Avoid making individual sentences too long
+- Instead of ambiguous wording, fully describe the actual operation or result
 
-## ドキュメント戦略
+## Documentation Strategy
 
-コードとドキュメントは常に一致した状態を維持します。
+Keep code and documentation in sync at all times.
 
-### 原則
+### Principles
 
-- コードや設定に変更を加えたら、**同じコミットまたは同じ PR 内で**関連ドキュメントも更新する
-- ドキュメントの更新を「後でやる」としない。コード変更とドキュメント更新はセットで完了とする
-- 重要な技術判断は `99-adr/` に ADR として残す
+- When you change code or configuration, update the related documentation **in the same commit or the same PR**
+- Do not postpone documentation updates until later. A code change and its documentation update are complete only when both are done together
+- Record important technical decisions as ADRs under `99-adr/`
 
-### 変更時のチェックリスト
+### Checklist for Changes
 
-変更を行った際に以下を確認してください：
+When making changes, check the following:
 
-1. **追従確認** — 変更した機能・設定に言及しているドキュメントページはないか
-2. **正確性** — 既存の説明が古くなっていないか、コマンド例は正しいか
-3. **網羅性** — 新機能やオプションがリファレンスに記載されているか
-4. **リンク整合性** — ファイル名変更やディレクトリ移動でリンク切れが発生していないか
+1. **Follow-up check** — Are there documentation pages that mention the feature or setting you changed?
+2. **Accuracy** — Has any existing explanation become outdated, and are the example commands still correct?
+3. **Coverage** — Are new features and options documented in the reference?
+4. **Link integrity** — Did a file rename or directory move create any broken links?
 
-### 対象範囲
+### Scope
 
-| 変更内容                  | 確認すべきドキュメント                                                               |
-| ------------------------- | ------------------------------------------------------------------------------------ |
-| `install_map.json` の変更 | `reference/install-map.md`, `guides/03-managing-links.md`                            |
-| ツールの追加・削除        | `reference/tools.md`, 該当する個別リファレンス                                       |
-| スクリプトの変更          | `reference/scripts.md`                                                               |
-| スキルの追加・変更        | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md` |
-| Docusaurus 設定変更       | `.docusaurus/README.md`                                                              |
+| Change                         | Documentation to review                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| Changes to `install_map.json`  | `reference/install-map.md`, `guides/03-managing-links.md`                            |
+| Adding or removing tools       | `reference/tools.md`, the corresponding individual reference pages                   |
+| Changes to scripts             | `reference/scripts.md`                                                               |
+| Adding or changing skills      | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md` |
+| Changes to Docusaurus settings | `.docusaurus/README.md`                                                              |

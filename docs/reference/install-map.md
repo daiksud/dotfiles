@@ -1,12 +1,12 @@
 # install_map.json
 
-シンボリックリンクの対応表ファイルの仕様です。
+This is the specification for the symbolic link mapping file.
 
-## 場所
+## Location
 
-リポジトリルートの `install_map.json`
+`install_map.json` at the repository root
 
-## 形式
+## Format
 
 ```json
 {
@@ -16,45 +16,45 @@
 }
 ```
 
-## フィールド定義
+## Field definitions
 
 ### links
 
-シンボリックリンクのマッピングを定義するオブジェクトです。
+An object that defines symbolic link mappings.
 
-| キー       | 型     | 説明                                                           |
-| ---------- | ------ | -------------------------------------------------------------- |
-| `<source>` | string | `dotfiles/` ディレクトリ内のファイルまたはディレクトリの相対名 |
-| `<target>` | string | リンク先の絶対パス。`~` はホームディレクトリに展開される       |
+| Key        | Type   | Description                                                          |
+| ---------- | ------ | -------------------------------------------------------------------- |
+| `<source>` | string | Relative name of a file or directory under the `dotfiles/` directory |
+| `<target>` | string | Absolute destination path. `~` is expanded to the home directory     |
 
-## 現在のエントリ
+## Current entries
 
-| Source                    | Target                               | 内容                               |
-| ------------------------- | ------------------------------------ | ---------------------------------- |
-| `zshrc`                   | `~/.zshrc`                           | Zsh 設定ファイル                   |
-| `zsh`                     | `~/.zsh`                             | Zsh カスタムプラグインディレクトリ |
-| `tmux.conf`               | `~/.tmux.conf`                       | tmux 設定                          |
-| `gitconfig`               | `~/.gitconfig`                       | Git グローバル設定                 |
-| `ghostty`                 | `~/.config/ghostty`                  | Ghostty ターミナル設定             |
-| `mise`                    | `~/.config/mise`                     | mise ツールバージョン設定          |
-| `nvim`                    | `~/.config/nvim`                     | Neovim 設定 (LazyVim)              |
-| `sheldon`                 | `~/.config/sheldon`                  | sheldon プラグイン設定             |
-| `starship.toml`           | `~/.config/starship.toml`            | Starship プロンプト設定            |
-| `skills`                  | `~/.copilot/skills`                  | Copilot CLI カスタムスキル         |
-| `copilot-instructions.md` | `~/.copilot/copilot-instructions.md` | Copilot CLI パーソナル指示ファイル |
+| Source                    | Target                               | Contents                               |
+| ------------------------- | ------------------------------------ | -------------------------------------- |
+| `zshrc`                   | `~/.zshrc`                           | Zsh configuration file                 |
+| `zsh`                     | `~/.zsh`                             | Zsh custom plugin directory            |
+| `tmux.conf`               | `~/.tmux.conf`                       | tmux configuration                     |
+| `gitconfig`               | `~/.gitconfig`                       | Global Git configuration               |
+| `ghostty`                 | `~/.config/ghostty`                  | Ghostty terminal configuration         |
+| `mise`                    | `~/.config/mise`                     | mise tool version configuration        |
+| `nvim`                    | `~/.config/nvim`                     | Neovim configuration (LazyVim)         |
+| `sheldon`                 | `~/.config/sheldon`                  | sheldon plugin configuration           |
+| `starship.toml`           | `~/.config/starship.toml`            | Starship prompt configuration          |
+| `skills`                  | `~/.copilot/skills`                  | Copilot CLI custom skills              |
+| `copilot-instructions.md` | `~/.copilot/copilot-instructions.md` | Copilot CLI personal instructions file |
 
-## 処理の仕様
+## Processing specification
 
-`install.sh` が `install_map.json` を処理する際の動作:
+Behavior when `install.sh` processes `install_map.json`:
 
-1. Python3 の `json` モジュールでファイルをパース
-2. `~` を `$HOME` に展開
-3. 各エントリについて:
-   - 宛先の親ディレクトリがシンボリックリンクの場合、実ディレクトリに変換して内容を移行
-   - 親ディレクトリが存在しなければ `mkdir -p` で作成
-   - 既存のファイル/リンクがあれば `rm -rf` で削除
-   - `dotfiles/<source>` → `<target>` のシンボリックリンクを作成
+1. Parse the file with Python3's `json` module
+2. Expand `~` to `$HOME`
+3. For each entry:
+   - If the destination's parent directory is a symbolic link, convert it to a real directory and migrate the contents
+   - If the parent directory does not exist, create it with `mkdir -p`
+   - If an existing file/link is present, remove it with `rm -rf`
+   - Create a symbolic link from `dotfiles/<source>` to `<target>`
 
-## 制約
+## Constraints
 
-- JSON としてバリッドであること（末尾カンマ不可）
+- Must be valid JSON (no trailing commas)

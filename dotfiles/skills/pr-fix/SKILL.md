@@ -1,58 +1,58 @@
 ---
-description: Pull Request を修正する際に使用するスキル。CI 失敗・レビューフィードバック・マージコンフリクトへの対処を行います。/pr fix、/pr fix all、/pr fix ci、/pr fix feedback、/pr fix conflicts が呼び出されたときも含む。
+description: A skill used when fixing a Pull Request. It handles CI failures, review feedback, and merge conflicts. This also applies when `/pr fix`, `/pr fix all`, `/pr fix ci`, `/pr fix feedback`, or `/pr fix conflicts` is invoked.
 name: pr-fix
 ---
 
 # pr-fix
 
-Pull Request をマージ可能な状態に導くスキルです。
+This is a skill for bringing a Pull Request into a mergeable state.
 
-## 使い方
+## Usage
 
-PR 番号と任意のモードを指定して呼び出します:
+Invoke it with a PR number and an optional mode:
 
 ```
-/pr fix #42              # すべて修正（conflicts → ci → feedback）
-/pr fix all #42          # 上記と同じ（明示的指定）
-/pr fix ci #42           # CI 失敗のみ修正
-/pr fix feedback #42     # レビューコメントのみ対処
-/pr fix conflicts #42    # マージコンフリクトのみ解消
+/pr fix #42              # Fix everything (conflicts → ci → feedback)
+/pr fix all #42          # Same as above (explicit mode)
+/pr fix ci #42           # Fix CI failures only
+/pr fix feedback #42     # Handle review comments only
+/pr fix conflicts #42    # Resolve merge conflicts only
 ```
 
-## モード
+## Modes
 
-### ci — CI 失敗の修正
+### ci — Fix CI failures
 
-- 指定された PR の CI ステータスを取得する
-- 失敗しているチェックがあればログを確認し、根本原因を特定する
-- すべての CI チェックが通るまで反復的に修正を適用する
-- CI がグリーンになったらコミット・プッシュする
-- 3 回試行しても CI 失敗を解消できない場合、作業を中止して問題を報告する
+- Retrieve the CI status for the specified PR
+- If any checks are failing, inspect the logs and identify the root cause
+- Apply fixes iteratively until all CI checks pass
+- Commit and push once CI is green
+- If the CI failures cannot be resolved after 3 attempts, stop the work and report the issue
 
-### conflicts — マージコンフリクトの解消
+### conflicts — Resolve merge conflicts
 
-- PR のベースブランチを fetch し、rebase またはマージでコンフリクトを表面化させる
-- コンフリクトが発生しているすべてのファイルを特定する
-- ベースブランチの変更が明らかに正しい場合を除き、PR の変更意図を保持しながら各コンフリクトを解消する
-- 解消したファイルを明確なメッセージでコミットする
-- 解消済みブランチをプッシュする
+- Fetch the PR base branch and surface conflicts through a rebase or merge
+- Identify all files with conflicts
+- Unless the base branch change is obviously correct, resolve each conflict while preserving the intent of the PR changes
+- Commit the resolved files with a clear message
+- Push the resolved branch
 
-### feedback — レビューコメントへの対処
+### feedback — Handle review comments
 
-- PR の未解決レビューコメントをすべて取得する
-  - 必ずレビューコメントへのリプライもすべて取得すること
-  - GraphQL でレビュースレッドを取得する際は `reviewThreads(first: 100, after: $cursor)` を使用し、レスポンスの `pageInfo { hasNextPage endCursor }` を確認すること
-  - `hasNextPage` が `true` の場合は `after: <endCursor>` で次ページを取得し、`hasNextPage` が `false` になるまで繰り返すこと
-- 各コメントについて、フィードバックの妥当性を評価する:
-  - **妥当** — 提案された修正・改善を適用する
-  - **妥当でない / 該当しない** — コードは変更せず、理由を説明するリプライを準備する
-- プッシュ後、各コメントに対してどのような対応を行ったかリプライする:
-  - 修正した場合: 行った変更を説明する
-  - 修正しなかった場合: 該当しないと判断した理由を説明する
-- リプライ送信後、レビューコメントのスレッドを resolve する
-- すべての対応が完了したら、Copilot Code Review にレビュー依頼をする
-  - PR の node ID を取得する: `gh pr view <PR_NUMBER> --json id -q .id`
-  - 取得した node ID を使って GraphQL mutation でレビュー依頼する:
+- Retrieve all unresolved review comments on the PR
+  - Be sure to retrieve all replies to the review comments as well
+  - When retrieving review threads via GraphQL, use `reviewThreads(first: 100, after: $cursor)` and inspect `pageInfo { hasNextPage endCursor }` in the response
+  - If `hasNextPage` is `true`, fetch the next page with `after: <endCursor>` and repeat until `hasNextPage` becomes `false`
+- For each comment, evaluate whether the feedback is valid:
+  - **Valid** — apply the proposed fix or improvement
+  - **Not valid / not applicable** — do not change the code; instead, prepare a reply explaining why
+- After pushing, reply to each comment describing how it was handled:
+  - If fixed: explain the changes that were made
+  - If not fixed: explain why it was judged not applicable
+- After sending replies, resolve the review comment threads
+- Once all responses are complete, request a review from Copilot Code Review
+  - Get the PR node ID: `gh pr view <PR_NUMBER> --json id -q .id`
+  - Use the retrieved node ID to request a review via a GraphQL mutation:
     ```
     gh api graphql -f query='
     mutation {
@@ -74,30 +74,30 @@ PR 番号と任意のモードを指定して呼び出します:
       }
     }'
     ```
-  - `BOT_kgDOCnlnWA` は `copilot-pull-request-reviewer` の GraphQL node ID
-  - REST API (`gh pr edit --add-reviewer`) では Bot は "not a collaborator" で弾かれるため使用不可
+  - `BOT_kgDOCnlnWA` is the GraphQL node ID for `copilot-pull-request-reviewer`
+  - The REST API (`gh pr edit --add-reviewer`) cannot be used because bots are rejected as "not a collaborator"
 
-### (default / all) — すべて修正
+### (default / all) — Fix everything
 
-モードが指定されない場合、または `all` が指定された場合、3 つのモードを順に実行する: **conflicts → ci → feedback**
+If no mode is specified, or if `all` is specified, run the three modes in order: **conflicts → ci → feedback**
 
-CI が正しく動作するためには、先にコンフリクトを解消する必要がある。
+Conflicts must be resolved first for CI to run correctly.
 
-## 共通ステップ（全モード共通）
+## Common steps (all modes)
 
-### プッシュ前のローカルレビュー
+### Local review before pushing
 
-- 変更をコミット・プッシュする前に、サブエージェント（`code-review` エージェントタイプ）を使用してローカルコードレビューを実行する
-- ローカルレビューで重大な問題がないことを確認してからコミット・プッシュする
+- Before committing and pushing changes, run a local code review using a sub-agent (the `code-review` agent type)
+- Confirm there are no significant issues in the local review before committing and pushing
 
-### PR Title・Description の更新
+### Update the PR title and description
 
-- 修正を行いプッシュした後、PR Title および Description が変更の現状を正確に反映するよう更新する
-- 更新前に必ず `gh pr view <PR_NUMBER>` で現在の Title・Description を取得し、その内容をベースに編集する（他の誰かが先に修正している可能性があるため）
-- `gh pr edit <PR_NUMBER> --title` および `gh pr edit <PR_NUMBER> --body` を使用して更新する
+- After making fixes and pushing, update the PR title and description so they accurately reflect the current state of the changes
+- Before updating, always retrieve the current title and description with `gh pr view <PR_NUMBER>` and edit based on that content, since someone else may have already updated them
+- Use `gh pr edit <PR_NUMBER> --title` and `gh pr edit <PR_NUMBER> --body` to apply the updates
 
-## 制約事項
+## Constraints
 
-- 必ず PR のブランチ上で作業する（変更前にブランチをチェックアウトする）
-- 論理的な修正ごとに 1 つのコミットとし、明確なメッセージを付ける
-- 明示的に指示されない限り force-push しない
+- Always work on the PR branch (check out the branch before making changes)
+- Make one commit per logical fix and use a clear message
+- Do not force-push unless explicitly instructed

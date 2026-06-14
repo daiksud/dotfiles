@@ -1,99 +1,99 @@
 ---
 name: pr-create
-description: Pull Request を作成する際に使用するスキル。/pr create が呼び出されたときも含む。リポジトリの規約に従ってドラフト PR を作成します。
+description: A skill used when creating a Pull Request. This also applies when `/pr create` is invoked. It creates a draft PR according to the repository conventions.
 ---
 
 # pr-create
 
-## 概要
+## Overview
 
-ドラフトの Pull Request (PR) を作成するスキルです。
-ステージされたファイルやコミット済みの変更内容を理解し、適切なコミットメッセージと PR Description を作成して PR を作成します。
+This is a skill for creating a draft Pull Request (PR).
+It understands staged files and committed changes, then creates the PR with an appropriate commit message and PR description.
 
-## 使用タイミング
+## When to use
 
-- 「PR を作成して」と依頼されたとき
-- GitHub Copilot CLI で `/pr-create` や `/pr create` が呼び出されたとき
+- When asked to "create a PR"
+- When `/pr-create` or `/pr create` is invoked in GitHub Copilot CLI
 
-## 手順
+## Procedure
 
-### ステップ 1: 対応する Task (GitHub Issue) を確認する
+### Step 1: Check the corresponding Task (GitHub Issue)
 
-- まず最初に、この変更に対応する GitHub Issue (Task) があるかを確認する
-  - スキル呼び出し時のコンテキスト、ブランチ名、コミットメッセージなどから関連 Issue を推測する
-  - 推測できる場合は `gh issue view <番号> --comments` で内容を確認し、変更内容と整合しているか検証する
-    - Issue の Description だけでなくコメントも読み、変更の意図・経緯・議論の流れを把握する
-- 対応する Task が簡単に推測できない場合は、ユーザーに尋ねる
-  - 例: 「この変更に対応する Task (Issue) はありますか？ある場合は番号を教えてください」
-- 対応する Task が存在しない場合は、ユーザーに作成を促す
-  - Task を作成する場合は `gh issue create` を提案する
-  - Task を作成したら、その番号を控えておき、後続のステップ（PR Description の `closes #XXX`）で使用する
+- First, check whether there is a GitHub Issue (Task) corresponding to this change
+  - Infer the related issue from the context at skill invocation time, the branch name, commit messages, and so on
+  - If you can infer it, inspect it with `gh issue view <number> --comments` and verify that it matches the changes
+    - Read not only the issue description but also the comments to understand the intent, background, and flow of discussion
+- If the corresponding task cannot be inferred easily, ask the user
+  - Example: "Is there a Task (Issue) associated with this change? If so, please tell me the number."
+- If there is no corresponding task, encourage the user to create one
+  - If creating a task, suggest `gh issue create`
+  - After creating the task, note its number and use it in a later step (`closes #XXX` in the PR description)
 
-### ステップ 2: 変更内容を深く理解する
+### Step 2: Understand the changes deeply
 
-- `git diff --staged` または `git diff origin/main..` を実行し、差分全体を確認する
-- 各ファイルの差分を読み、**何が**・**なぜ**変更されたかを理解する
-  - 必ず origin/main に対してどのような変更が加わるのかにフォーカスすること
-- スキル呼び出し時に渡されたコンテキストや理由を考慮する
-- 変更内容や経緯を推測する際は、対応する Issue の Description やコメントも参考にすること
-- 新規ファイルの場合、ファイル全体を読んで目的と役割を把握する
-- 変更が複数の論理単位にまたがる場合、複数コミットへの分割を検討する
+- Run `git diff --staged` or `git diff origin/main..` and review the full diff
+- Read the diff for each file and understand **what** changed and **why**
+  - Always focus on what changes will be applied relative to `origin/main`
+- Consider the context and reasons provided when the skill was invoked
+- When inferring the change details or background, also refer to the corresponding issue description and comments
+- For new files, read the entire file to understand its purpose and role
+- If the changes span multiple logical units, consider splitting them into multiple commits
 
-### ステップ 3: コミットメッセージを作成してコミットする
+### Step 3: Create a commit message and commit
 
-- `git diff --staged --quiet` を実行し、終了コードが 1（ステージされたファイルあり）の場合のみコミットする
-- [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) 形式に従う
-- コミットメッセージは英語で書く
-- `git log --no-merges --oneline -100` で直近のコミットを確認し、リポジトリの慣習に合わせる
-- **コミットの件名は変更内容を具体的に記述すること**
-  - 悪い例: `docs: apply staged changes`（何が変わったか不明）
-  - 悪い例: `feat: update files`（曖昧すぎる）
-  - 良い例: `feat: allow provided config object to extend other configs`
-  - 良い例: `fix(github): pin terraform-provider-github version to 6.6.0`
-- scope は影響範囲を示す（ディレクトリ名、アクション名など）
-- 命令形（add, fix, update）を使い、意図を明確にする
-- 必要に応じて body に補足説明を追加する
-- レビューや論理的な分離に役立つ場合は複数コミットに分割してよい
+- Run `git diff --staged --quiet` and commit only when the exit code is 1 (meaning there are staged files)
+- Follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format
+- Write the commit message in English
+- Check recent commits with `git log --no-merges --oneline -100` and follow the repository conventions
+- **The commit subject must describe the change concretely**
+  - Bad example: `docs: apply staged changes` (unclear what changed)
+  - Bad example: `feat: update files` (too vague)
+  - Good example: `feat: allow provided config object to extend other configs`
+  - Good example: `fix(github): pin terraform-provider-github version to 6.6.0`
+- The scope indicates the affected area (such as a directory name or action name)
+- Use the imperative mood (`add`, `fix`, `update`) to make the intent clear
+- Add supplementary explanation in the body when needed
+- You may split the work into multiple commits if it helps reviewability or logical separation
 
-### ステップ 4: feature ブランチにプッシュする
+### Step 4: Push to a feature branch
 
-- 現在 main にいる場合は feature ブランチを作成してチェックアウトする
-- ブランチ名は変更内容を反映する（例: `feat/add-pr-create-skill`, `fix/pin-terraform-provider-github-660`）
-- `git push --set-upstream origin <branch>` でプッシュする
-- ローカルの main ブランチにコミットしてしまっている場合は、origin/main に合わせて元に戻す
+- If you are currently on `main`, create and check out a feature branch
+- The branch name should reflect the changes (for example, `feat/add-pr-create-skill`, `fix/pin-terraform-provider-github-660`)
+- Push with `git push --set-upstream origin <branch>`
+- If you accidentally committed on the local `main` branch, restore it to match `origin/main`
 
-### ステップ 5: PR Description を作成してドラフト PR を作る
+### Step 5: Create the PR description and open a draft PR
 
-- `.github/pull_request_template.md` が存在する場合、その構造に従うこと
-- PR 本文は日本語で記述すること
-- Description に含める内容:
-  - **目的:**
-    - この PR が達成すること（「何を」だけでなく「なぜ」も含める）
-    - ステップ 1 で確認・作成した Task がある場合は、`closes #XXX` を含めること
-  - **背景:**
-    - この変更が必要になった理由やコンテキスト
-    - 必ず origin/main に対してどのような変更がなされるのかにフォーカスして説明すること
-- `CONTRIBUTING.md` が存在する場合、そのガイドラインに従うこと
-- 以下のアンチパターンを避けること
-  - 「変更されたファイル」をそのまま列挙する（diff から明らかなことを書かない）
-  - 理由を示さない高コンテキストな説明
-- `gh pr create --draft` で PR を作成する
-  - **PR タイトル**は英語で、[Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) 形式: `<type>(<scope>): <description>`
-  - PR 内容に適したラベルを設定する（例: `feature`, `bug`, `documentation`）
+- If `.github/pull_request_template.md` exists, follow its structure
+- Write the PR body in English
+- Include the following in the description:
+  - **Purpose:**
+    - What this PR accomplishes, including not only **what** but also **why**
+    - If there is a task confirmed or created in Step 1, include `closes #XXX`
+  - **Background:**
+    - The reason or context that made this change necessary
+    - Be sure to explain it with a focus on what changes relative to `origin/main`
+- If `CONTRIBUTING.md` exists, follow its guidelines
+- Avoid the following anti-patterns
+  - Simply listing "changed files" as-is (do not write what is already obvious from the diff)
+  - High-context explanations that do not state the reason
+- Create the PR with `gh pr create --draft`
+  - The **PR title** must be in English and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format: `<type>(<scope>): <description>`
+  - Set labels appropriate for the PR content (for example, `feature`, `bug`, `documentation`)
 
-### ステップ 6: リクエストしたユーザーをアサインする
+### Step 6: Assign the requesting user
 
-- スキルを呼び出したユーザーを PR の Assignee に設定する
-- `gh pr edit <PR_NUMBER> --add-assignee <username>` を使用する
+- Set the user who invoked the skill as the PR assignee
+- Use `gh pr edit <PR_NUMBER> --add-assignee <username>`
 
-### ステップ 7: Issue (Task) の Description を最終的な変更内容に合わせる
+### Step 7: Align the Issue (Task) description with the final changes
 
-- 対応する Task がある場合、その Description を最終的な Pull Request の変更内容に合わせた方針へ更新する
-- 試行錯誤の末、Issue の Description の方針と実際の変更内容が異なっていた場合:
-  - 当初の計画（元の Description）は `gh issue comment <番号>` でコメントとして切り出して残す
-  - その上で Issue の Description を `gh issue edit <番号> --body` で実際の変更内容に合わせた方針に更新する
-- Description と実際の変更内容が当初から一致している場合は、無理に書き換える必要はない
+- If there is a corresponding task, update its description so its plan matches the final pull request changes
+- If, after iteration, the issue description no longer matches the actual changes:
+  - Preserve the original plan (the original description) as a comment with `gh issue comment <number>`
+  - Then update the issue description with `gh issue edit <number> --body` so it reflects the actual changes
+- If the description and the actual changes matched from the start, there is no need to rewrite it unnecessarily
 
-## 出力
+## Output
 
-作成されたドラフト PR の URL をブラウザで開く。
+Open the URL of the created draft PR in the browser.

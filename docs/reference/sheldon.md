@@ -1,52 +1,52 @@
 # Sheldon
 
-Zsh プラグインマネージャ（sheldon）の設定リファレンスです。
+This is the configuration reference for the Zsh plugin manager (sheldon).
 
-## ファイル
+## File
 
 `dotfiles/sheldon/plugins.toml` → `~/.config/sheldon/plugins.toml`
 
-## トップレベル設定
+## Top-level settings
 
 ```toml
 shell = "zsh"
 ```
 
-## テンプレート
+## Template
 
 ```toml
 [templates]
-fpath = "fpath=(\"{{ dir }}\" $fpath)"
+fpath = "fpath=("{{ dir }}" $fpath)"
 ```
 
-`apply = ["fpath"]` を指定したプラグインは source せず `fpath` に追加するのみ（補完定義の登録用）。
+Plugins that specify `apply = ["fpath"]` are not sourced and are only added to `fpath` (for registering completion definitions).
 
-## プラグイン一覧
+## Plugin list
 
-| プラグイン名                   | リポジトリ                                   | 説明                                             |
-| ------------------------------ | -------------------------------------------- | ------------------------------------------------ |
-| `fzf-tab`                      | `Aloxaf/fzf-tab`                             | zsh 標準補完を fzf に置き換え                    |
-| `ohmyzsh-lib-git`              | `ohmyzsh/ohmyzsh` (lib/git.zsh)              | git プラグインが依存するユーティリティ関数       |
-| `ohmyzsh-git`                  | `ohmyzsh/ohmyzsh` (plugins/git)              | Git エイリアス群（`gst`, `gco`, `gcm`, `gp` 等） |
-| `zsh-completions`              | `zsh-users/zsh-completions`                  | 追加の補完定義（fpath のみ）                     |
-| `zsh-autosuggestions`          | `zsh-users/zsh-autosuggestions`              | Fish 風の入力候補表示                            |
-| `zsh-autopair`                 | `hlissner/zsh-autopair`                      | 括弧・クォートの自動ペア                         |
-| `fast-syntax-highlighting`     | `zdharma-continuum/fast-syntax-highlighting` | コマンドのシンタックスハイライト                 |
-| `zsh-history-substring-search` | `zsh-users/zsh-history-substring-search`     | 入力中の文字列で履歴をサブストリング検索         |
+| Plugin name                    | Repository                                   | Description                                       |
+| ------------------------------ | -------------------------------------------- | ------------------------------------------------- |
+| `fzf-tab`                      | `Aloxaf/fzf-tab`                             | Replace standard zsh completion with fzf          |
+| `ohmyzsh-lib-git`              | `ohmyzsh/ohmyzsh` (lib/git.zsh)              | Utility functions required by the git plugin      |
+| `ohmyzsh-git`                  | `ohmyzsh/ohmyzsh` (plugins/git)              | Git alias set (`gst`, `gco`, `gcm`, `gp`, etc.)   |
+| `zsh-completions`              | `zsh-users/zsh-completions`                  | Additional completion definitions (`fpath` only)  |
+| `zsh-autosuggestions`          | `zsh-users/zsh-autosuggestions`              | Fish-style inline suggestions                     |
+| `zsh-autopair`                 | `hlissner/zsh-autopair`                      | Automatic pairing of brackets and quotes          |
+| `fast-syntax-highlighting`     | `zdharma-continuum/fast-syntax-highlighting` | Command syntax highlighting                       |
+| `zsh-history-substring-search` | `zsh-users/zsh-history-substring-search`     | Substring history search for the text being typed |
 
-## 読み込み順序の制約
+## Load-order constraints
 
-1. **compinit が先** — `.zshrc` で `compinit` を `sheldon source` より前に呼ぶ（`compdef` を使うプラグインが動作するため）
-2. **syntax highlighting の後に history-substring-search** — sheldon は TOML の定義順に source するため、`fast-syntax-highlighting` を先に書く
+1. **Run `compinit` first** — In `.zshrc`, call `compinit` before `sheldon source` so plugins that use `compdef` work correctly
+2. **Load `history-substring-search` after syntax highlighting** — sheldon sources plugins in TOML definition order, so write `fast-syntax-highlighting` first
 
-## プラグインの追加
+## Adding plugins
 
 ```toml
 [plugins.new-plugin]
 github = "author/new-plugin"
 ```
 
-追加後:
+After adding one:
 
 ```bash
 sheldon lock --update

@@ -1,90 +1,90 @@
-# スキルの使い方
+# Using skills
 
-Copilot CLI のカスタムスキルをすぐに使い始めるためのガイドです。
+This is a guide for getting started quickly with custom Copilot CLI skills.
 
-## 前提
+## Prerequisites
 
-- dotfiles がインストール済み（`install.sh` 実行済み）
-- GitHub Copilot CLI がインストール済み
+- dotfiles are already installed (`install.sh` has been run)
+- GitHub Copilot CLI is already installed
 
-## 使えるスキル
+## Available skills
 
-| スキル      | やること                                                           |
-| ----------- | ------------------------------------------------------------------ |
-| `pr-create` | 今の変更からドラフト PR を自動作成                                 |
-| `pr-fix`    | 指定した PR の CI エラー修正・レビュー対応・マージコンフリクト解消 |
+| Skill       | What it does                                                                        |
+| ----------- | ----------------------------------------------------------------------------------- |
+| `pr-create` | Automatically creates a draft PR from the current changes                           |
+| `pr-fix`    | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR |
 
-## pr-create を使う
+## Use `pr-create`
 
-変更をステージした状態で：
+With your changes staged:
 
 ```bash
 copilot -p "/pr-create"
 ```
 
-変更理由を伝えたい場合：
+If you want to explain the reason for the change:
 
 ```bash
-copilot -p "/pr-create 認証ロジックのリファクタリング、#42 に関連"
+copilot -p "/pr-create Refactor authentication logic, related to #42"
 ```
 
-インタラクティブセッションでは `/pr create` でも起動する（後述）。
+In an interactive session, you can also start it with `/pr create` (described later).
 
-### 何が起きるか
+### What happens
 
-1. 対応する Task (Issue) を確認（なければ作成を提案）
-2. 差分を読んでコミットメッセージを考える
-3. feature ブランチを作ってプッシュ
-4. ドラフト PR を作成
-5. あなたを Assignee に設定
+1. Checks for a corresponding Task (Issue) and suggests creating one if it does not exist
+2. Reads the diff and comes up with a commit message
+3. Creates and pushes a feature branch
+4. Creates a draft PR
+5. Sets you as the assignee
 
-## pr-fix を使う
+## Use `pr-fix`
 
 ```bash
 copilot -p "/pr-fix PR #42"
 ```
 
-インタラクティブセッションでは `/pr fix` でも起動する（後述）。
+In an interactive session, you can also start it with `/pr fix` (described later).
 
-### 何が起きるか
+### What happens
 
-1. マージコンフリクトを検出して解消
-2. CI の失敗をログから特定して修正（通るまで繰り返し）
-3. レビューコメントを確認し、妥当なものは修正
-4. ローカルレビューを実施してからプッシュ
-5. 各レビューコメントに対応内容をリプライし、スレッドを resolve
+1. Detects and resolves merge conflicts
+2. Identifies CI failures from logs and fixes them (repeating until they pass)
+3. Checks review comments and applies reasonable fixes
+4. Performs a local review before pushing
+5. Replies to each review comment with what was addressed and resolves the thread
 
-モード指定も可能:
+You can also specify a mode:
 
 ```bash
-copilot -p "/pr-fix ci #42"        # CI 失敗のみ
-copilot -p "/pr-fix feedback #42"  # レビューコメントのみ
-copilot -p "/pr-fix conflicts #42" # コンフリクトのみ
+copilot -p "/pr-fix ci #42"        # CI failures only
+copilot -p "/pr-fix feedback #42"  # Review comments only
+copilot -p "/pr-fix conflicts #42" # Conflicts only
 ```
 
-## /pr create・/pr fix との統合
+## Integration with `/pr create` and `/pr fix`
 
-`install.sh` によって `dotfiles/copilot-instructions.md` が `~/.copilot/copilot-instructions.md` へシンボリックリンクされる。
-このファイルには以下の指示が含まれており、インタラクティブセッションで常時ロードされる:
+`install.sh` creates a symbolic link from `dotfiles/copilot-instructions.md` to `~/.copilot/copilot-instructions.md`.
+This file contains the following instructions and is always loaded in interactive sessions:
 
-- `/pr create` が呼ばれたら → `pr-create` スキルを使う
-- `/pr fix` が呼ばれたら → `pr-fix` スキルを使う
+- When `/pr create` is invoked → use the `pr-create` skill
+- When `/pr fix` is invoked → use the `pr-fix` skill
 
-これにより、ビルトインの `/pr` サブコマンドを使っても、定義済みスキルの手順に従った動作になる。
+As a result, even when you use the built-in `/pr` subcommand, it behaves according to the procedure defined in the skills.
 
 > [!NOTE]
-> この統合は Copilot の instruction 読み込みを介した仕組みであり、完全に確定的なバインディングではない。スキルを確実に使わせたい場合は `/pr-create` や `/pr-fix` で直接呼び出すこと。
+> This integration works through Copilot instruction loading and is not a completely deterministic binding. If you want to ensure the skill is used, invoke it directly with `/pr-create` or `/pr-fix`.
 
-## エイリアス設定（おすすめ）
+## Alias setup (recommended)
 
-`.zshrc` や `.bashrc` に追加：
+Add the following to `.zshrc` or `.bashrc`:
 
 ```bash
 alias pr-create='f() { copilot --model ${COPILOT_MODEL:-claude-sonnet-4.6} -p "/pr-create skill $*"; }; f'
 alias pr-fix='f() { copilot --model ${COPILOT_MODEL:-claude-sonnet-4.6} -p "/pr-fix skill $*"; }; f'
 ```
 
-使い方：
+Usage:
 
 ```bash
 pr-create

@@ -1,6 +1,6 @@
-# ADR 0005: gh-infra による宣言的リポジトリ設定管理
+# ADR 0005: Manage repository settings declaratively with gh-infra
 
-`.github/settings.yml` と `gh-infra` 拡張でリポジトリ設定をコード管理する。
+Manage repository settings as code using `.github/settings.yml` and the `gh-infra` extension.
 
 ## Status
 
@@ -8,40 +8,40 @@ Accepted
 
 ## Context
 
-リポジトリのラベル・マージ戦略・ブランチ保護・セキュリティ設定などを GitHub の Web UI で手動管理すると、以下の課題がある。
+Managing repository labels, merge strategies, branch protection, and security settings manually in the GitHub Web UI has the following issues.
 
-- 設定がバージョン管理されず、いつ・なぜ変更したかが追えない
-- 同じ設定を再現・移植できない
-- レビューやプレビューなしに即時反映される
+- Settings are not version-controlled, so it is impossible to track when and why they changed
+- The same settings cannot be reproduced or migrated easily
+- Changes are applied immediately without review or preview
 
-これらを宣言的に、かつ `gh` CLI のエコシステム内で管理したい。
+We want to manage these declaratively while staying within the `gh` CLI ecosystem.
 
 ## Decision
 
-`.github/settings.yml` にリポジトリ設定を YAML で記述し、`gh-infra`（`babarot/gh-infra`）拡張で適用する。
+Describe repository settings in YAML in `.github/settings.yml` and apply them with `gh-infra` (`babarot/gh-infra`).
 
-- `scripts/100-gh-extensions.sh` で `gh extension install babarot/gh-infra` を実行
-- `gh infra plan` で差分を確認してから `gh infra apply` で反映
-- ステートファイルを持たず、GitHub の現在状態を信頼できる情報源とする
+- Run `gh extension install babarot/gh-infra` in `scripts/100-gh-extensions.sh`
+- Review the diff with `gh infra plan` before applying it with `gh infra apply`
+- Do not maintain a state file; treat GitHub's current state as the source of truth
 
 ## Alternatives Considered
 
 ### Terraform GitHub Provider
 
-検討した — GitHub-as-Code の定番だが、プロバイダのインストール・HCL・ステートファイル・ステートロックが必要で、個人リポジトリにはオーバーヘッドが大きい。
+Considered — it is a standard choice for GitHub-as-Code, but it requires provider installation, HCL, state files, and state locking, which is too much overhead for a personal repository.
 
-### Probot Settings / GitHub App 系
+### Probot Settings / GitHub App approaches
 
-不採用 — GitHub App やサーバーの運用が必要で、`plan` による事前プレビューがなく即時適用される。
+Not adopted — they require operating a GitHub App or server, and they apply changes immediately without a `plan` preview.
 
-### Web UI で手動管理（現状維持）
+### Manual management in the Web UI (status quo)
 
-不採用 — バージョン管理・再現性・変更履歴が得られず、本 ADR の動機を満たさない。
+Not adopted — it provides no version control, reproducibility, or change history, so it does not satisfy the motivation of this ADR.
 
 ## Consequences
 
-- `.github/settings.yml` がリポジトリ設定の信頼できる情報源になる
-- `gh-infra` 拡張のインストールが前提になる（`scripts/100-gh-extensions.sh` で自動化）
-- 設定変更は `plan` → `apply` のフローで適用し、差分をレビューできる
-- デフォルトブランチに `required_linear_history` / `required_signatures` を強制するため、マージコミットや未署名コミットはプッシュできない
-- 運用方法は [reference/gh-infra.md](../../reference/gh-infra.md) に記載
+- `.github/settings.yml` becomes the source of truth for repository settings
+- Installing the `gh-infra` extension becomes a prerequisite (automated in `scripts/100-gh-extensions.sh`)
+- Configuration changes follow the `plan` → `apply` flow so the diff can be reviewed
+- Because `required_linear_history` / `required_signatures` are enforced on the default branch, merge commits and unsigned commits cannot be pushed
+- Operational guidance is documented in [reference/gh-infra.md](../../reference/gh-infra.md)

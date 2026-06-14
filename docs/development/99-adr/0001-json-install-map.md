@@ -1,6 +1,6 @@
-# 0001: シンボリックリンク管理に JSON 対応表を採用
+# 0001: Adopt a JSON mapping table for symbolic link management
 
-シンボリックリンクの source→target マッピングを `install_map.json` で宣言的に管理する。
+Manage the source→target mapping for symbolic links declaratively in `install_map.json`.
 
 ## Status
 
@@ -8,16 +8,16 @@ Accepted
 
 ## Context
 
-従来はシェルグロブ (`dotfiles/.*`) で `dotfiles/` 以下の全ドットファイルを `~/` に一律リンクしていた。この方式には以下の課題があった:
+Previously, all dotfiles under `dotfiles/` were linked uniformly to `~/` using a shell glob (`dotfiles/.*`). This approach had the following issues:
 
-- `~/.config/X` のようなネストされたパスにリンクする手段がない
-- 任意のパス（`~/.copilot/skills` 等）へのリンクに対応できない
-- `dotfiles/` 内のファイル名がそのままリンク名になるため、命名の自由度がない
-- `.gitconfig` のような特殊処理が増え、スクリプトが複雑化していた
+- There was no way to link to nested paths such as `~/.config/X`
+- It could not support links to arbitrary paths such as `~/.copilot/skills`
+- Because file names under `dotfiles/` became link names as-is, naming flexibility was limited
+- Special handling for files like `.gitconfig` kept increasing, making the script more complex
 
 ## Decision
 
-リポジトリルートに `install_map.json` を配置し、JSON オブジェクトの key-value でマッピングを定義する。
+Place `install_map.json` at the repository root and define the mapping as key-value pairs in a JSON object.
 
 ```json
 {
@@ -29,35 +29,35 @@ Accepted
 }
 ```
 
-パースには Python3 の `json` モジュールを使用する（macOS / Ubuntu ともにプリインストール済み）。
+Use Python3's `json` module for parsing (preinstalled on both macOS and Ubuntu).
 
 ## Alternatives Considered
 
-### シンプルな行形式 (`source:target`)
+### Simple line format (`source:target`)
 
-- 実装が最も簡単
-- コメントや構造化が難しい
-- エディタのサポート（lint, schema validation）がない
+- Easiest to implement
+- Difficult to add comments or structure
+- No editor support (lint, schema validation)
 
 ### TOML
 
-- 可読性が高い
-- macOS / Ubuntu にプリインストールされたパーサーがない（Python3 の `tomllib` は 3.11+ のみ）
+- Highly readable
+- No parser is preinstalled on macOS / Ubuntu (`tomllib` in Python3 is only available in 3.11+)
 
 ### YAML
 
-- 可読性が高い
-- Python3 の標準ライブラリにパーサーがない（`PyYAML` が必要）
+- Highly readable
+- Python3 standard library does not include a parser (`PyYAML` is required)
 
-### bash 連想配列
+### bash associative arrays
 
-- 外部依存ゼロ
-- 配列内でのコメントやメンテナンス性が低い
-- bash 4.0+ 必須（macOS のデフォルト bash は 3.2）
+- Zero external dependencies
+- Poor support for comments inside the array and lower maintainability
+- Requires bash 4.0+ (the default bash on macOS is 3.2)
 
 ## Consequences
 
-- エントリの追加・削除が JSON ファイルの編集だけで完結する
-- `dotfiles/` 内のファイル名に `.` プリフィックスが不要になり、ファイル一覧が見やすくなる
-- Python3 への依存が生じるが、対象プラットフォーム（macOS, Ubuntu）ではシステム標準で利用可能
-- JSON はコメントが書けないが、エントリが自明なため問題にならない
+- Adding or removing entries is completed simply by editing the JSON file
+- File names under `dotfiles/` no longer need a `.` prefix, making the file list easier to read
+- This introduces a dependency on Python3, but it is available by default on the target platforms (macOS and Ubuntu)
+- JSON does not allow comments, but that is not a problem because the entries are self-explanatory

@@ -1,29 +1,29 @@
 # ADR
 
-dotfiles の技術選定に関する意思決定記録です。
+This page records decisions about technical choices in dotfiles.
 
-## ADR とは
+## What is an ADR?
 
-ADR（Architecture Decision Record）は、技術選定に関する重要な意思決定を、背景・判断・影響まで含めて記録するための文書です。
+An ADR (Architecture Decision Record) is a document for recording important technical decisions, including the background, the decision itself, and its impact.
 
-## ADR 一覧
+## ADR List
 
-| ID                                   | タイトル                                       | Status   |
-| ------------------------------------ | ---------------------------------------------- | -------- |
-| [0001](./0001-json-install-map.md)   | シンボリックリンク管理に JSON 対応表を採用     | Accepted |
-| [0002](./0002-ssh-commit-signing.md) | SSH コミット署名の採用                         | Accepted |
-| [0003](./0003-sheldon-starship.md)   | Sheldon + Starship による Oh-My-Zsh の置き換え | Accepted |
-| [0004](./0004-gh-q.md)               | gh-q による ghq の置き換え                     | Accepted |
-| [0005](./0005-gh-infra.md)           | gh-infra による宣言的リポジトリ設定管理        | Accepted |
+| ID                                   | Title                                                   | Status   |
+| ------------------------------------ | ------------------------------------------------------- | -------- |
+| [0001](./0001-json-install-map.md)   | Adopt a JSON mapping table for symbolic link management | Accepted |
+| [0002](./0002-ssh-commit-signing.md) | Adopt SSH commit signing                                | Accepted |
+| [0003](./0003-sheldon-starship.md)   | Replace Oh-My-Zsh with Sheldon + Starship               | Accepted |
+| [0004](./0004-gh-q.md)               | Replace ghq with gh-q                                   | Accepted |
+| [0005](./0005-gh-infra.md)           | Manage repository settings declaratively with gh-infra  | Accepted |
 
-## 新しい ADR の書き方
+## How to Write a New ADR
 
-連番付きファイル名で作成し、以下の構成を使います。
+Create it with a sequentially numbered file name and use the following structure.
 
 ```md
-# XXXX: 決定のタイトル
+# XXXX: Decision Title
 
-その決定が何を扱うのかを 1 行で要約
+A one-line summary of what the decision covers
 
 ## Status
 
@@ -31,24 +31,24 @@ Proposed / Accepted / Superseded / Deprecated
 
 ## Context
 
-この決定が必要になった背景、課題、制約を書く。
+Write the background, problems, and constraints that made this decision necessary.
 
 ## Decision
 
-何を採用したか、どのように運用するかを書く。
+Write what was adopted and how it will be operated.
 
 ## Alternatives Considered
 
-### 選択肢 A
+### Option A
 
-- 概要
-- 採用しなかった理由
+- Summary
+- Why it was not adopted
 
 ## Consequences
 
-- 得られる利点
-- 受け入れる制約
+- Benefits gained
+- Constraints accepted
 ```
 
 > [!TIP]
-> 代替案を不採用とした理由は詳細に記録してください。AI アシスタントはセッション間でコンテキストを失うため、ADR が「なぜその選択をしたのか」を再取得する唯一の手段になります。
+> Record the reasons for rejecting alternatives in detail. AI assistants lose context between sessions, so ADRs become the only way to recover _why_ a particular choice was made.

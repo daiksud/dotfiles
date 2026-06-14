@@ -1,4 +1,4 @@
-# ADR 0002: SSH コミット署名の採用
+# ADR 0002: Adopt SSH commit signing
 
 ## Status
 
@@ -6,40 +6,40 @@ Accepted
 
 ## Context
 
-Git コミット署名は真正性を保証し、GitHub の「Verified」バッジを有効にする。従来の方式は GPG 鍵だが、以下の課題がある:
+Git commit signing guarantees authenticity and enables GitHub's "Verified" badge. The traditional approach uses GPG keys, but it has the following issues:
 
-- 別途鍵の生成と管理が必要
-- macOS では `gpg` と `pinentry` の追加インストールが必要
-- 鍵の有効期限管理が煩雑
-- GitHub への鍵登録が認証鍵とは別に必要
+- It requires separate key generation and management
+- On macOS, additional installation of `gpg` and `pinentry` is required
+- Managing key expiration is cumbersome
+- Registering the key with GitHub is required separately from authentication keys
 
-開発者は GitHub 認証用に SSH 鍵をすでに持っているため、これを署名にも流用すればオーバーヘッドをゼロにできる。
+Because developers already have SSH keys for GitHub authentication, reusing them for signing reduces the overhead to zero.
 
 ## Decision
 
-既存の ed25519 SSH 鍵を使った SSH ベースのコミット署名を採用する。
+Adopt SSH-based commit signing using existing ed25519 SSH keys.
 
-グローバル gitconfig に設定:
+Configured in the global gitconfig:
 
-- `commit.gpgsign = true` — すべてのコミットを自動署名
-- `gpg.format = ssh` — GPG ではなく SSH 方式を使用
-- `gpg.ssh.allowedSignersFile = ~/.ssh/allowed_signers` — ローカル署名検証用
+- `commit.gpgsign = true` — automatically sign all commits
+- `gpg.format = ssh` — use SSH format instead of GPG
+- `gpg.ssh.allowedSignersFile = ~/.ssh/allowed_signers` — for local signature verification
 
-リポジトリごとの `user.signingkey` は `gh-config-dir.zsh` がアクティブな GitHub アカウントに応じて自動設定する（`~/.ssh/<login>.pub`）。
+The repository-specific `user.signingkey` is automatically set by `gh-config-dir.zsh` according to the active GitHub account (`~/.ssh/<login>.pub`).
 
 ## Alternatives Considered
 
-### GPG 署名
+### GPG signing
 
-不採用 — 追加ツール（`gpg`, `pinentry`）のインストール、独立した鍵ライフサイクル管理が必要で、SSH 署名に比べて実用上の利点がない。
+Not adopted — it requires installing additional tools (`gpg`, `pinentry`) and managing an independent key lifecycle, with no practical advantage over SSH signing.
 
-### 署名なし
+### No signing
 
-不採用 — マルチアカウント運用では「Verified」バッジがコミットの信頼性を示す重要な手段であり、SSH 鍵の流用で実質コストゼロで実現できる。
+Not adopted — in a multi-account workflow, the "Verified" badge is an important way to show commit trustworthiness, and reusing SSH keys makes it effectively free.
 
 ## Consequences
 
-- SSH 鍵を持つ開発者にとって追加セットアップがゼロ
-- `gh-config-dir.zsh` によりマルチアカウント署名が自動で動作
-- 各アカウントの `~/.ssh/<login>.pub` を GitHub の Signing Keys に登録する必要がある
-- `allowed_signers` は自動管理され、ローカルでの署名検証が可能
+- Zero additional setup for developers who already have SSH keys
+- Multi-account signing works automatically via `gh-config-dir.zsh`
+- `~/.ssh/<login>.pub` for each account must be registered in GitHub Signing Keys
+- `allowed_signers` is managed automatically, enabling local signature verification

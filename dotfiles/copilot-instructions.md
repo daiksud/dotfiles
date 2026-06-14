@@ -1,15 +1,16 @@
 # Copilot Personal Instructions
 
-## Pull Request 用スキル
+## Pull Request skills
 
-ユーザーが `/pr create` を実行するか、Pull Request の作成を依頼した場合は、必ず `pr-create` スキルを使う。
-ユーザーが `/pr fix` を実行するか、Pull Request を修正・改善・マージ可能な状態にするよう依頼した場合は、必ず `pr-fix` スキルを使う。
+If the user runs `/pr create` or asks to create a Pull Request, always use the `pr-create` skill.
+If the user runs `/pr fix` or asks to fix, improve, or make a Pull Request mergeable, always use the `pr-fix` skill.
 
-## Issue / Pull Request へのコメント
+## Comments on Issues / Pull Requests
 
-ユーザーの指示で Issue や Pull Request へコメントやリプライをする場合は、先頭に必ず `:robot:` を付ける。
+When posting a comment or reply on an Issue or Pull Request at the user's instruction, always prefix it with `:robot:`.
 
 <!-- rtk-instructions v2 -->
+
 # RTK — Token-Optimized CLI
 
 **rtk** is a CLI proxy that filters and compresses command outputs, saving 60-90% tokens.
@@ -35,4 +36,5 @@ rtk gain --history    # Per-command savings history
 rtk discover          # Find missed rtk opportunities
 rtk proxy <cmd>       # Run raw (no filtering) but track usage
 ```
+
 <!-- /rtk-instructions -->

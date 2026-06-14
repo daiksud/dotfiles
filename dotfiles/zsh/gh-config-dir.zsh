@@ -138,6 +138,15 @@ set_gh_config_dir() {
   else
     unset GH_CONFIG_DIR
   fi
+
+  # Sync COPILOT_GITHUB_TOKEN with the current gh auth state (respects GH_CONFIG_DIR).
+  # This causes Copilot CLI to use the same account as gh for the current directory.
+  local _copilot_token
+  if _copilot_token="$(gh auth token 2>/dev/null)" && [[ -n "$_copilot_token" ]]; then
+    export COPILOT_GITHUB_TOKEN="$_copilot_token"
+  else
+    unset COPILOT_GITHUB_TOKEN
+  fi
 }
 autoload -Uz add-zsh-hook
 add-zsh-hook chpwd set_gh_config_dir

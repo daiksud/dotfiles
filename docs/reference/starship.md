@@ -1,67 +1,67 @@
 # Starship
 
-クロスシェルプロンプト（Starship）の設定リファレンスです。
+This is the configuration reference for the cross-shell prompt (Starship).
 
-## ファイル
+## File
 
 `dotfiles/starship.toml` → `~/.config/starship.toml`
 
-## プロンプト構成
+## Prompt structure
 
-Powerline 風のグラデーションセグメントで構成される 2 行プロンプト:
+A two-line prompt composed of Powerline-style gradient segments:
 
 ```
 [░▒▓ ][directory][git_branch + git_status][languages][time]
 [character]
 ```
 
-### セグメントと配色
+### Segments and colors
 
-| セグメント              | 背景色    | 前景色    | 内容                                       |
-| ----------------------- | --------- | --------- | ------------------------------------------ |
-| アイコン                | `#a3aed2` | `#090c0c` | 固定アイコン ` `                           |
-| directory               | `#769ff0` | `#e3e5e5` | カレントディレクトリ（3 階層まで）         |
-| git_branch / git_status | `#394260` | `#769ff0` | ブランチ名 + ステータス                    |
-| languages               | `#212736` | `#769ff0` | Node.js / Bun / Rust / Go / PHP バージョン |
-| time                    | `#1d2230` | `#a0a9cb` | 現在時刻（`HH:MM`）                        |
+| Segment                 | Background | Foreground | Contents                                 |
+| ----------------------- | ---------- | ---------- | ---------------------------------------- |
+| Icon                    | `#a3aed2`  | `#090c0c`  | Fixed icon ` `                           |
+| directory               | `#769ff0`  | `#e3e5e5`  | Current directory (up to 3 levels)       |
+| git_branch / git_status | `#394260`  | `#769ff0`  | Branch name + status                     |
+| languages               | `#212736`  | `#769ff0`  | Node.js / Bun / Rust / Go / PHP versions |
+| time                    | `#1d2230`  | `#a0a9cb`  | Current time (`HH:MM`)                   |
 
-## モジュール設定
+## Module settings
 
 ### directory
 
-| キー                | 値   | 説明                           |
-| ------------------- | ---- | ------------------------------ |
-| `truncation_length` | `3`  | 表示する最大ディレクトリ階層数 |
-| `truncation_symbol` | `…/` | 省略時の記号                   |
+| Key                 | Value | Description                                   |
+| ------------------- | ----- | --------------------------------------------- |
+| `truncation_length` | `3`   | Maximum number of directory levels to display |
+| `truncation_symbol` | `…/`  | Symbol used when truncated                    |
 
-特殊ディレクトリの置換:
+Special directory replacements:
 
-| ディレクトリ | 表示 |
-| ------------ | ---- |
-| Documents    | `󰈙 ` |
-| Downloads    | ` `  |
-| Music        | ` `  |
-| Pictures     | ` `  |
+| Directory | Display |
+| --------- | ------- |
+| Documents | `󰈙 `    |
+| Downloads | ` `     |
+| Music     | ` `     |
+| Pictures  | ` `     |
 
 ### git_branch
 
-ブランチシンボル: `` （Nerd Font）
+Branch symbol: `` (Nerd Font)
 
-### 言語モジュール
+### Language modules
 
-検出された言語のバージョンを表示。すべて同じスタイルで統一:
+Displays the version of detected languages. All use the same unified style:
 
-| モジュール | シンボル |
-| ---------- | -------- |
-| `nodejs`   | ``       |
-| `bun`      | ``       |
-| `rust`     | ``       |
-| `golang`   | ``       |
-| `php`      | ``       |
+| Module   | Symbol |
+| -------- | ------ |
+| `nodejs` | ``     |
+| `bun`    | ``     |
+| `rust`   | ``     |
+| `golang` | ``     |
+| `php`    | ``     |
 
 ### time
 
-| キー          | 値      | 説明         |
-| ------------- | ------- | ------------ |
-| `disabled`    | `false` | 有効         |
-| `time_format` | `%R`    | `HH:MM` 形式 |
+| Key           | Value   | Description    |
+| ------------- | ------- | -------------- |
+| `disabled`    | `false` | Enabled        |
+| `time_format` | `%R`    | `HH:MM` format |

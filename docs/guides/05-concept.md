@@ -1,49 +1,49 @@
-# コンセプト
+# Concept
 
-この dotfiles リポジトリの設計思想と方針を説明します。
+This page explains the design philosophy and policies of this dotfiles repository.
 
-## ワンコマンドで完結する再現性
+## One-command reproducibility
 
-新しいマシンでも `bash install.sh` の 1 コマンドだけで、シェル・エディタ・ターミナル・CLI ツールがすべて揃った状態を再現できることを最優先にしている。
+The highest priority is being able to reproduce a fully prepared environment—shell, editor, terminal, and CLI tools—on a new machine with a single command: `bash install.sh`.
 
-手動の設定手順やインストール後の追加作業を極力排除し、スクリプトに落とし込む。
+It eliminates manual setup steps and post-installation work as much as possible by turning them into scripts.
 
-## 宣言的な設定管理
+## Declarative configuration management
 
-- **シンボリックリンク** — `install_map.json` で source → target を宣言
-- **パッケージ** — `Brewfile` で必要なツールを宣言
-- **プラグイン** — `plugins.toml`（sheldon）で Zsh プラグインを宣言
-- **ランタイム** — `config.toml`（mise）で言語バージョンを宣言
+- **Symbolic links** — Declare source → target in `install_map.json`
+- **Packages** — Declare required tools in `Brewfile`
+- **Plugins** — Declare Zsh plugins in `plugins.toml` (sheldon)
+- **Runtimes** — Declare language versions in `config.toml` (mise)
 
-「何を入れるか」はすべて設定ファイルに書かれており、スクリプトは「設定ファイルを適用する」だけ。
+Everything about "what to install" is written in configuration files, and the scripts only "apply the configuration files."
 
-## テーマは Tokyo Night Storm で統一
+## Use Tokyo Night Storm consistently as the theme
 
-すべてのツールのカラースキームを **Tokyo Night Storm** に統一している。
+All tools use **Tokyo Night Storm** as the unified color scheme.
 
-| ツール   | 設定                                                   |
-| -------- | ------------------------------------------------------ |
-| Ghostty  | `theme = TokyoNight Storm`                             |
-| Neovim   | `tokyonight.nvim` (style = `"storm"`, transparent)     |
-| tmux     | `tokyo-night-tmux` (theme = `storm`)                   |
-| Starship | Tokyo Night Storm の配色に合わせたカスタムフォーマット |
+| Tool     | Configuration                                              |
+| -------- | ---------------------------------------------------------- |
+| Ghostty  | `theme = TokyoNight Storm`                                 |
+| Neovim   | `tokyonight.nvim` (style = `"storm"`, transparent)         |
+| tmux     | `tokyo-night-tmux` (theme = `storm`)                       |
+| Starship | Custom formatting matched to the Tokyo Night Storm palette |
 
-ターミナル → tmux → エディタ間で色の断絶がなく、視覚的に一貫した環境になる。
+This creates a visually consistent environment without color discontinuities between the terminal, tmux, and editor.
 
-## マルチアカウント対応
+## Multi-account support
 
-GitHub アカウントを複数使い分ける前提で設計している。
+It is designed on the assumption that you use multiple GitHub accounts.
 
-- `GH_CONFIG_DIR` をリポジトリ単位で分離
-- `user.name` / `user.email` / `user.signingkey` はグローバルに設定しない
-- `cd` するだけで適切なアカウントに自動切り替え
+- Separate `GH_CONFIG_DIR` per repository
+- Do not set `user.name` / `user.email` / `user.signingkey` globally
+- Automatically switch to the appropriate account just by using `cd`
 
-## 最小限の外部依存
+## Minimal external dependencies
 
-- シェルフレームワーク（Oh-My-Zsh 等）に依存しない
-- 各ツールの責務を分離し、単一障害点を作らない
-- macOS と Ubuntu (Codespaces) の両方で動作する
+- Does not depend on shell frameworks (such as Oh-My-Zsh)
+- Separates each tool's responsibility to avoid creating a single point of failure
+- Works on both macOS and Ubuntu (Codespaces)
 
-## 冪等性
+## Idempotency
 
-`install.sh` は何度実行しても同じ結果に収束する。途中で失敗しても再実行すれば正しい状態になる。
+`install.sh` converges to the same result no matter how many times you run it. Even if it fails partway through, re-running it restores the correct state.

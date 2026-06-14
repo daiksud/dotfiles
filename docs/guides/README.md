@@ -2,17 +2,17 @@
 sidebar_position: 0
 ---
 
-# 📖 ガイド
+# 📖 Guides
 
-dotfiles のセットアップから日常的な使い方までをまとめたガイド集です。
+A collection of guides covering everything from setting up these dotfiles to everyday usage.
 
-## まず試す
+## Start here
 
-- [クイックスタート](./01-quick-start.md) — 新しいマシンで環境を再現する最短手順
+- [Quick Start](./01-quick-start.md) — The shortest path to reproducing the environment on a new machine
 
-## 使い方ガイド
+## Usage guides
 
-- [インストール](./02-installation.md) — `install.sh` の動作と実行方法
-- [リンクの追加・変更](./03-managing-links.md) — `install_map.json` の編集方法
-- [Git ID の自動切り替え](./04-git-identity.md) — マルチアカウント運用
-- [コンセプト](./05-concept.md) — 設計思想と方針
+- [Installation](./02-installation.md) — How `install.sh` works and how to run it
+- [Adding and changing links](./03-managing-links.md) — How to edit `install_map.json`
+- [Automatic Git ID switching](./04-git-identity.md) — Multi-account workflows
+- [Concept](./05-concept.md) — Design philosophy and policies

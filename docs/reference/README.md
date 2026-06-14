@@ -2,32 +2,32 @@
 sidebar_position: 0
 ---
 
-# 📋 リファレンス
+# 📋 Reference
 
-dotfiles の設定ファイル・ツール一覧・構造の詳細リファレンスです。
+a detailed reference for the dotfiles configuration files, tool list, and structure.
 
-## ツール別設定
+## Tool-specific settings
 
-- [Ghostty](./ghostty.md) — ターミナルエミュレータ
-- [Git](./git.md) — グローバル Git 設定
-- [mise](./mise.md) — 開発ツールバージョン管理
-- [Neovim](./nvim.md) — エディタ（LazyVim）
-- [RTK](./rtk.md) — LLM トークン削減 CLI プロキシ
-- [Sheldon](./sheldon.md) — Zsh プラグインマネージャ
-- [Starship](./starship.md) — プロンプト
-- [tmux](./tmux.md) — ターミナルマルチプレクサ
-- [Zsh](./zsh/README.md) — シェル設定
-  - [カスタムプラグイン](./zsh/plugins.md) — `zsh/` 配下の関数群
+- [Ghostty](./ghostty.md) — Terminal emulator
+- [Git](./git.md) — Global Git settings
+- [mise](./mise.md) — Development tool version management
+- [Neovim](./nvim.md) — Editor (LazyVim)
+- [RTK](./rtk.md) — CLI proxy for reducing LLM token usage
+- [Sheldon](./sheldon.md) — Zsh plugin manager
+- [Starship](./starship.md) — Prompt
+- [tmux](./tmux.md) — Terminal multiplexer
+- [Zsh](./zsh/README.md) — Shell configuration
+  - [Custom plugins](./zsh/plugins.md) — Functions under `zsh/`
 
-## インフラ
+## Infrastructure
 
-- [gh-infra](./gh-infra.md) — `.github/settings.yml` による宣言的リポジトリ設定管理
-- [install_map.json](./install-map.md) — シンボリックリンク対応表の仕様
-- [スクリプト一覧](./scripts.md) — `scripts/` 以下の各スクリプトの役割
-- [ツール一覧](./tools.md) — Brewfile で管理するツールとその用途
+- [gh-infra](./gh-infra.md) — Declarative repository settings management with `.github/settings.yml`
+- [install_map.json](./install-map.md) — Specification for the symbolic link mapping table
+- [Script list](./scripts.md) — The role of each script under `scripts/`
+- [Tool list](./tools.md) — Tools managed in the Brewfile and their purposes
 
-## 使い分け
+## When to use what
 
-- 使い方を知りたいときは [ガイド](../guides/README.md)
-- 各ファイルの正確な仕様を確認したいときは **リファレンス**（このセクション）
-- リポジトリの構造を変更したいときは [開発者向けガイド](../development/README.md)
+- If you want to learn how to use things, see the [guides](../guides/README.md)
+- If you want to check the exact specification of each file, use the **Reference** section (this section)
+- If you want to change the repository structure, see the [developer guide](../development/README.md)

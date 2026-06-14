@@ -1,54 +1,53 @@
 # mise
 
-開発ツールバージョン管理（mise）の設定リファレンスです。
+This is the configuration reference for development tool version management with mise.
 
-## グローバル設定
+## Global settings
 
-グローバル設定（`~/.config/mise/config.toml`）は dotfiles では管理しません。セットアップ時に `scripts/100-mise.sh` が `mise settings` コマンドで自動的に設定します。
+The global settings (`~/.config/mise/config.toml`) are not managed in dotfiles. During setup, `scripts/100-mise.sh` configures them automatically with the `mise settings` command.
 
 ```bash
-# 100-mise.sh が実行するコマンド（冪等）
+# Command executed by 100-mise.sh (idempotent)
 mise settings set github.credential_command "gh auth token"
 ```
 
-これにより `~/.config/mise/config.toml` はマシンごとに mise が管理するファイルとなり、`mise use -g <tool>` で追加したプライベートツールなども自由に記述できます。
+As a result, `~/.config/mise/config.toml` becomes a machine-specific file managed by mise, and you can freely add entries such as private tools added with `mise use -g <tool>`.
 
 ### `[settings.github]`
 
-| キー                 | 値                | 説明                                            |
-| -------------------- | ----------------- | ----------------------------------------------- |
-| `credential_command` | `"gh auth token"` | GitHub API アクセスに `gh` の認証トークンを使用 |
+| Key                  | Value             | Description                                             |
+| -------------------- | ----------------- | ------------------------------------------------------- |
+| `credential_command` | `"gh auth token"` | Use the `gh` authentication token for GitHub API access |
 
-## リポジトリローカル設定
+## Repository-local settings
 
-### `mise.toml`（リポジトリルート）
+### `mise.toml` (repository root)
 
-dotfiles リポジトリ自体の開発環境を定義します。
+Defines the development environment for the dotfiles repository itself.
 
-| ツール | バージョン | 説明                                   |
-| ------ | ---------- | -------------------------------------- |
-| `bun`  | `latest`   | Bun ランタイム（ドキュメントビルド用） |
+| Tool  | Version  | Description                              |
+| ----- | -------- | ---------------------------------------- |
+| `bun` | `latest` | Bun runtime (for building documentation) |
 
-`[hooks]` セクションで `postinstall = "bun install --frozen-lockfile"` が設定されており、`mise install` 後に依存関係が自動インストールされます。
+The `[hooks]` section sets `postinstall = "bun install --frozen-lockfile"`, so dependencies are installed automatically after `mise install`.
 
-### `[settings]`（`mise.toml`）
+### `[settings]` (`mise.toml`)
 
-| キー           | 値     | 説明                                 |
-| -------------- | ------ | ------------------------------------ |
-| `lockfile`     | `true` | ロックファイルを生成（再現性のため） |
-| `experimental` | `true` | 実験的機能を有効化                   |
+| Key            | Value  | Description                               |
+| -------------- | ------ | ----------------------------------------- |
+| `lockfile`     | `true` | Generate a lockfile (for reproducibility) |
+| `experimental` | `true` | Enable experimental features              |
 
-## シェル統合
+## Shell integration
 
-`.zshrc` で `eval "$(mise activate zsh)"` により有効化。`cd` 時にプロジェクトの `.mise.toml` や `.tool-versions` に応じてツールバージョンが自動切り替わる。
+Enabled in `.zshrc` via `eval "$(mise activate zsh)"`. Tool versions switch automatically on `cd` according to the project's `.mise.toml` or `.tool-versions`.
 
-## ツールの追加
+## Adding tools
 
 ```bash
-# グローバルに追加（~/.config/mise/config.toml に書き込まれる）
+# Add globally (written to ~/.config/mise/config.toml)
 mise use -g python@latest
 
-# ツールバージョンを確認
+# Check tool versions
 mise ls --current
 ```
-

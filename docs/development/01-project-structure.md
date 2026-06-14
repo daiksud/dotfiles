@@ -1,72 +1,72 @@
-# プロジェクト構成
+# Project Structure
 
-リポジトリの主要ディレクトリとファイルの役割を整理します。
+This page organizes the roles of the repository's main directories and files.
 
-## 全体像
+## Overview
 
 ```text
 .
-├── install.sh              # メインセットアップスクリプト
-├── install_map.json        # シンボリックリンク対応表
-├── Brewfile                # Homebrew パッケージ定義
-├── dotfiles/               # シンボリックリンク元ファイル群
+├── install.sh              # Main setup script
+├── install_map.json        # Symbolic link mapping table
+├── Brewfile                # Homebrew package definitions
+├── dotfiles/               # Files used as symbolic link sources
 │   ├── zshrc               # -> ~/.zshrc
-│   ├── zsh/                # -> ~/.zsh（カスタムプラグイン）
+│   ├── zsh/                # -> ~/.zsh (custom plugins)
 │   ├── tmux.conf           # -> ~/.tmux.conf
 │   ├── gitconfig           # -> ~/.gitconfig
 │   ├── ghostty/            # -> ~/.config/ghostty
 │   ├── nvim/               # -> ~/.config/nvim (LazyVim)
 │   ├── sheldon/            # -> ~/.config/sheldon
 │   ├── starship.toml       # -> ~/.config/starship.toml
-│   ├── skills/             # -> ~/.copilot/skills（Copilot スキル）
+│   ├── skills/             # -> ~/.copilot/skills (Copilot skills)
 │   └── copilot-instructions.md # -> ~/.copilot/copilot-instructions.md
-├── scripts/                # セットアップスクリプト群
+├── scripts/                # Setup scripts
 │   ├── 000-codespace.sh
 │   ├── 001-homebrew.sh
 │   ├── 002-brewfile.sh
 │   └── 100-*.sh
-├── docs/                   # ドキュメント
+├── docs/                   # Documentation
 │   ├── README.mdx
 │   ├── guides/
 │   ├── reference/
 │   └── development/
-├── .devcontainer/          # Codespaces 設定
-├── .docusaurus/            # Docusaurus サイト構築
+├── .devcontainer/          # Codespaces settings
+├── .docusaurus/            # Docusaurus site build
 ├── .github/
 │   ├── copilot-instructions.md
-│   ├── dependabot.yml      # bun / GitHub Actions の依存更新設定
-│   ├── settings.yml        # gh-infra による宣言的リポジトリ設定
+│   ├── dependabot.yml      # Dependency update settings for bun / GitHub Actions
+│   ├── settings.yml        # Declarative repository settings managed by gh-infra
 │   └── workflows/docs.yml
-├── mise.toml               # リポジトリローカルの mise 設定
-├── package.json            # ドキュメントビルド用スクリプト
-├── .gitignore              # 追跡しない生成物やローカルファイルの定義
+├── mise.toml               # Repository-local mise settings
+├── package.json            # Scripts for building the documentation
+├── .gitignore              # Definitions for untracked generated and local files
 ├── .editorconfig
 └── LICENSE
 ```
 
-## 主要ファイルの役割
+## Roles of the Main Files
 
-| パス               | 役割                                                             | 変更するタイミング                             |
-| ------------------ | ---------------------------------------------------------------- | ---------------------------------------------- |
-| `install.sh`       | セットアップのエントリポイント。リンク作成とスクリプト実行を統括 | リンク処理やスクリプト実行ロジックを変えるとき |
-| `install_map.json` | シンボリックリンクの対応表                                       | リンク先を追加・変更するとき                   |
-| `Brewfile`         | Homebrew で管理するパッケージ一覧                                | ツールを追加・削除するとき                     |
-| `dotfiles/`        | シンボリックリンクされる設定ファイル群                           | 各ツールの設定を変えるとき                     |
-| `scripts/`         | セットアップスクリプト群                                         | ツールのインストール手順を変えるとき           |
-| `.devcontainer/`   | GitHub Codespaces のコンテナ定義                                 | Codespaces 環境を変えるとき                    |
-| `.gitignore`       | Git で追跡しないファイルの除外設定                               | `node_modules/` などの生成物を追加するとき     |
+| Path               | Role                                                                   | When to change it                                     |
+| ------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------- |
+| `install.sh`       | Entry point for setup. Orchestrates link creation and script execution | When changing link handling or script execution logic |
+| `install_map.json` | Mapping table for symbolic links                                       | When adding or changing link targets                  |
+| `Brewfile`         | List of packages managed by Homebrew                                   | When adding or removing tools                         |
+| `dotfiles/`        | Configuration files that are symlinked                                 | When changing the settings for each tool              |
+| `scripts/`         | Setup scripts                                                          | When changing tool installation procedures            |
+| `.devcontainer/`   | Container definitions for GitHub Codespaces                            | When changing the Codespaces environment              |
+| `.gitignore`       | Exclusion settings for files not tracked by Git                        | When adding generated files such as `node_modules/`   |
 
-## どのファイルを一緒に触るべきか
+## Which Files Should Be Changed Together
 
-### 新しいツールを追加するとき
+### When adding a new tool
 
-1. `Brewfile` — パッケージ追加
-2. `dotfiles/<config>` — 設定ファイル配置
-3. `install_map.json` — リンクエントリ追加
-4. `docs/reference/tools.md` — ツール一覧更新
-5. 必要に応じて `scripts/100-<tool>.sh` — セットアップスクリプト追加
+1. `Brewfile` — Add the package
+2. `dotfiles/<config>` — Place the configuration file
+3. `install_map.json` — Add the link entry
+4. `docs/reference/tools.md` — Update the tool list
+5. If needed, `scripts/100-<tool>.sh` — Add a setup script
 
-### Zsh プラグインを追加するとき
+### When adding a Zsh plugin
 
-1. `dotfiles/zsh/<name>.zsh` — プラグイン作成（`.zshrc` は編集不要、自動 source される）
-2. `docs/reference/zsh/plugins.md` — 一覧更新
+1. `dotfiles/zsh/<name>.zsh` — Create the plugin (`.zshrc` does not need editing; it is sourced automatically)
+2. `docs/reference/zsh/plugins.md` — Update the list

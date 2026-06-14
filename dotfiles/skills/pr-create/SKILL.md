@@ -65,7 +65,7 @@ It understands staged files and committed changes, then creates the PR with an a
 ### Step 5: Create the PR description and open a draft PR
 
 - If `.github/pull_request_template.md` exists, follow its structure
-- Write the PR body in Japanese
+- Write the PR body in English
 - Include the following in the description:
   - **Purpose:**
     - What this PR accomplishes, including not only **what** but also **why**

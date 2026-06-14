@@ -4,9 +4,9 @@ RTK is a CLI proxy that filters and compresses shell command output to reduce th
 
 ## Files
 
-| dotfiles | Link destination |
-|---|---|
-| `dotfiles/copilot-hooks/rtk-rewrite.json` | `~/.copilot/hooks/rtk-rewrite.json` |
+| dotfiles                                                     | Link destination                     |
+| ------------------------------------------------------------ | ------------------------------------ |
+| `dotfiles/copilot-hooks/rtk-rewrite.json`                    | `~/.copilot/hooks/rtk-rewrite.json`  |
 | `dotfiles/copilot-instructions.md` (including the RTK block) | `~/.copilot/copilot-instructions.md` |
 
 ## Setup

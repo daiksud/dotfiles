@@ -16,26 +16,26 @@ In this repository, labels, merge strategies, branch protection (rulesets), secu
 
 These are the main items defined under `spec` in `.github/settings.yml`.
 
-| Section          | Contents                                                                                |
-| ---------------- | --------------------------------------------------------------------------------------- |
-| `labels`         | Definitions for Issue / PR labels (name, description, color)                            |
-| `features`       | Enable / disable `issues`, `projects`, `wiki`, `discussions`, and `pull_requests`      |
-| `merge_strategy` | Allow only squash merges, and enable auto-merge and automatic branch deletion after merge |
+| Section          | Contents                                                                                   |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| `labels`         | Definitions for Issue / PR labels (name, description, color)                               |
+| `features`       | Enable / disable `issues`, `projects`, `wiki`, `discussions`, and `pull_requests`          |
+| `merge_strategy` | Allow only squash merges, and enable auto-merge and automatic branch deletion after merge  |
 | `security`       | Enable vulnerability alerts, automated security fixes, and private vulnerability reporting |
-| `rulesets`       | Protection for the default branch (described below)                                     |
-| `actions`        | Allowed scope for GitHub Actions and default `workflow_permissions`                     |
+| `rulesets`       | Protection for the default branch (described below)                                        |
+| `actions`        | Allowed scope for GitHub Actions and default `workflow_permissions`                        |
 
 ### Default branch ruleset
 
 The following are enforced on the default branch through `rulesets`.
 
-| Rule                       | Value   | Description                                     |
-| -------------------------- | ------- | ----------------------------------------------- |
-| `required_linear_history`  | `true`  | Disallow merge commits (enforce linear history) |
-| `required_signatures`      | `true`  | Require signed commits                          |
-| `non_fast_forward`         | `true`  | Disallow force pushes                           |
-| `deletion`                 | `true`  | Disallow branch deletion                        |
-| `creation`                 | `false` | Do not restrict branch creation                 |
+| Rule                      | Value   | Description                                     |
+| ------------------------- | ------- | ----------------------------------------------- |
+| `required_linear_history` | `true`  | Disallow merge commits (enforce linear history) |
+| `required_signatures`     | `true`  | Require signed commits                          |
+| `non_fast_forward`        | `true`  | Disallow force pushes                           |
+| `deletion`                | `true`  | Disallow branch deletion                        |
+| `creation`                | `false` | Do not restrict branch creation                 |
 
 > [!IMPORTANT]
 > Because `required_linear_history` is enabled, you cannot push merge commits to the default branch. When integrating changes locally, use a fast-forward merge (`git merge --ff-only`).
@@ -71,12 +71,12 @@ gh infra import daiksud/dotfiles > .github/settings.yml
 
 ## Command list
 
-| Command           | Description                                                |
-| ----------------- | ---------------------------------------------------------- |
+| Command           | Description                                                    |
+| ----------------- | -------------------------------------------------------------- |
 | `plan [path]`     | Show the diff between the YAML and the current GitHub settings |
-| `apply [path]`    | Apply the diff (with confirmation prompt)                  |
-| `import <repo>`   | Export the settings of an existing repository as YAML      |
-| `validate [path]` | Validate the YAML syntax and schema                        |
+| `apply [path]`    | Apply the diff (with confirmation prompt)                      |
+| `import <repo>`   | Export the settings of an existing repository as YAML          |
+| `validate [path]` | Validate the YAML syntax and schema                            |
 
 ## References
 

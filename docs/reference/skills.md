@@ -4,10 +4,10 @@ This is the specification reference for custom skills.
 
 ## Skill list
 
-| Skill       | Description                                                                                                     |
-| ----------- | --------------------------------------------------------------------------------------------------------------- |
+| Skill       | Description                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
 | `pr-create` | Check the corresponding Task, understand the changes, and create a draft PR with an appropriate commit message and description |
-| `pr-fix`    | Fix CI errors and handle review comments to bring the PR into a mergeable state                                 |
+| `pr-fix`    | Fix CI errors and handle review comments to bring the PR into a mergeable state                                                |
 
 ## Installation destination
 
@@ -101,13 +101,13 @@ name: Skill name
 
 ### Section guidelines
 
-| Section              | Required    | Description                                           |
-| -------------------- | ----------- | ----------------------------------------------------- |
-| Overview or Usage    | ✅          | Explain the purpose of the skill or how to invoke it  |
-| Procedure or Modes   | ✅          | Step-by-step or mode-specific operating procedure     |
-| Constraints          | Recommended | Constraints and behavior on failure                   |
-| Output               | Recommended | What is shown to the user when the skill finishes     |
-| Hints for developers | Optional    | Example alias configuration, etc.                     |
+| Section              | Required    | Description                                          |
+| -------------------- | ----------- | ---------------------------------------------------- |
+| Overview or Usage    | ✅          | Explain the purpose of the skill or how to invoke it |
+| Procedure or Modes   | ✅          | Step-by-step or mode-specific operating procedure    |
+| Constraints          | Recommended | Constraints and behavior on failure                  |
+| Output               | Recommended | What is shown to the user when the skill finishes    |
+| Hints for developers | Optional    | Example alias configuration, etc.                    |
 
 ## Detailed specification for `pr-create`
 

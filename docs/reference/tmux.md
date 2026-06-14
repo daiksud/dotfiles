@@ -8,11 +8,11 @@ This is the configuration reference for the terminal multiplexer (tmux).
 
 ## Basic settings
 
-| Setting            | Value           | Description                                 |
-| ------------------ | --------------- | ------------------------------------------- |
-| prefix             | `C-t`           | Prefix key (disables the default `C-b`)     |
-| `default-terminal` | `xterm-ghostty` | Preserve Ghostty features even inside tmux  |
-| `mode-keys`        | `vi`            | vi keybindings in copy mode                 |
+| Setting            | Value           | Description                                |
+| ------------------ | --------------- | ------------------------------------------ |
+| prefix             | `C-t`           | Prefix key (disables the default `C-b`)    |
+| `default-terminal` | `xterm-ghostty` | Preserve Ghostty features even inside tmux |
+| `mode-keys`        | `vi`            | vi keybindings in copy mode                |
 
 ## Keybindings
 
@@ -21,7 +21,7 @@ This is the configuration reference for the terminal multiplexer (tmux).
 | Key              | Action                                       |
 | ---------------- | -------------------------------------------- |
 | `prefix c`       | New window (inherits the current path)       |
-| `prefix \`      | Horizontal split (inherits the current path) |
+| `prefix \`       | Horizontal split (inherits the current path) |
 | `prefix -`       | Vertical split (inherits the current path)   |
 | `prefix h/j/k/l` | Move between panes (vim-style)               |
 | `prefix r`       | Reload configuration                         |
@@ -35,8 +35,8 @@ This is the configuration reference for the terminal multiplexer (tmux).
 
 ### Special keys
 
-| Key           | Action                                     |
-| ------------- | ------------------------------------------ |
+| Key           | Action                                    |
+| ------------- | ----------------------------------------- |
 | `Shift+Enter` | Send `\e[13;2u` (kitty keyboard protocol) |
 
 ## Plugins

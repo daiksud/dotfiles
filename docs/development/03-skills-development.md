@@ -56,12 +56,12 @@ If you see a loading error, check whether the `name` and `description` in the fr
 
 ## Writing Rules
 
-| Rule                        | Reason                                              |
-| --------------------------- | --------------------------------------------------- |
-| Write in Japanese           | To keep both the body text and `description` in Japanese |
-| Write concrete steps        | Ambiguity makes the agent hesitate when deciding what to do |
-| State constraints clearly   | Prevents infinite loops and destructive operations  |
-| Define the output           | Clarifies what the user can expect                  |
+| Rule                      | Reason                                                      |
+| ------------------------- | ----------------------------------------------------------- |
+| Write in Japanese         | To keep both the body text and `description` in Japanese    |
+| Write concrete steps      | Ambiguity makes the agent hesitate when deciding what to do |
+| State constraints clearly | Prevents infinite loops and destructive operations          |
+| Define the output         | Clarifies what the user can expect                          |
 
 ## File Placement
 

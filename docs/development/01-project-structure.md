@@ -46,15 +46,15 @@ This page organizes the roles of the repository's main directories and files.
 
 ## Roles of the Main Files
 
-| Path               | Role                                                             | When to change it                               |
-| ------------------ | ---------------------------------------------------------------- | ----------------------------------------------- |
+| Path               | Role                                                                   | When to change it                                     |
+| ------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------- |
 | `install.sh`       | Entry point for setup. Orchestrates link creation and script execution | When changing link handling or script execution logic |
-| `install_map.json` | Mapping table for symbolic links                                 | When adding or changing link targets            |
-| `Brewfile`         | List of packages managed by Homebrew                             | When adding or removing tools                   |
-| `dotfiles/`        | Configuration files that are symlinked                           | When changing the settings for each tool        |
-| `scripts/`         | Setup scripts                                                    | When changing tool installation procedures      |
-| `.devcontainer/`   | Container definitions for GitHub Codespaces                      | When changing the Codespaces environment        |
-| `.gitignore`       | Exclusion settings for files not tracked by Git                  | When adding generated files such as `node_modules/` |
+| `install_map.json` | Mapping table for symbolic links                                       | When adding or changing link targets                  |
+| `Brewfile`         | List of packages managed by Homebrew                                   | When adding or removing tools                         |
+| `dotfiles/`        | Configuration files that are symlinked                                 | When changing the settings for each tool              |
+| `scripts/`         | Setup scripts                                                          | When changing tool installation procedures            |
+| `.devcontainer/`   | Container definitions for GitHub Codespaces                            | When changing the Codespaces environment              |
+| `.gitignore`       | Exclusion settings for files not tracked by Git                        | When adding generated files such as `node_modules/`   |
 
 ## Which Files Should Be Changed Together
 

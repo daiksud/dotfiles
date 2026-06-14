@@ -8,13 +8,13 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 
 ## ADR List
 
-| ID                                   | Title                                          | Status   |
-| ------------------------------------ | ---------------------------------------------- | -------- |
+| ID                                   | Title                                                   | Status   |
+| ------------------------------------ | ------------------------------------------------------- | -------- |
 | [0001](./0001-json-install-map.md)   | Adopt a JSON mapping table for symbolic link management | Accepted |
-| [0002](./0002-ssh-commit-signing.md) | Adopt SSH commit signing                       | Accepted |
-| [0003](./0003-sheldon-starship.md)   | Replace Oh-My-Zsh with Sheldon + Starship      | Accepted |
-| [0004](./0004-gh-q.md)               | Replace ghq with gh-q                          | Accepted |
-| [0005](./0005-gh-infra.md)           | Manage repository settings declaratively with gh-infra | Accepted |
+| [0002](./0002-ssh-commit-signing.md) | Adopt SSH commit signing                                | Accepted |
+| [0003](./0003-sheldon-starship.md)   | Replace Oh-My-Zsh with Sheldon + Starship               | Accepted |
+| [0004](./0004-gh-q.md)               | Replace ghq with gh-q                                   | Accepted |
+| [0005](./0005-gh-infra.md)           | Manage repository settings declaratively with gh-infra  | Accepted |
 
 ## How to Write a New ADR
 
@@ -51,4 +51,4 @@ Write what was adopted and how it will be operated.
 ```
 
 > [!TIP]
-> Record the reasons for rejecting alternatives in detail. AI assistants lose context between sessions, so ADRs become the only way to recover *why* a particular choice was made.
+> Record the reasons for rejecting alternatives in detail. AI assistants lose context between sessions, so ADRs become the only way to recover _why_ a particular choice was made.

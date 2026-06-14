@@ -28,22 +28,22 @@ This is the reference for Zsh shell configuration.
 
 ## History settings
 
-| Option                 | Description                                               |
-| ---------------------- | --------------------------------------------------------- |
-| `extended_history`     | Record timestamps and execution time                      |
-| `hist_ignore_all_dups` | Remove duplicates completely                              |
-| `hist_ignore_dups`     | Do not record the same command as the previous one        |
-| `hist_ignore_space`    | Do not record commands that start with a space            |
-| `hist_reduce_blanks`   | Remove extra spaces                                       |
-| `hist_verify`          | Show history expansion without executing it immediately   |
-| `share_history`        | Share history across sessions                             |
+| Option                 | Description                                             |
+| ---------------------- | ------------------------------------------------------- |
+| `extended_history`     | Record timestamps and execution time                    |
+| `hist_ignore_all_dups` | Remove duplicates completely                            |
+| `hist_ignore_dups`     | Do not record the same command as the previous one      |
+| `hist_ignore_space`    | Do not record commands that start with a space          |
+| `hist_reduce_blanks`   | Remove extra spaces                                     |
+| `hist_verify`          | Show history expansion without executing it immediately |
+| `share_history`        | Share history across sessions                           |
 
 ## Directory settings
 
-| Option              | Description                                   |
-| ------------------- | --------------------------------------------- |
-| `auto_cd`           | Run `cd` with only a directory name           |
-| `auto_pushd`        | Automatically run `pushd` on `cd`             |
+| Option              | Description                                       |
+| ------------------- | ------------------------------------------------- |
+| `auto_cd`           | Run `cd` with only a directory name               |
+| `auto_pushd`        | Automatically run `pushd` on `cd`                 |
 | `pushd_ignore_dups` | Remove duplicate entries from the directory stack |
 
 ## Completion style

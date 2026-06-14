@@ -53,12 +53,12 @@ It creates a `.git/gh/` directory in every Git repository and sets the `GH_CONFI
 
 After updating `GH_CONFIG_DIR`, it gets a token with `gh auth token` and sets it in `COPILOT_GITHUB_TOKEN`. Copilot CLI gives this environment variable higher priority than stored credentials, so it uses the same account as `gh`.
 
-| Situation | `GH_CONFIG_DIR` | `COPILOT_GITHUB_TOKEN` |
-| ---- | --------------- | ---------------------- |
-| Work repository (authenticated) | `.git/gh` | Work account token |
-| Personal repository (authenticated) | `.git/gh` | Personal account token |
-| Repository where `gh` is not logged in | `.git/gh` | unset (falls back to stored credentials) |
-| Outside a Git repository | unset | Global `gh` account token |
+| Situation                              | `GH_CONFIG_DIR` | `COPILOT_GITHUB_TOKEN`                   |
+| -------------------------------------- | --------------- | ---------------------------------------- |
+| Work repository (authenticated)        | `.git/gh`       | Work account token                       |
+| Personal repository (authenticated)    | `.git/gh`       | Personal account token                   |
+| Repository where `gh` is not logged in | `.git/gh`       | unset (falls back to stored credentials) |
+| Outside a Git repository               | unset           | Global `gh` account token                |
 
 ## Relationship with global `.gitconfig`
 

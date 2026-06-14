@@ -21,11 +21,11 @@ Everything about "what to install" is written in configuration files, and the sc
 
 All tools use **Tokyo Night Storm** as the unified color scheme.
 
-| Tool     | Configuration                                             |
-| -------- | --------------------------------------------------------- |
-| Ghostty  | `theme = TokyoNight Storm`                                |
-| Neovim   | `tokyonight.nvim` (style = `"storm"`, transparent)        |
-| tmux     | `tokyo-night-tmux` (theme = `storm`)                      |
+| Tool     | Configuration                                              |
+| -------- | ---------------------------------------------------------- |
+| Ghostty  | `theme = TokyoNight Storm`                                 |
+| Neovim   | `tokyonight.nvim` (style = `"storm"`, transparent)         |
+| tmux     | `tokyo-night-tmux` (theme = `storm`)                       |
 | Starship | Custom formatting matched to the Tokyo Night Storm palette |
 
 This creates a visually consistent environment without color discontinuities between the terminal, tmux, and editor.

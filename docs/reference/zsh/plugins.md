@@ -36,13 +36,13 @@ Runs automatically on every `cd` via the `chpwd` hook:
 
 ### Functions provided
 
-| Function                    | Description                                                 |
-| --------------------------- | ----------------------------------------------------------- |
-| `is_github_origin_repo`     | Determine whether `origin` is `github.com`                 |
-| `resolve_gh_identity`       | Get login name, name, and email from `gh api`              |
-| `sync_signing_key_from_gh`  | Set the SSH signing key and `allowed_signers`              |
+| Function                    | Description                                                  |
+| --------------------------- | ------------------------------------------------------------ |
+| `is_github_origin_repo`     | Determine whether `origin` is `github.com`                   |
+| `resolve_gh_identity`       | Get login name, name, and email from `gh api`                |
+| `sync_signing_key_from_gh`  | Set the SSH signing key and `allowed_signers`                |
 | `sync_git_identity_from_gh` | Sync `user.name`, `user.email`, and the signing key together |
-| `set_gh_config_dir`         | Set `GH_CONFIG_DIR` and call identity sync                 |
+| `set_gh_config_dir`         | Set `GH_CONFIG_DIR` and call identity sync                   |
 
 For details, see [Automatic Git identity switching](../../guides/04-git-identity.md).
 

@@ -13,9 +13,9 @@ This page explains how to manage symbolic link mappings by editing `install_map.
 }
 ```
 
-| Field      | Description                                                      |
-| ---------- | ---------------------------------------------------------------- |
-| `<source>` | File or directory name inside the `dotfiles/` directory         |
+| Field      | Description                                                   |
+| ---------- | ------------------------------------------------------------- |
+| `<source>` | File or directory name inside the `dotfiles/` directory       |
 | `<target>` | Absolute destination path (`~` expands to the home directory) |
 
 ## Add a link

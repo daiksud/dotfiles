@@ -15,8 +15,8 @@ As a result, `~/.config/mise/config.toml` becomes a machine-specific file manage
 
 ### `[settings.github]`
 
-| Key                  | Value               | Description                                            |
-| -------------------- | ------------------- | ------------------------------------------------------ |
+| Key                  | Value             | Description                                             |
+| -------------------- | ----------------- | ------------------------------------------------------- |
 | `credential_command` | `"gh auth token"` | Use the `gh` authentication token for GitHub API access |
 
 ## Repository-local settings

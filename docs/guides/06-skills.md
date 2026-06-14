@@ -9,9 +9,9 @@ This is a guide for getting started quickly with custom Copilot CLI skills.
 
 ## Available skills
 
-| Skill       | What it does                                                      |
-| ----------- | ----------------------------------------------------------------- |
-| `pr-create` | Automatically creates a draft PR from the current changes         |
+| Skill       | What it does                                                                        |
+| ----------- | ----------------------------------------------------------------------------------- |
+| `pr-create` | Automatically creates a draft PR from the current changes                           |
 | `pr-fix`    | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR |
 
 ## Use `pr-create`

@@ -76,12 +76,12 @@ Uses Tokyo Night Storm in transparent mode:
 
 ## lazy.nvim settings
 
-| Setting               | Value                          | Description                                  |
-| --------------------- | ------------------------------ | -------------------------------------------- |
-| `defaults.lazy`       | `false`                        | Load custom plugins at startup               |
-| `defaults.version`    | `false`                        | Always use the latest git commit             |
-| `checker.enabled`     | `true`                         | Periodically check for plugin updates        |
-| `checker.notify`      | `false`                        | Do not show update notifications             |
+| Setting               | Value                       | Description                                  |
+| --------------------- | --------------------------- | -------------------------------------------- |
+| `defaults.lazy`       | `false`                     | Load custom plugins at startup               |
+| `defaults.version`    | `false`                     | Always use the latest git commit             |
+| `checker.enabled`     | `true`                      | Periodically check for plugin updates        |
+| `checker.notify`      | `false`                     | Do not show update notifications             |
 | `install.colorscheme` | `["tokyonight", "habamax"]` | Fallback themes for the initial installation |
 
 ### Disabled rtp plugins

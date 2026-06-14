@@ -6,12 +6,12 @@ This page defines the documentation writing rules for this repository.
 
 Everything under `docs/` is organized according to the four quadrants of the [Diátaxis framework](https://diataxis.fr/).
 
-| Diátaxis Quadrant | Section                                            | Content                                |
-| ----------------- | -------------------------------------------------- | -------------------------------------- |
+| Diátaxis Quadrant | Section                                            | Content                                             |
+| ----------------- | -------------------------------------------------- | --------------------------------------------------- |
 | Tutorial          | `guides/01-quick-start.md`                         | Guided, hands-on documentation with a learning goal |
-| How-to Guide      | `guides/02-*` to `guides/04-*`                     | Task-oriented procedures               |
-| Reference         | `reference/`                                       | Comprehensive specification            |
-| Explanation       | `guides/04-git-identity.md`, `development/99-adr/` | Design philosophy, background, and decisions |
+| How-to Guide      | `guides/02-*` to `guides/04-*`                     | Task-oriented procedures                            |
+| Reference         | `reference/`                                       | Comprehensive specification                         |
+| Explanation       | `guides/04-git-identity.md`, `development/99-adr/` | Design philosophy, background, and decisions        |
 
 ## Basic Page Structure
 
@@ -105,10 +105,10 @@ When making changes, check the following:
 
 ### Scope
 
-| Change                           | Documentation to review                                                               |
-| -------------------------------- | -------------------------------------------------------------------------------------- |
-| Changes to `install_map.json`    | `reference/install-map.md`, `guides/03-managing-links.md`                             |
-| Adding or removing tools         | `reference/tools.md`, the corresponding individual reference pages                     |
-| Changes to scripts               | `reference/scripts.md`                                                                 |
-| Adding or changing skills        | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md`  |
-| Changes to Docusaurus settings   | `.docusaurus/README.md`                                                                |
+| Change                         | Documentation to review                                                              |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| Changes to `install_map.json`  | `reference/install-map.md`, `guides/03-managing-links.md`                            |
+| Adding or removing tools       | `reference/tools.md`, the corresponding individual reference pages                   |
+| Changes to scripts             | `reference/scripts.md`                                                               |
+| Adding or changing skills      | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md` |
+| Changes to Docusaurus settings | `.docusaurus/README.md`                                                              |

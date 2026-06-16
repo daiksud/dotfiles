@@ -5,7 +5,7 @@ import remarkGithubAdmonitionsToDirectives from "remark-github-admonitions-to-di
 
 const config: Config = {
   title: "daiksud/dotfiles",
-  tagline: "macOS / Ubuntu 統一開発環境",
+  tagline: "macOS / Ubuntu Unified Development Environment",
   trailingSlash: false,
 
   future: {
@@ -22,8 +22,8 @@ const config: Config = {
   onBrokenLinks: "throw",
 
   i18n: {
-    defaultLocale: "ja",
-    locales: ["ja"],
+    defaultLocale: "en",
+    locales: ["en"],
   },
 
   presets: [
@@ -71,19 +71,19 @@ const config: Config = {
           type: "docSidebar",
           sidebarId: "guidesSidebar",
           position: "left",
-          label: "📖 ガイド",
+          label: "📖 Guides",
         },
         {
           type: "docSidebar",
           sidebarId: "referenceSidebar",
           position: "left",
-          label: "📋 リファレンス",
+          label: "📋 Reference",
         },
         {
           type: "docSidebar",
           sidebarId: "developmentSidebar",
           position: "left",
-          label: "🛠️ 開発",
+          label: "🛠️ Development",
         },
         {
           href: "https://github.com/daiksud/dotfiles",

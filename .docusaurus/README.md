@@ -1,58 +1,69 @@
 # .docusaurus
 
-[Docusaurus](https://docusaurus.io/) によるドキュメントサイトを構築するためのディレクトリです。
+This directory contains the code used to build the documentation site with
+[Docusaurus](https://docusaurus.io/).
 
-ドキュメント本体（Markdown ファイル）はリポジトリルートの `docs/` にあります。このディレクトリには Docusaurus の設定・テーマカスタマイズ・ビルド成果物など、サイト構築に必要なコードだけを配置しています。
+The documentation content itself (Markdown files) lives in `docs/` at the
+repository root. This directory only contains code required for site
+construction, such as Docusaurus configuration, theme customizations, and build
+artifacts.
 
-## ディレクトリ構成
+## Directory structure
 
-| パス                   | 役割                                                                  |
+| Path                   | Purpose                                                               |
 | ---------------------- | --------------------------------------------------------------------- |
-| `docusaurus.config.ts` | サイト全体の設定（タイトル、URL、プラグイン、ナビバーなど）           |
-| `plugins/`             | カスタム Docusaurus プラグイン（Pagefind 検索インデックス生成）       |
-| `sidebars.ts`          | サイドバーの構成定義                                                  |
-| `src/components/`      | カスタム MDX コンポーネント（下記参照）                               |
-| `src/theme/`           | Docusaurus テーマのオーバーライド（`MDXComponents.ts`、`SearchBar/`） |
-| `src/css/custom.css`   | サイト全体のカスタム CSS（Tokyo Night Storm 配色）                    |
-| `src/pages/`           | 独自ページ（React コンポーネント）                                    |
-| `static/`              | 静的アセット                                                          |
-| `build/`               | `docs:build` の出力先（`.gitignore` 対象）                            |
-| `package.json`         | Docusaurus とプラグインの依存関係                                     |
+| `docusaurus.config.ts` | Site-wide configuration (title, URL, plugins, navbar, and more)      |
+| `plugins/`             | Custom Docusaurus plugins (Pagefind search index generation)          |
+| `sidebars.ts`          | Sidebar structure definitions                                         |
+| `src/components/`      | Custom MDX components (see below)                                     |
+| `src/theme/`           | Docusaurus theme overrides (`MDXComponents.ts`, `SearchBar/`)         |
+| `src/css/custom.css`   | Global custom CSS for the site (Tokyo Night Storm color scheme)       |
+| `src/pages/`           | Custom pages (React components)                                       |
+| `static/`              | Static assets                                                         |
+| `build/`               | Output directory for `docs:build` (ignored by `.gitignore`)           |
+| `package.json`         | Dependency definitions for Docusaurus and related plugins             |
 
-## カスタムコンポーネント
+## Custom components
 
-`docs/` 内の MDX ファイルで使用できるコンポーネントです。`src/theme/MDXComponents.ts` でグローバル登録しています。
+These components are available in MDX files under `docs/`. They are registered
+globally in `src/theme/MDXComponents.ts`.
 
-| コンポーネント               | 用途                                                    |
-| ---------------------------- | ------------------------------------------------------- |
-| `<Hero>`                     | ランディングページのヒーローセクション                  |
-| `<HeroLeft>` / `<HeroRight>` | ヒーロー内の左右レイアウト                              |
-| `<Terminal>`                 | ターミナル風のコードブロック表示（ライト/ダーク両対応） |
-| `<FeatureGrid>`              | 特徴一覧のグリッドレイアウト                            |
-| `<Feature>`                  | グリッド内の個別特徴カード                              |
+| Component                    | Purpose                                                |
+| ---------------------------- | ------------------------------------------------------ |
+| `<Hero>`                     | Hero section for landing pages                         |
+| `<HeroLeft>` / `<HeroRight>` | Left/right layout within the hero section              |
+| `<Terminal>`                 | Terminal-style code block display (light/dark support) |
+| `<FeatureGrid>`              | Grid layout for feature lists                          |
+| `<Feature>`                  | Individual feature card inside the grid                |
 
-## サイト内検索
+## Site search
 
-[Pagefind](https://pagefind.app/) によるビルド時ローカル検索を実装しています。
+Build-time local search is implemented with [Pagefind](https://pagefind.app/).
 
-- `plugins/pagefind-plugin.ts` — Docusaurus の `postBuild` フックで Pagefind Node API を呼び出し、検索インデックスを生成
-- `src/theme/SearchBar/` — Pagefind UI の React ラッパー。ナビバーに検索ボタンを表示し、モーダルで検索結果を表示
-- キーボードショートカット: `⌘+K`（macOS）/ `Ctrl+K`（Windows/Linux）
+- `plugins/pagefind-plugin.ts` — Calls the Pagefind Node API from Docusaurus'
+  `postBuild` hook to generate the search index
+- `src/theme/SearchBar/` — React wrapper for the Pagefind UI. Displays a search
+  button in the navbar and shows results in a modal
+- Keyboard shortcut: `⌘+K` (macOS) / `Ctrl+K` (Windows/Linux)
 
 > [!NOTE]
-> 検索は `docs:build` で生成されるインデックスに依存するため、`docs:start`（開発サーバー）では動作しません。検索を確認するには `docs:build` → `docs:serve` を実行してください。
+> Search depends on the index generated by `docs:build`, so it does not work in
+> `docs:start` (development server). To verify search locally, run
+> `docs:build` followed by `docs:serve`.
 
-## コマンド
+## Commands
 
-すべてのコマンドはリポジトリルートから実行します。
+Run all commands from the repository root.
 
 ```bash
-bun run docs:install   # 依存パッケージのインストール
-bun run docs:start     # 開発サーバーの起動（ホットリロード対応）
-bun run docs:build     # 本番用の静的サイトを生成
-bun run docs:serve     # ビルド済みサイトのプレビュー
+bun run docs:install   # Install dependencies
+bun run docs:start     # Start development server (hot reload enabled)
+bun run docs:build     # Generate production static site
+bun run docs:serve     # Preview the built site
 ```
 
-## なぜ `.docusaurus` ディレクトリに分離しているか
+## Why this is separated into `.docusaurus`
 
-GitHub 上で `docs/` を直接閲覧する利用者にとって、Docusaurus の設定ファイルや `node_modules` が目に入らないようにするためです。ドット付きディレクトリにすることで、リポジトリルートの見通しもすっきり保てます。
+This separation keeps Docusaurus configuration files and `node_modules` out of
+the way for people who browse `docs/` directly on GitHub. Keeping them in a
+dot-prefixed directory also helps keep the repository root tidy.

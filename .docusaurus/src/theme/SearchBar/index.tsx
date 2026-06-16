@@ -50,7 +50,7 @@ export default function SearchBar(): JSX.Element {
           containerRef.current.innerHTML =
             '<p class="' +
             styles.notAvailable +
-            '">検索インデックスが見つかりません。<br/><code>bun run docs:build</code> を実行してください。</p>';
+            '">Search index not found.<br/><code>bun run docs:build</code> to generate it.</p>';
         }
         return;
       }
@@ -62,12 +62,12 @@ export default function SearchBar(): JSX.Element {
         resetStyles: false,
         autofocus: true,
         translations: {
-          placeholder: "ドキュメントを検索...",
-          zero_results: "「[SEARCH_TERM]」に一致する結果がありません",
-          many_results: "[COUNT] 件の結果",
-          one_result: "1 件の結果",
-          searching: "検索中...",
-          load_more: "さらに表示",
+          placeholder: "Search documentation...",
+          zero_results: 'No results found for "[SEARCH_TERM]"',
+          many_results: "[COUNT] results",
+          one_result: "1 result",
+          searching: "Searching...",
+          load_more: "Load more",
         },
       });
     };
@@ -85,7 +85,7 @@ export default function SearchBar(): JSX.Element {
           containerRef.current.innerHTML =
             '<p class="' +
             styles.notAvailable +
-            '">検索インデックスが見つかりません。<br/><code>bun run docs:build</code> を実行してください。</p>';
+            '">Search index not found.<br/><code>bun run docs:build</code> to generate it.</p>';
         }
       };
       document.head.appendChild(script);
@@ -116,7 +116,7 @@ export default function SearchBar(): JSX.Element {
         type="button"
         className={styles.searchButton}
         onClick={openModal}
-        aria-label="サイト内検索"
+        aria-label="Search site"
       >
         <svg
           className={styles.searchIcon}
@@ -135,7 +135,7 @@ export default function SearchBar(): JSX.Element {
             strokeWidth="1.4"
           />
         </svg>
-        <span className={styles.searchLabel}>検索</span>
+        <span className={styles.searchLabel}>Search</span>
         <kbd className={styles.searchKbd}>
           <span className={styles.searchKbdMeta}>⌘</span>K
         </kbd>
@@ -147,16 +147,16 @@ export default function SearchBar(): JSX.Element {
           onClick={handleBackdropClick}
           role="dialog"
           aria-modal="true"
-          aria-label="サイト内検索"
+          aria-label="Search site"
         >
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <span className={styles.modalTitle}>検索</span>
+              <span className={styles.modalTitle}>Search</span>
               <button
                 type="button"
                 className={styles.closeButton}
                 onClick={closeModal}
-                aria-label="閉じる"
+                aria-label="Close"
               >
                 <kbd>Esc</kbd>
               </button>

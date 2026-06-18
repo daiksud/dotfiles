@@ -45,6 +45,10 @@ Invoke it with a PR number and an optional mode:
   - If `hasNextPage` is `true`, fetch the next page with `after: <endCursor>` and repeat until `hasNextPage` becomes `false`
 - For each comment, evaluate whether the feedback is valid:
   - **Valid** — apply the proposed fix or improvement
+    - If the feedback describes a specific case that causes an error or bug, apply fixes using TDD:
+      1. Write a unit test that reproduces the reported case
+      2. Confirm the unit test fails before making any code changes
+      3. Fix the code until the unit test passes
   - **Not valid / not applicable** — do not change the code; instead, prepare a reply explaining why
 - After pushing, reply to each comment describing how it was handled:
   - If fixed: explain the changes that were made

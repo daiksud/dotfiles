@@ -80,7 +80,9 @@ It understands staged files and committed changes, then creates the PR with an a
 - Create the PR with `gh pr create --draft`
   - The **PR title** must be in English and follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) format: `<type>(<scope>): <description>`
   - Use `feat` and `fix` **only** when the change directly affects the actual product (deliverable) — i.e., a new feature visible to end users or a bug fix that changes runtime behavior. Do **not** use `feat` or `fix` for changes that have no product impact, such as adding build tooling, fixing CI/CD configuration, or updating repository infrastructure. Use `build`, `ci`, `chore`, or another appropriate type instead.
-  - Set labels appropriate for the PR content (for example, `feature`, `bug`, `documentation`)
+  - Map labels to Conventional Commit types: `feat` -> `enhancement`, `fix` -> `bug`
+  - Do **not** use `enhancement` or `bug` labels for new features or bug fixes that do not affect the actual product deliverable (for example, build tooling, CI/CD configuration, or repository infrastructure changes)
+  - For non-product-impacting changes, use labels that match the real change type (for example, `documentation`, `chore`, `ci`, `build`)
 
 ### Step 6: Assign the requesting user
 

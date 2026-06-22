@@ -59,6 +59,9 @@ It understands staged files and committed changes, then creates the PR with an a
 
 - If you are currently on `main`, create and check out a feature branch
 - The branch name should reflect the changes (for example, `feat/add-pr-create-skill`, `fix/pin-terraform-provider-github-660`)
+- Map branch prefixes to Conventional Commit types: `feat` -> `feat/*`, `fix` -> `fix/*`, `docs` -> `docs/*`
+- Do **not** use `feat/*` or `fix/*` branch names for changes that do not affect the actual product deliverable (for example, build tooling, CI/CD configuration, or repository infrastructure changes)
+- For non-product-impacting changes, use a branch prefix that matches the real change type (for example, `docs/*`, `chore/*`, `ci/*`, `build/*`)
 - Push with `git push --set-upstream origin <branch>`
 - If you accidentally committed on the local `main` branch, restore it to match `origin/main`
 

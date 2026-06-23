@@ -57,23 +57,33 @@ Managed by TPM (Tmux Plugin Manager). Plugin directory: `~/.tmux/plugins/`
 
 ## Auto-start
 
-In `.zshrc`, automatically connect to a tmux session:
+When a shell starts, `.zshrc` connects it to a tmux session automatically.
+Sessions are grouped by terminal application (read from `$TERM_PROGRAM`) so that
+Ghostty, VS Code, and other apps stay in separate sessions. The implementation
+lives in `dotfiles/zshrc`.
 
-```zsh
-if [[ -z "$TMUX" ]] && command -v tmux >/dev/null 2>&1; then
-  exec tmux new-session -A -s main
-fi
-```
+How it works:
 
-- `new-session -A -s main` — Attach if the `main` session exists; otherwise create it
-- `exec` — Replace the shell with tmux (the terminal closes when tmux exits)
+- **App key** — `$TERM_PROGRAM` is lowercased and sanitized to `[a-z0-9-]`
+  (`Ghostty` → `ghostty`, `vscode` → `vscode`, `Apple_Terminal` →
+  `apple-terminal`). It falls back to `term` when `$TERM_PROGRAM` is unset.
+- **Reattach a detached session** — if a session of the same application has no
+  client attached, the shell reattaches to it instead of creating a new one.
+  Sessions of other applications are never reused.
+- **Otherwise start a new session** — when every same-app session is already
+  attached (or none exist), a new session is created at the lowest free index,
+  for example `ghostty-1`, then `ghostty-2`.
+- **Replace the shell** — the shell process is replaced with tmux, so the
+  terminal closes when tmux exits.
+
+> [!NOTE]
+> Each window gets its own independent session rather than mirroring a shared
+> one. Detached sessions are recycled first, so closing and reopening a window
+> reuses the freed session instead of leaving an orphan behind.
 
 ## Initializing TPM
 
-Start TPM after prepending the Homebrew path:
-
-```
-run 'PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH" ~/.tmux/plugins/tpm/tpm'
-```
-
-This allows TPM's plugin scripts to use Homebrew's bash 5+.
+TPM is initialized at the bottom of `tmux.conf`. The Homebrew paths
+(`/opt/homebrew/bin`, `/opt/homebrew/sbin`) are prepended before TPM runs so that
+its plugin scripts can find Homebrew's bash 5+ via `env(1)`. See
+`dotfiles/tmux.conf` for the exact line.

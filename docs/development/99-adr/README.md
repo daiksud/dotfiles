@@ -15,6 +15,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0003](./0003-sheldon-starship.md)   | Replace Oh-My-Zsh with Sheldon + Starship               | Accepted |
 | [0004](./0004-gh-q.md)               | Replace ghq with gh-q                                   | Accepted |
 | [0005](./0005-gh-infra.md)           | Manage repository settings declaratively with gh-infra  | Accepted |
+| [0006](./0006-per-app-tmux-sessions.md) | Per-application tmux sessions on terminal launch     | Accepted |
 
 ## How to Write a New ADR
 

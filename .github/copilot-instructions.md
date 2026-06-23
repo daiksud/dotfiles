@@ -72,4 +72,5 @@ Style reference to read before editing:
 - Documentation must always state **what changed**, **why it changed**, and **how to operate it**
 - Make examples and commands ready to copy and use as-is
 - Avoid outdated guidance and duplicated guidance
+- **Never copy source code or configuration into documentation.** Reproducing real source or config files causes double maintenance and stale docs. Describe the behavior and link to the source file (for example, `dotfiles/zshrc`) instead. Only examples or sample snippets that are not maintained elsewhere belong in docs. See the "Source Code in Documentation" section of `docs/development/02-docs-style.md`
 - Include clear reasons in records of decisions

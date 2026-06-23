@@ -48,8 +48,6 @@ This is the reference for Zsh shell configuration.
 
 ## Completion style
 
-```zsh
-zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
-```
-
-Complete without distinguishing uppercase/lowercase and hyphen/underscore.
+Completion matches without distinguishing uppercase/lowercase or
+hyphen/underscore. This is configured with a `zstyle` `matcher-list` rule in
+`dotfiles/zshrc`.

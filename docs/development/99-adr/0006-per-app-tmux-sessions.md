@@ -37,9 +37,10 @@ On shell startup (when not already inside tmux):
 3. Otherwise create a new session named `<app>-<n>`, where `n` is the lowest free
    index for that application.
 
-The logic lives in an anonymous function so its helper variables stay local, and
-`exec` replaces the shell with tmux as before. See
-[tmux reference](../../reference/tmux.md) for the full snippet.
+The implementation lives in `dotfiles/zshrc`; the helper logic is wrapped in a
+zsh anonymous function so its variables stay local, and `exec` replaces the shell
+with tmux as before. See the [tmux reference](../../reference/tmux.md) for a
+description of the resulting behavior.
 
 ## Alternatives Considered
 

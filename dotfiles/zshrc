@@ -1,6 +1,24 @@
-# Auto-attach or create tmux session (exit shell when tmux exits)
+# Auto-attach or create a per-application tmux session (exit shell when tmux exits).
+# Sessions are grouped by terminal application via $TERM_PROGRAM so that Ghostty,
+# VS Code, etc. stay separate. Reattach to a detached session of the same app if
+# one exists; otherwise start a new uniquely named "<app>-<n>" session.
 if [[ -z "$TMUX" ]] && command -v tmux >/dev/null 2>&1; then
-  exec tmux new-session -A -s main
+  () {
+    local app="${TERM_PROGRAM:-term}"
+    app="${app:l}"            # lowercase
+    app="${app//[^a-z0-9]/-}" # sanitize to [a-z0-9-]
+    local target
+    target=$(tmux list-sessions -F '#{session_attached} #{session_name}' 2>/dev/null \
+      | awk -v a="$app" '$1 == 0 && $2 ~ ("^" a "(-|$)") { print $2; exit }')
+    if [[ -n "$target" ]]; then
+      exec tmux attach-session -t "$target"
+    fi
+    local n=1
+    while tmux has-session -t "${app}-${n}" 2>/dev/null; do
+      (( n++ ))
+    done
+    exec tmux new-session -s "${app}-${n}"
+  }
 fi
 
 # Homebrew

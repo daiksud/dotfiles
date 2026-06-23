@@ -13,7 +13,7 @@ This is the reference for Zsh shell configuration.
 
 `.zshrc` is processed in the following order:
 
-1. **Auto-start tmux** — Connect to or create a tmux session
+1. **Auto-start tmux** — Connect to or create a per-application tmux session
 2. **Homebrew** — Set shell environment variables
 3. **compinit** — Initialize the completion system (must come before sheldon)
 4. **Emacs keybindings** — `bindkey -e`

@@ -69,6 +69,13 @@ It understands staged files and committed changes, then creates the PR with an a
 
 - If `.github/pull_request_template.md` exists, follow its structure
 - Write the PR body in English
+- **Make full use of GitHub Flavored Markdown (GFM) features** so the body is readable, visually clear, and engaging:
+  - **Tables** to organize structured information such as comparisons, before/after, or summaries of changes
+  - **Alerts** (`> [!NOTE]`, `> [!TIP]`, `> [!IMPORTANT]`, `> [!WARNING]`, `> [!CAUTION]`) to highlight key points, caveats, and breaking changes
+  - **Mermaid diagrams** to visualize flows, architecture, sequences, or relationships
+  - **Emoji** to add visual cues and make sections easy to scan
+  - Other GFM elements (task lists, collapsible `<details>`, code blocks with language hints, etc.) wherever they aid comprehension
+  - Do not decorate for its own sake — use each element only when it genuinely improves clarity
 - Include the following in the description:
   - **Purpose:**
     - What this PR accomplishes, including not only **what** but also **why**

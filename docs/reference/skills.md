@@ -117,7 +117,7 @@ name: Skill name
 2. Understand the changes with `git diff` (also refer to the Issue description and comments)
 3. Commit using the Conventional Commits format
 4. Push to the feature branch
-5. Create the PR description (write the body in Japanese), then create a draft PR with `gh pr create --draft`
+5. Create the PR description (write a readable, visually clear body that fully leverages GFM features such as tables, alerts, Mermaid, and emoji), then create a draft PR with `gh pr create --draft`
 6. Set the invoking user as the Assignee
 7. Finally, update the corresponding Task description to match the final changes (move the original plan to a comment)
 

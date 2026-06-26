@@ -2,7 +2,14 @@
 # Sessions are grouped by terminal application via $TERM_PROGRAM so that Ghostty,
 # VS Code, etc. stay separate. Reattach to a detached session of the same app if
 # one exists; otherwise start a new uniquely named "<app>-<n>" session.
-if [[ -z "$TMUX" ]] && command -v tmux >/dev/null 2>&1; then
+#
+# Only run for a real interactive terminal. Skip when stdout is not a tty or when
+# VS Code is resolving the shell environment (it spawns a non-tty login+interactive
+# shell). Otherwise `exec tmux` hijacks that probe, tmux fails with "not a terminal",
+# and VS Code reports "Unable to resolve your shell environment".
+if [[ -z "$TMUX" ]] && [[ -o interactive ]] && [[ -t 1 ]] \
+   && [[ -z "$VSCODE_RESOLVING_ENVIRONMENT" ]] \
+   && command -v tmux >/dev/null 2>&1; then
   () {
     local app="${TERM_PROGRAM:-term}"
     app="${app:l}"            # lowercase

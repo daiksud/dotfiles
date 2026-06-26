@@ -43,6 +43,7 @@ Invoke it with a PR number and an optional mode:
   - Be sure to retrieve all replies to the review comments as well
   - When retrieving review threads via GraphQL, use `reviewThreads(first: 100, after: $cursor)` and inspect `pageInfo { hasNextPage endCursor }` in the response
   - If `hasNextPage` is `true`, fetch the next page with `after: <endCursor>` and repeat until `hasNextPage` becomes `false`
+- If a comment thread contains a reply from the user stating it will not be addressed (for example, "対応しない"), do not change the code for that comment and skip the validity evaluation below. Instead, append to the PR body that the comment will not be addressed, together with the reason the user gave.
 - For each comment, evaluate whether the feedback is valid:
   - **Valid** — apply the proposed fix or improvement
     - If the feedback describes a specific case that causes an error or bug, apply fixes using TDD:
@@ -53,6 +54,7 @@ Invoke it with a PR number and an optional mode:
 - After pushing, reply to each comment describing how it was handled:
   - If fixed: explain the changes that were made
   - If not fixed: explain why it was judged not applicable
+  - If the user decided not to address it: note that it will not be addressed and that the reason is recorded in the PR body
 - After sending replies, resolve the review comment threads
 - Once all responses are complete, request a review from Copilot Code Review
   - Get the PR node ID: `gh pr view <PR_NUMBER> --json id -q .id`

@@ -50,7 +50,7 @@ In an interactive session, you can also start it with `/pr fix` (described later
 
 1. Detects and resolves merge conflicts
 2. Identifies CI failures from logs and fixes them (repeating until they pass)
-3. Checks review comments and applies reasonable fixes
+3. Checks review comments and applies reasonable fixes (any comment you reply "対応しない" to is left unchanged, and the reason is recorded in the PR body)
 4. Performs a local review before pushing
 5. Replies to each review comment with what was addressed and resolves the thread
 

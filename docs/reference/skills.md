@@ -137,7 +137,7 @@ name: Skill name
 1. Check the CI status of the specified PR
 2. If there are CI failures, analyze the logs and repeat fixes (up to 3 times)
 3. Retrieve all review comments and judge the validity of each one
-4. Fix valid comments and skip invalid ones
+4. Fix valid comments and skip invalid ones; for comments the user replied "対応しない" (will not address) to, record in the PR body that they will not be addressed along with the reason
 5. Before committing and pushing, run a local review with the `code-review` sub-agent
 6. After pushing, reply to each review comment with how it was addressed
 

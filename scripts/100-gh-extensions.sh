@@ -13,6 +13,7 @@ fi
 
 extensions=(
   "HikaruEgashira/gh-q"
+  "HikaruEgashira/gh-wt"
   "babarot/gh-infra"
 )
 

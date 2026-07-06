@@ -42,6 +42,7 @@ Installs the packages defined in `Brewfile` with `brew bundle`.
 Installs GitHub CLI extensions and adds related tools.
 
 - Install the `gh-q` (`HikaruEgashira/gh-q`) extension
+- Install the `gh-wt` (`HikaruEgashira/gh-wt`) extension (used for CoW-backed git worktrees; see [gh-wt](./gh-wt.md) for details)
 - Install the `gh-infra` (`babarot/gh-infra`) extension (used for declarative repository settings with `.github/settings.yml`; see [gh-infra](./gh-infra.md) for details)
 - Install `fd` (a fast file search tool) with Homebrew
 

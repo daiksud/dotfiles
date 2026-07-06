@@ -4,10 +4,11 @@ This is the specification reference for custom skills.
 
 ## Skill list
 
-| Skill       | Description                                                                                                                    |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| `pr-create` | Check the corresponding Task, understand the changes, and create a draft PR with an appropriate commit message and description |
-| `pr-fix`    | Fix CI errors and handle review comments to bring the PR into a mergeable state                                                |
+| Skill       | Description                                                                                                                                  |
+| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `gh-wt`     | Creates, lists, removes CoW-backed git worktrees via the gh-wt extension (installed from upstream via `gh skill install`, not hand-authored) |
+| `pr-create` | Check the corresponding Task, understand the changes, and create a draft PR with an appropriate commit message and description               |
+| `pr-fix`    | Fix CI errors and handle review comments to bring the PR into a mergeable state                                                              |
 
 ## Installation destination
 
@@ -17,11 +18,29 @@ When `install.sh` runs, `dotfiles/skills/` is symlinked to `~/.copilot/skills/`.
 
 ```
 dotfiles/skills/
+├── gh-wt/
+│   ├── SKILL.md
+│   └── evals/
+│       ├── evals.json
+│       └── trigger_queries.json
 ├── pr-create/
 │   └── SKILL.md
 └── pr-fix/
     └── SKILL.md
 ```
+
+## Skills installed via `gh skill install`
+
+Some skills, such as `gh-wt`, are not hand-authored in this repository. They are installed directly from an upstream repository with `gh skill install <repo> <skill>`, which fetches the skill's directory (including `SKILL.md` and any accompanying files) verbatim.
+
+- **Frontmatter**: may include extra fields outside this repo's own spec below, such as `compatibility`, `license`, and a `metadata` block (`github-path`, `github-ref`, `github-repo`, `github-tree-sha`) that record the provenance — source repo, tag, and commit — the content was synced from
+- **Language**: the `description` and body follow the upstream author's choice (English is fine) instead of this repo's Japanese convention for hand-authored skills
+- **Evals**: an installed skill may ship an `evals/` directory with author-provided test cases (`evals.json`, `trigger_queries.json`) that validate trigger phrases and expected behavior; these are tracked in git as-is, since they are static author-provided content rather than local generated or runtime state
+
+> [!IMPORTANT]
+> Do not hand-edit the `SKILL.md` of an installed skill to match this repo's format conventions below. Treat it as vendored/synced content — if it needs an update, re-run `gh skill install` to pull the latest upstream version instead.
+
+For `gh-wt`'s commands and usage, see [gh-wt](./gh-wt.md).
 
 ## `SKILL.md` format specification
 

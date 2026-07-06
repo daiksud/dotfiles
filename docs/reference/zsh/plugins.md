@@ -9,6 +9,7 @@ This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 | `gh-config-dir.zsh`               | —     | —          | Automatically configure Git identity and `GH_CONFIG_DIR` |
 | `go-to-ghq-repository.zsh`        | `ggr` | `C-]`      | Select a repository and `cd` into it                     |
 | `edit-ghq-repository.zsh`         | `egr` | —          | Select a repository and open it in `nvim`                |
+| `go-to-worktree.zsh`              | `gwt` | —          | Select a gh-wt worktree and `cd` into it                 |
 | `edit-selected-file.zsh`          | `esf` | —          | Select a file and open it in `nvim`                      |
 | `fzf-select-history.zsh`          | —     | `C-r`      | Search history with fzf                                  |
 | `browse-github-notifications.zsh` | `bgn` | —          | Browse GitHub notifications                              |
@@ -79,6 +80,26 @@ Runs `gh q nvim` via `run-selected-command`.
 ### Alias
 
 - `egr`
+
+---
+
+## go-to-worktree.zsh
+
+Get a list of [gh-wt](../gh-wt.md)-managed worktrees, select one with fzf, and `cd` into it.
+
+### Behavior
+
+1. Get a list of worktrees with `gh wt list`
+2. Select one with fzf, then extract its path with `awk`
+3. `cd` into the selected path
+
+### Keybinding
+
+Registered as a ZLE widget (`zle -N go-to-worktree`), but unlike `go-to-ghq-repository.zsh`'s `ggr` (bound to `C-]`), no key is bound by default. This is intentional, to avoid colliding with existing bindings. Bind one yourself if desired, e.g. `bindkey '^w' go-to-worktree`.
+
+### Alias
+
+- `gwt`
 
 ---
 

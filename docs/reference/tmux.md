@@ -18,13 +18,17 @@ This is the configuration reference for the terminal multiplexer (tmux).
 
 ### Window and pane operations
 
-| Key              | Action                                       |
-| ---------------- | -------------------------------------------- |
-| `prefix c`       | New window (inherits the current path)       |
-| `prefix \`       | Horizontal split (inherits the current path) |
-| `prefix -`       | Vertical split (inherits the current path)   |
-| `prefix h/j/k/l` | Move between panes (vim-style)               |
-| `prefix r`       | Reload configuration                         |
+| Key              | Action                                                          |
+| ---------------- | --------------------------------------------------------------- |
+| `prefix c`       | New window (inherits the current path)                          |
+| `prefix \`       | Horizontal split with even-sized layout (inherits current path) |
+| `prefix -`       | Vertical split with even-sized layout (inherits current path)   |
+| `prefix h/j/k/l` | Move between panes (vim-style)                                  |
+| `prefix r`       | Reload configuration                                            |
+
+When splitting panes, they automatically arrange in equal sizes using tmux's
+native layout engine. Each subsequent split redistributes space evenly among all
+panes. This works seamlessly whether you split into 2, 3, or more panes.
 
 ### Copy mode
 

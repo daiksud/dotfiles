@@ -9,6 +9,7 @@ This is the specification reference for custom skills.
 | `gh-wt`     | Creates, lists, removes CoW-backed git worktrees via the gh-wt extension (installed from upstream via `gh skill install`, not hand-authored) |
 | `pr-create` | Check the corresponding Task, understand the changes, and create a draft PR with an appropriate commit message and description               |
 | `pr-fix`    | Fix CI errors and handle review comments to bring the PR into a mergeable state                                                              |
+| `pr-merge`  | Loop `pr-fix` and Copilot Code Review until there are no findings, then take the PR ready, label it, wait for approval and CI, and squash merge |
 
 ## Installation destination
 
@@ -25,7 +26,9 @@ dotfiles/skills/
 │       └── trigger_queries.json
 ├── pr-create/
 │   └── SKILL.md
-└── pr-fix/
+├── pr-fix/
+│   └── SKILL.md
+└── pr-merge/
     └── SKILL.md
 ```
 
@@ -34,7 +37,7 @@ dotfiles/skills/
 Some skills, such as `gh-wt`, are not hand-authored in this repository. They are installed directly from an upstream repository with `gh skill install <repo> <skill>`, which fetches the skill's directory (including `SKILL.md` and any accompanying files) verbatim.
 
 - **Frontmatter**: may include extra fields outside this repo's own spec below, such as `compatibility`, `license`, and a `metadata` block (`github-path`, `github-ref`, `github-repo`, `github-tree-sha`) that record the provenance — source repo, tag, and commit — the content was synced from
-- **Language**: the `description` and body follow the upstream author's choice (English is fine) instead of this repo's Japanese convention for hand-authored skills
+- **Language**: the `description` and body follow the upstream author's choice (English is fine) — the same as this repo's own English convention for hand-authored skills, though vendored skills are not required to follow this repo's structure to begin with
 - **Evals**: an installed skill may ship an `evals/` directory with author-provided test cases (`evals.json`, `trigger_queries.json`) that validate trigger phrases and expected behavior; these are tracked in git as-is, since they are static author-provided content rather than local generated or runtime state
 
 > [!IMPORTANT]
@@ -52,7 +55,7 @@ Frontmatter is required. The section structure of the body can be freely defined
 
 ```markdown
 ---
-description: Skill description (1 line, in Japanese)
+description: Skill description (1 line, in English)
 name: Skill name
 ---
 
@@ -81,7 +84,7 @@ name: Skill name
 
 ```markdown
 ---
-description: Skill description (1 line, in Japanese)
+description: Skill description (1 line, in English)
 name: Skill name
 ---
 
@@ -115,8 +118,8 @@ name: Skill name
 
 ### Language used in the body
 
-- Write the frontmatter `description` in **Japanese** (used in the CLI skill list display)
-- Write the body in **Japanese**
+- Write the frontmatter `description` in **English** (used in the CLI skill list display)
+- Write the body in **English**
 
 ### Section guidelines
 
@@ -168,3 +171,31 @@ name: Skill name
 
 - Replies to each review comment
 - Error report if CI still does not pass
+
+## Detailed specification for `pr-merge`
+
+### Workflow
+
+`pr-merge` runs a single retry loop (up to 10 iterations) per PR:
+
+1. Run `/pr-fix all <PR>`, request a review from Copilot Code Review (same GraphQL mutation as `pr-fix`), and wait for it to complete
+2. Count the unresolved findings left by Copilot Code Review (paginated `reviewThreads`, filtered to `copilot-pull-request-reviewer`); if any remain, go back to step 1
+3. Mark the PR ready for review (`gh pr ready`) and apply the `self approval` label
+4. Wait for the pre-existing self-approval automation to approve the PR (short 3-minute timeout, since a miss usually means the automation is not configured)
+5. Wait for CI to go green and re-check mergeability; a merge conflict or a CI failure sends control back to step 1, since `/pr-fix all` can fix both
+6. Once CI is green and there are no conflicts, squash merge (`gh pr merge --squash --delete-branch`)
+
+Multiple PR numbers are processed one at a time; a PR that fails or times out is skipped (recorded) so the rest of the batch still runs.
+
+> [!NOTE]
+> `pr-merge` assumes an automation that approves PRs labeled `self approval` already exists (outside this skill's scope) and only waits for its result. It also assumes the `self approval` label already exists in the repository; it does not create the label.
+
+### Input
+
+- One or more PR numbers (required)
+
+### Output
+
+- The merged PR's URL for each successfully merged PR
+- The failure reason (which step, and why) for any PR that could not be merged
+- A final summary across all given PR numbers

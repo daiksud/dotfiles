@@ -4,6 +4,7 @@
 
 If the user runs `/pr create` or asks to create a Pull Request, always use the `pr-create` skill.
 If the user runs `/pr fix` or asks to fix, improve, or make a Pull Request mergeable, always use the `pr-fix` skill.
+If the user runs `/pr merge` or asks to merge a Pull Request once review is clean, always use the `pr-merge` skill.
 
 ## Comments on Issues / Pull Requests
 

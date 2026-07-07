@@ -15,7 +15,7 @@ touch dotfiles/skills/<skill-name>/SKILL.md
 
 ```markdown
 ---
-description: Skill description (one line, in Japanese)
+description: Skill description (one line, in English)
 name: skill-name
 ---
 
@@ -58,7 +58,7 @@ If you see a loading error, check whether the `name` and `description` in the fr
 
 | Rule                      | Reason                                                      |
 | ------------------------- | ----------------------------------------------------------- |
-| Write in Japanese         | To keep both the body text and `description` in Japanese    |
+| Write in English          | To keep both the body text and `description` in English     |
 | Write concrete steps      | Ambiguity makes the agent hesitate when deciding what to do |
 | State constraints clearly | Prevents infinite loops and destructive operations          |
 | Define the output         | Clarifies what the user can expect                          |

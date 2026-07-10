@@ -1,4 +1,20 @@
-# Repository-local GH auth storage (.git/gh) and git identity sync from gh auth.
+# Repository-local GH auth storage shared by linked worktrees and git identity sync from gh auth.
+resolve_gh_config_dir() {
+  local common_git_dir qwt_repo_dir gitdir_pointer
+  common_git_dir="$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null)" || return 1
+
+  qwt_repo_dir="${common_git_dir:h}"
+  if [[ "${common_git_dir:t}" == ".bare" && -d "$qwt_repo_dir/.bare" && -f "$qwt_repo_dir/.git" ]]; then
+    gitdir_pointer="$(<"$qwt_repo_dir/.git")"
+    if [[ "$gitdir_pointer" == "gitdir: ./.bare" || "$gitdir_pointer" == "gitdir: .bare" ]]; then
+      printf '%s\n' "$qwt_repo_dir/.gh"
+      return 0
+    fi
+  fi
+
+  printf '%s\n' "$common_git_dir/gh"
+}
+
 is_github_origin_repo() {
   local origin_url
   origin_url="$(git config --get remote.origin.url 2>/dev/null || true)"
@@ -129,7 +145,7 @@ sync_git_identity_from_gh() {
 
 set_gh_config_dir() {
   local repo_gh_config
-  repo_gh_config="$(git rev-parse --path-format=absolute --git-path gh 2>/dev/null)" || repo_gh_config=""
+  repo_gh_config="$(resolve_gh_config_dir)" || repo_gh_config=""
 
   if [[ -n "$repo_gh_config" ]]; then
     mkdir -p "$repo_gh_config"

@@ -28,7 +28,7 @@ The most important plugin, which automatically configures GitHub account informa
 Runs automatically on every `cd` via the `chpwd` hook:
 
 1. Check whether the current directory is inside a Git repository
-2. Create `.git/gh/` and set it in `GH_CONFIG_DIR` (isolates `gh` authentication)
+2. Resolve and create a repository-shared `GH_CONFIG_DIR`: ordinary repositories use the common `.git/gh/`, while gh-qwt repositories use `.gh/` at the repository root
 3. Only for GitHub origins, perform the following identity sync:
    - If local `user.name` / `user.email` are not set, fetch them with `gh api` and set them
    - Set `~/.ssh/<login>.pub` as `user.signingkey`
@@ -38,6 +38,7 @@ Runs automatically on every `cd` via the `chpwd` hook:
 
 | Function                    | Description                                                  |
 | --------------------------- | ------------------------------------------------------------ |
+| `resolve_gh_config_dir`     | Resolve shared authentication storage for ordinary and gh-qwt worktrees |
 | `is_github_origin_repo`     | Determine whether `origin` is `github.com`                   |
 | `resolve_gh_identity`       | Get login name, name, and email from `gh api`                |
 | `sync_signing_key_from_gh`  | Set the SSH signing key and `allowed_signers`                |

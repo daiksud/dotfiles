@@ -107,6 +107,46 @@ gh qwt path cli/cli/fix/parser
 | `gh qwt path [<owner>/<repo>[/<branch>]]` | Print an absolute path (root, repository directory, or worktree path) for `cd` |
 | `gh qwt prune` | Remove worktrees whose branch is gone from the remote, discovered from the current directory |
 
+## Pull Request skill integration
+
+The `pr-create`, `pr-fix`, and `pr-merge` Copilot skills use `gh-qwt` as their
+only branch-workspace mechanism. They do not change the branch of the
+checkout that started the skill.
+
+| PR phase | qwt behavior |
+| --- | --- |
+| Create | Resolve the repository and create a feature worktree. A missing qwt repository is initialized with `get`; a new feature branch is then created with `add`. |
+| Fix | Resolve the PR head repository and branch, including a fork head, then create or reuse that branch's worktree. |
+| Merge | Keep the head worktree through final CI, then remove the clean worktree and local branch after GitHub confirms the squash merge. |
+
+Before `add` is used in an existing qwt repository, the skills fetch
+`origin --prune` from the repository root. `add` relies on cached remote refs,
+so this refresh prevents a newly pushed PR branch from being mistaken for a
+new branch. A missing remote PR branch is created with `get --branch`; a new
+feature branch requires a default-branch `get` followed by `add`. A reused PR
+worktree must be clean and either fast-forward to its remote head or stop on
+an ahead/diverged branch.
+
+When `pr-create` starts from a dirty default branch, it transfers staged,
+unstaged, and non-ignored untracked changes through a named stash and validates
+the target before clearing the source. For an ordinary clone, the stash is
+temporarily bundled into the qwt repository so the index state is preserved.
+If the default branch has local commits or the qwt path is unsafe, the skill
+stops rather than resetting a branch or falling back to a normal checkout.
+
+After a confirmed merge, `pr-merge` removes the worktree and local branch with
+`gh qwt remove --delete-branch`. It runs that command from `gh qwt root`,
+because an `owner/repo/branch` argument is only interpreted as an explicit
+worktree spec outside a qwt repository. It then deletes the head remote branch
+only when its current ref still matches the verified PR head SHA, using a
+lease-protected push. This supports fork PR cleanup without risking deletion
+of a branch that changed after the merge check.
+
+> [!IMPORTANT]
+> PR skills never use `git switch`, `git checkout`, ordinary `git worktree`,
+> or a normal-clone fallback. This constraint applies only to the skills; it
+> does not change interactive Git usage.
+
 ## Shell shortcuts
 
 For interactive shells, this repository provides zsh functions built on `gh qwt list` and `gh qwt root`:

@@ -63,6 +63,30 @@ If you see a loading error, check whether the `name` and `description` in the fr
 | State constraints clearly | Prevents infinite loops and destructive operations          |
 | Define the output         | Clarifies what the user can expect                          |
 
+## Branch-workspace skills
+
+When a PR skill needs a branch workspace, use the repository's
+[`gh-qwt`](../reference/gh-qwt.md) workflow instead of changing the branch of
+the invoking checkout.
+
+- Resolve the target worktree with `gh qwt path` and name that path explicitly
+  in subsequent Git commands.
+- Provision a missing repository with `gh qwt get`; provision a missing branch
+  worktree with `gh qwt add`. Refresh `origin` in an existing qwt repository
+  before `add`, because `add` uses cached remote refs. Before editing a reused
+  target, require it to be clean and fast-forward it only when safe.
+- State that `git switch`, `git checkout`, ordinary `git worktree`, and
+  normal-clone fallbacks are prohibited for the skill.
+- Define safe behavior for a dirty source, missing remote branch, path
+  collision, deleted fork, and a worktree that cannot be removed. Preserve
+  recoverable state and stop rather than using destructive recovery commands.
+- If cleanup needs an explicit `owner/repo/branch` argument, run
+  `gh qwt remove` outside a qwt repository, such as from `gh qwt root`.
+
+The restriction belongs in the skill procedure and constraints. Do not add a
+global shell wrapper that blocks ordinary interactive branch operations unless
+that broader behavior is explicitly required.
+
 ## File Placement
 
 ```

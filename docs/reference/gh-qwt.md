@@ -34,11 +34,30 @@ Repository paths omit the host segment and follow `<qwt_root>/<owner>/<repo>/<br
 ~/qwt/cli/cli/
   .bare/              # bare git database (git clone --bare)
   .git                # file containing exactly: gitdir: ./.bare
+  .gh/                # GitHub CLI authentication shared by every worktree
   trunk/              # default-branch worktree, created by `gh qwt get`
   fix/parser/         # feature-branch worktree, created by `gh qwt add`
 ```
 
 The `.git` pointer file uses a relative target (`gitdir: ./.bare`), so the whole repository directory is relocatable as long as `.bare/` and every worktree move together. Branch names containing `/` create nested worktree directories, so a branch named `feat` cannot coexist with a branch named `feat/x` (they need the same path for different purposes).
+
+## GitHub CLI authentication
+
+The `gh-config-dir.zsh` plugin recognizes the `.bare/` directory and `.git`
+pointer created by gh-qwt. It sets `GH_CONFIG_DIR` to the repository-level
+`.gh/` directory, so every branch worktree of the same repository uses the
+same `gh` account and Copilot token.
+
+Authentication stored in older worktree-specific directories is not copied,
+because it can contain tokens for different accounts. In any existing worktree,
+run the following once to initialize the shared `.gh/` directory:
+
+```bash
+gh auth login
+```
+
+See [Automatic Git identity switching](../guides/04-git-identity.md) for the
+full account and signing-key behavior.
 
 ## Usage
 

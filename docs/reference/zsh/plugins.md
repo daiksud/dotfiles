@@ -7,9 +7,8 @@ This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 | File                              | Alias | Keybinding | Description                                              |
 | --------------------------------- | ----- | ---------- | -------------------------------------------------------- |
 | `gh-config-dir.zsh`               | —     | —          | Automatically configure Git identity and `GH_CONFIG_DIR` |
-| `go-to-ghq-repository.zsh`        | `ggr` | `C-]`      | Select a repository and `cd` into it                     |
-| `edit-ghq-repository.zsh`         | `egr` | —          | Select a repository and open it in `nvim`                |
-| `go-to-worktree.zsh`              | `gwt` | —          | Select a gh-wt worktree and `cd` into it                 |
+| `go-to-qwt-repository.zsh`        | `ggr` | `C-]`      | Select a gh-qwt repository/worktree and `cd` into it     |
+| `edit-qwt-repository.zsh`         | `egr` | —          | Select a gh-qwt repository/worktree and open it in `nvim` |
 | `edit-selected-file.zsh`          | `esf` | —          | Select a file and open it in `nvim`                      |
 | `fzf-select-history.zsh`          | —     | `C-r`      | Search history with fzf                                  |
 | `browse-github-notifications.zsh` | `bgn` | —          | Browse GitHub notifications                              |
@@ -49,15 +48,14 @@ For details, see [Automatic Git identity switching](../../guides/04-git-identity
 
 ---
 
-## go-to-ghq-repository.zsh
+## go-to-qwt-repository.zsh
 
-Get a repository list with `gh q list`, select one with fzf, and `cd` into it.
+Get a flat list of [gh-qwt](../gh-qwt.md)-managed repositories and worktrees with `gh qwt list --full-path`, select one with fzf, and `cd` into it.
 
 ### Behavior
 
-1. Get a list of local repository paths with `gh q list`
-2. Display them after removing the `github.com` prefix
-3. `cd` into the path selected with fzf
+1. Get a list of absolute worktree paths with `gh qwt list --full-path` (already a flat, sorted `owner/repo/branch` mapping, no host prefix to strip)
+2. `cd` into the path selected with fzf
 
 ### Keybinding
 
@@ -69,37 +67,18 @@ Get a repository list with `gh q list`, select one with fzf, and `cd` into it.
 
 ---
 
-## edit-ghq-repository.zsh
+## edit-qwt-repository.zsh
 
-Select a repository with `gh q nvim` and open it in Neovim.
+Select a [gh-qwt](../gh-qwt.md)-managed repository or worktree with fzf and open it in Neovim.
 
 ### Behavior
 
-Runs `gh q nvim` via `run-selected-command`.
+1. Get a list of absolute worktree paths with `gh qwt list --full-path` and select one with fzf
+2. Run `nvim <path>` via `run-selected-command`
 
 ### Alias
 
 - `egr`
-
----
-
-## go-to-worktree.zsh
-
-Get a list of [gh-wt](../gh-wt.md)-managed worktrees, select one with fzf, and `cd` into it.
-
-### Behavior
-
-1. Get a list of worktrees with `gh wt list`
-2. Select one with fzf, then extract its path with `awk`
-3. `cd` into the selected path
-
-### Keybinding
-
-Registered as a ZLE widget (`zle -N go-to-worktree`), but unlike `go-to-ghq-repository.zsh`'s `ggr` (bound to `C-]`), no key is bound by default. This is intentional, to avoid colliding with existing bindings. Bind one yourself if desired, e.g. `bindkey '^w' go-to-worktree`.
-
-### Alias
-
-- `gwt`
 
 ---
 

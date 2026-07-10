@@ -14,7 +14,6 @@ This is a guide for getting started quickly with custom Copilot CLI skills.
 | `pr-create` | Automatically creates a draft PR from the current changes                                 |
 | `pr-fix`    | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR       |
 | `pr-merge`  | Loops `pr-fix` and Copilot Code Review to zero findings, then approves, waits for CI, and squash merges one or more PRs |
-| `gh-wt`     | Creates and manages CoW-backed git worktrees (list/add/remove/gc) via the gh-wt extension |
 
 ## Use `pr-create`
 
@@ -92,46 +91,6 @@ If a PR cannot be brought to a mergeable state, it is skipped (with the reason r
 
 > [!IMPORTANT]
 > `pr-merge` waits for an existing automation that approves PRs labeled `self approval` — it does not create that automation. It also expects the `self approval` label to already exist in the repository.
-
-## Use `gh-wt`
-
-Unlike `pr-create` and `pr-fix`, `gh-wt` is not a hand-authored skill and has no slash command. It was
-installed straight from the upstream repository with `gh skill install HikaruEgashira/gh-wt gh-wt`, and
-Copilot triggers it automatically whenever your prompt matches its purpose — just describe what you want
-in natural language:
-
-```bash
-copilot -p "create a worktree for feature-x"
-copilot -p "run the tests in a clean worktree without touching my current changes"
-copilot -p "open PR #123 side-by-side with main"
-```
-
-Phrasing such as "spin up a fresh copy of branch X", "run claude in a clean checkout", or "try this patch
-without touching my changes" also triggers the skill, even when the word "worktree" is never said.
-
-### What happens
-
-1. Selects an existing worktree or creates a new one via `gh wt`
-2. Runs the command you asked for inside that worktree, or reports its path if you only asked to create
-   or list one
-
-### Prerequisite
-
-The skill wraps the `gh wt` extension, so it must be installed once with:
-
-```bash
-gh extension install HikaruEgashira/gh-wt
-```
-
-In this repository, `install.sh` already installs it for you via `scripts/100-gh-extensions.sh`, so no
-manual step is normally required.
-
-See the [gh-wt reference](../reference/gh-wt.md) for the full command list (`gh wt add`, `list`, `remove`,
-`gc`, and more).
-
-> [!NOTE]
-> Prefer a plain shell shortcut over an AI round-trip? The `gwt` function fzf-selects a worktree and `cd`s
-> into it directly, without going through Copilot. See [zsh plugins](../reference/zsh/plugins.md) for details.
 
 ## Integration with `/pr create`, `/pr fix`, and `/pr merge`
 

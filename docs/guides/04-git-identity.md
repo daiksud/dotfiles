@@ -10,7 +10,7 @@ This page explains the mechanism that automatically switches the GitHub account 
 graph TD
     A[Move directories with `cd`] --> B{Inside a Git repository?}
     B -- No --> U[Unset `GH_CONFIG_DIR`]
-    B -- Yes --> D[Set `GH_CONFIG_DIR` to `.git/gh`]
+    B -- Yes --> D[Resolve repository-shared `GH_CONFIG_DIR`]
     D --> C{GitHub origin?}
     C -- No --> T[Get `gh auth token`]
     C -- Yes --> E{Is local `user.name`/`user.email` already set?}
@@ -35,7 +35,12 @@ graph TD
 
 ### `GH_CONFIG_DIR`
 
-It creates a `.git/gh/` directory in every Git repository and sets the `GH_CONFIG_DIR` environment variable to it. This isolates `gh` authentication data per repository. `GH_CONFIG_DIR` is also set for repositories whose origin is not GitHub, but identity synchronization (below) does not run for them.
+It resolves a repository-shared directory and sets the `GH_CONFIG_DIR` environment variable to it. This isolates `gh` authentication data per repository while allowing linked worktrees to reuse the same account.
+
+- Ordinary Git repositories use `gh/` under Git's common directory. The primary worktree and every linked worktree therefore share `<repo>/.git/gh`.
+- [gh-qwt](../reference/gh-qwt.md) repositories are recognized by their `.bare/` directory and `.git` pointer. Their worktrees share `<qwt_root>/<owner>/<repo>/.gh`.
+
+`GH_CONFIG_DIR` is also set for repositories whose origin is not GitHub, but identity synchronization (below) does not run for them.
 
 ### Automatic Git identity configuration
 
@@ -53,12 +58,13 @@ It creates a `.git/gh/` directory in every Git repository and sets the `GH_CONFI
 
 After updating `GH_CONFIG_DIR`, it gets a token with `gh auth token` and sets it in `COPILOT_GITHUB_TOKEN`. Copilot CLI gives this environment variable higher priority than stored credentials, so it uses the same account as `gh`.
 
-| Situation                              | `GH_CONFIG_DIR` | `COPILOT_GITHUB_TOKEN`                   |
-| -------------------------------------- | --------------- | ---------------------------------------- |
-| Work repository (authenticated)        | `.git/gh`       | Work account token                       |
-| Personal repository (authenticated)    | `.git/gh`       | Personal account token                   |
-| Repository where `gh` is not logged in | `.git/gh`       | unset (falls back to stored credentials) |
-| Outside a Git repository               | unset           | Global `gh` account token                |
+| Situation                               | `GH_CONFIG_DIR`                           | `COPILOT_GITHUB_TOKEN`                   |
+| --------------------------------------- | ----------------------------------------- | ---------------------------------------- |
+| Ordinary repository (authenticated)     | `<repo>/.git/gh`                          | Repository account token                 |
+| Linked worktree (authenticated)         | Primary repository's `.git/gh`            | Same repository account token            |
+| gh-qwt worktree (authenticated)         | `<qwt_root>/<owner>/<repo>/.gh`           | Same repository account token            |
+| Repository where `gh` is not logged in  | Resolved repository-shared directory      | unset (falls back to stored credentials) |
+| Outside a Git repository                | unset                                     | Global `gh` account token                |
 
 ## Relationship with global `.gitconfig`
 
@@ -88,6 +94,17 @@ gh auth status
 
 # If the email scope is required
 gh auth refresh -h github.com -s user:email
+```
+
+### Existing gh-qwt repository authentication
+
+Older gh-qwt worktrees may have authentication files in worktree-specific
+directories. They are not copied automatically because they contain tokens and
+may represent different accounts. From any worktree in the repository, run the
+following once to initialize the shared `.gh/` directory:
+
+```bash
+gh auth login
 ```
 
 ### Signing key cannot be found

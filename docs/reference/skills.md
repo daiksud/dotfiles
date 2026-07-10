@@ -6,7 +6,6 @@ This is the specification reference for custom skills.
 
 | Skill       | Description                                                                                                                                  |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `gh-wt`     | Creates, lists, removes CoW-backed git worktrees via the gh-wt extension (installed from upstream via `gh skill install`, not hand-authored) |
 | `pr-create` | Check the corresponding Task, understand the changes, and create a draft PR with an appropriate commit message and description               |
 | `pr-fix`    | Fix CI errors and handle review comments to bring the PR into a mergeable state                                                              |
 | `pr-merge`  | Loop `pr-fix` and Copilot Code Review until there are no findings, then take the PR ready, label it, wait for approval and CI, and squash merge |
@@ -19,11 +18,6 @@ When `install.sh` runs, `dotfiles/skills/` is symlinked to `~/.copilot/skills/`.
 
 ```
 dotfiles/skills/
-├── gh-wt/
-│   ├── SKILL.md
-│   └── evals/
-│       ├── evals.json
-│       └── trigger_queries.json
 ├── pr-create/
 │   └── SKILL.md
 ├── pr-fix/
@@ -32,18 +26,8 @@ dotfiles/skills/
     └── SKILL.md
 ```
 
-## Skills installed via `gh skill install`
-
-Some skills, such as `gh-wt`, are not hand-authored in this repository. They are installed directly from an upstream repository with `gh skill install <repo> <skill>`, which fetches the skill's directory (including `SKILL.md` and any accompanying files) verbatim.
-
-- **Frontmatter**: may include extra fields outside this repo's own spec below, such as `compatibility`, `license`, and a `metadata` block (`github-path`, `github-ref`, `github-repo`, `github-tree-sha`) that record the provenance — source repo, tag, and commit — the content was synced from
-- **Language**: the `description` and body follow the upstream author's choice (English is fine) — the same as this repo's own English convention for hand-authored skills, though vendored skills are not required to follow this repo's structure to begin with
-- **Evals**: an installed skill may ship an `evals/` directory with author-provided test cases (`evals.json`, `trigger_queries.json`) that validate trigger phrases and expected behavior; these are tracked in git as-is, since they are static author-provided content rather than local generated or runtime state
-
-> [!IMPORTANT]
-> Do not hand-edit the `SKILL.md` of an installed skill to match this repo's format conventions below. Treat it as vendored/synced content — if it needs an update, re-run `gh skill install` to pull the latest upstream version instead.
-
-For `gh-wt`'s commands and usage, see [gh-wt](./gh-wt.md).
+> [!NOTE]
+> This repository has no vendored skills at the moment. A skill installed directly from an upstream repository with `gh skill install <repo> <skill>` (fetching the skill's directory, including `SKILL.md` and any accompanying files, verbatim) would carry extra frontmatter fields such as `compatibility`, `license`, and a `metadata` provenance block, and should be treated as synced content — re-run `gh skill install` to update it instead of hand-editing it to match the spec below.
 
 ## `SKILL.md` format specification
 

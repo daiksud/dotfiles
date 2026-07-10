@@ -12,8 +12,7 @@ if ! command -v gh >/dev/null 2>&1; then
 fi
 
 extensions=(
-  "HikaruEgashira/gh-q"
-  "HikaruEgashira/gh-wt"
+  "daiksud/gh-qwt"
   "babarot/gh-infra"
 )
 

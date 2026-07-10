@@ -22,7 +22,7 @@ a detailed reference for the dotfiles configuration files, tool list, and struct
 ## Infrastructure
 
 - [gh-infra](./gh-infra.md) — Declarative repository settings management with `.github/settings.yml`
-- [gh-wt](./gh-wt.md) — Fast, disk-efficient git worktrees with the gh-wt GitHub CLI extension
+- [gh-qwt](./gh-qwt.md) — Managing GitHub repositories and git worktrees together with the gh-qwt GitHub CLI extension
 - [install_map.json](./install-map.md) — Specification for the symbolic link mapping table
 - [Script list](./scripts.md) — The role of each script under `scripts/`
 - [Tool list](./tools.md) — Tools managed in the Brewfile and their purposes

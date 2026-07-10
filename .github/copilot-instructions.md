@@ -37,7 +37,7 @@ Under `docs/`, place GitHub Flavored Markdown documentation built with Docusauru
 | Zsh plugins        | `docs/reference/zsh/plugins.md`             | Users        |
 | install_map.json   | `docs/reference/install-map.md`             | Users        |
 | gh-infra           | `docs/reference/gh-infra.md`                | Users        |
-| gh-wt              | `docs/reference/gh-wt.md`                   | Users        |
+| gh-qwt             | `docs/reference/gh-qwt.md`                  | Users        |
 | Scripts            | `docs/reference/scripts.md`                 | Users        |
 | Tools (Brewfile)   | `docs/reference/tools.md`                   | Users        |
 | Copilot Skills     | `docs/reference/skills.md`                  | Users        |

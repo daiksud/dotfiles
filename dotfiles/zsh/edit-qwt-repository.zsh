@@ -3,9 +3,13 @@ function edit-qwt-repository() {
   local -a command_parts
   local selected_dir
 
-  selected_dir="$(gh qwt list --full-path | fzf --reverse --height=20)"
+  selected_dir="$(gh qwt list | fzf --reverse --height=20)"
   if [[ -z "$selected_dir" ]]; then
     return
+  fi
+
+  if [[ "$selected_dir" != /* ]]; then
+    selected_dir="$(gh qwt root)/${selected_dir}"
   fi
 
   command_parts=(nvim "$selected_dir")

@@ -76,7 +76,7 @@ gh qwt path cli/cli/fix/parser
 
 ## Shell shortcuts
 
-For interactive shells, this repository provides two zsh functions built on `gh qwt list --full-path`:
+For interactive shells, this repository provides two zsh functions built on `gh qwt list` and `gh qwt root`:
 
 - `ggr` (`go-to-qwt-repository`, bound to `C-]`) — fzf-selects a repository or worktree and `cd`s into it
 - `egr` (`edit-qwt-repository`) — fzf-selects a repository or worktree and opens it in `nvim`

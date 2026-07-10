@@ -50,12 +50,13 @@ For details, see [Automatic Git identity switching](../../guides/04-git-identity
 
 ## go-to-qwt-repository.zsh
 
-Get a flat list of [gh-qwt](../gh-qwt.md)-managed repositories and worktrees with `gh qwt list --full-path`, select one with fzf, and `cd` into it.
+Get a flat list of [gh-qwt](../gh-qwt.md)-managed repositories and worktrees with `gh qwt list`, select one with fzf, and `cd` into it.
 
 ### Behavior
 
-1. Get a list of absolute worktree paths with `gh qwt list --full-path` (already a flat, sorted `owner/repo/branch` mapping, no host prefix to strip)
-2. `cd` into the path selected with fzf
+1. Get a list of `owner/repo/branch` specs with `gh qwt list` (a flat, sorted mapping, with no qwt root prefix)
+2. Select one with fzf
+3. Combine the selection with `gh qwt root` to build the absolute path, then `cd` into it
 
 ### Keybinding
 
@@ -73,8 +74,9 @@ Select a [gh-qwt](../gh-qwt.md)-managed repository or worktree with fzf and open
 
 ### Behavior
 
-1. Get a list of absolute worktree paths with `gh qwt list --full-path` and select one with fzf
-2. Run `nvim <path>` via `run-selected-command`
+1. Get a list of `owner/repo/branch` specs with `gh qwt list` and select one with fzf
+2. Combine the selection with `gh qwt root` to build the absolute path
+3. Run `nvim <path>` via `run-selected-command`
 
 ### Alias
 

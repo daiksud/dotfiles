@@ -6,6 +6,8 @@ This is a guide for getting started quickly with custom Copilot CLI skills.
 
 - dotfiles are already installed (`install.sh` has been run)
 - GitHub Copilot CLI is already installed
+- The `gh-qwt` GitHub CLI extension is available (it is installed by the
+  dotfiles setup)
 
 ## Available skills
 
@@ -14,6 +16,29 @@ This is a guide for getting started quickly with custom Copilot CLI skills.
 | `pr-create` | Automatically creates a draft PR from the current changes                                 |
 | `pr-fix`    | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR       |
 | `pr-merge`  | Loops `pr-fix` and Copilot Code Review to zero findings, then approves, waits for CI, and squash merges one or more PRs |
+
+## How PR skills use worktrees
+
+The PR skills do not switch the branch of the checkout where you invoked
+Copilot. They create or reuse a [`gh-qwt`](../reference/gh-qwt.md) worktree
+for the feature or PR head branch, then perform Git operations only in that
+path.
+
+- On a first use, the skill can provision the repository under your qwt root.
+- `pr-create` safely transfers staged, unstaged, and non-ignored untracked
+  changes from a default-branch worktree into the new feature worktree.
+- If the default branch has local commits, the skill stops instead of resetting,
+  rebasing, or pushing that branch automatically.
+- A branch name that collides with another qwt path, such as `feat` and
+  `feat/login`, stops with an error rather than falling back to a branch
+  switch.
+- `pr-fix` works in the PR head worktree, including a fork's repository when
+  applicable. `pr-merge` removes the clean worktree after a successful merge.
+
+> [!IMPORTANT]
+> PR skills intentionally do not use `git switch`, `git checkout`, ordinary
+> `git worktree`, or a normal-clone fallback. This policy applies to the
+> skills; it does not change your normal interactive Git commands.
 
 ## Use `pr-create`
 
@@ -35,9 +60,11 @@ In an interactive session, you can also start it with `/pr create` (described la
 
 1. Checks for a corresponding Task (Issue) and suggests creating one if it does not exist
 2. Reads the diff and comes up with a commit message
-3. Creates and pushes a feature branch
-4. Creates a draft PR
-5. Sets you as the assignee
+3. Creates or reuses an isolated qwt feature worktree and safely moves
+   uncommitted changes there when needed
+4. Commits and pushes the feature branch from that worktree
+5. Creates a draft PR
+6. Sets you as the assignee
 
 ## Use `pr-fix`
 
@@ -49,11 +76,12 @@ In an interactive session, you can also start it with `/pr fix` (described later
 
 ### What happens
 
-1. Detects and resolves merge conflicts
-2. Identifies CI failures from logs and fixes them (repeating until they pass)
-3. Checks review comments and applies reasonable fixes (any comment you reply "対応しない" to is left unchanged, and the reason is recorded in the PR body)
-4. Performs a local review before pushing
-5. Replies to each review comment with what was addressed and resolves the thread
+1. Resolves the PR head repository and creates or reuses its qwt worktree
+2. Detects and resolves merge conflicts
+3. Identifies CI failures from logs and fixes them (repeating until they pass)
+4. Checks review comments and applies reasonable fixes (any comment you reply "対応しない" to is left unchanged, and the reason is recorded in the PR body)
+5. Performs a local review before pushing
+6. Replies to each review comment with what was addressed and resolves the thread
 
 You can also specify a mode:
 
@@ -85,7 +113,8 @@ For each PR number given:
 2. Takes the PR out of Draft and applies the `self approval` label
 3. Waits for the repository's existing self-approval automation to approve the PR (up to 3 minutes)
 4. Waits for CI to go green, going back to step 1 if a merge conflict or a CI failure shows up
-5. Squash merges the PR once everything is green
+5. Squash merges the PR once everything is green, then removes its qwt
+   worktree and branch workspace
 
 If a PR cannot be brought to a mergeable state, it is skipped (with the reason recorded) so the rest of the batch keeps going, and a summary is reported at the end.
 

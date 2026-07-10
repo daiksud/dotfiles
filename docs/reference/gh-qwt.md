@@ -41,6 +41,20 @@ Repository paths omit the host segment and follow `<qwt_root>/<owner>/<repo>/<br
 
 The `.git` pointer file uses a relative target (`gitdir: ./.bare`), so the whole repository directory is relocatable as long as `.bare/` and every worktree move together. Branch names containing `/` create nested worktree directories, so a branch named `feat` cannot coexist with a branch named `feat/x` (they need the same path for different purposes).
 
+## Prompt display
+
+Inside a qwt worktree, the Starship directory segment displays
+`owner/repo/branch`, including when the current directory is below the worktree
+root. It verifies the shared `.bare` directory and `.git` pointer, so ordinary
+Git repositories retain their normal path display. The separate Git branch
+segment displays only the Git icon ``, because this label already includes the
+branch. See [Starship](./starship.md) for the complete prompt behavior.
+
+When `origin/main` is not an ancestor of a qwt worktree's `HEAD`, the prompt
+also shows a yellow ` origin/main +N` warning. `N` is the number of
+`origin/main` commits missing from that worktree; fetch and then merge or rebase
+the remote branch according to the repository workflow.
+
 ## GitHub CLI authentication
 
 The `gh-config-dir.zsh` plugin recognizes the `.bare/` directory and `.git`

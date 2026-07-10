@@ -7,6 +7,7 @@ This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 | File                              | Alias | Keybinding | Description                                              |
 | --------------------------------- | ----- | ---------- | -------------------------------------------------------- |
 | `gh-config-dir.zsh`               | —     | —          | Automatically configure Git identity and `GH_CONFIG_DIR` |
+| `starship-qwt-worktree.sh`        | —     | —          | Identify qwt worktrees for the Starship prompt           |
 | `go-to-qwt-repository.zsh`        | `ggr` | `C-]`      | Select a gh-qwt repository/worktree and `cd` into it     |
 | `edit-qwt-repository.zsh`         | `egr` | —          | Select a gh-qwt repository/worktree and open it in `nvim` |
 | `edit-selected-file.zsh`          | `esf` | —          | Select a file and open it in `nvim`                      |
@@ -46,6 +47,19 @@ Runs automatically on every `cd` via the `chpwd` hook:
 | `set_gh_config_dir`         | Set `GH_CONFIG_DIR` and call identity sync                   |
 
 For details, see [Automatic Git identity switching](../../guides/04-git-identity.md).
+
+---
+
+## starship-qwt-worktree.sh
+
+A POSIX helper used by the Starship custom modules. It exits unsuccessfully
+outside a qwt worktree; otherwise, it prints its `owner/repo/branch` label after
+validating the shared `.bare` directory and repository `.git` pointer.
+
+The directory, Git branch, and `origin/main` warning prompt modules share this
+check. As a result, ordinary Git worktrees retain their branch segment, while
+qwt worktrees replace the duplicate branch name with a Git icon and can report a
+stale `origin/main` base.
 
 ---
 

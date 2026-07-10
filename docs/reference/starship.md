@@ -20,32 +20,42 @@ A two-line prompt composed of Powerline-style gradient segments:
 | Segment                 | Background | Foreground | Contents                                 |
 | ----------------------- | ---------- | ---------- | ---------------------------------------- |
 | Icon                    | `#a3aed2`  | `#090c0c`  | Fixed icon ` `                           |
-| directory               | `#769ff0`  | `#e3e5e5`  | Current directory (up to 3 levels)       |
-| git_branch / git_status | `#394260`  | `#769ff0`  | Branch name + status                     |
+| directory               | `#769ff0`  | `#e3e5e5`  | Current directory or qwt worktree identifier |
+| git_branch / git_status | `#394260`  | `#769ff0`  | Branch name + status, or Git icon + status and base warning for qwt |
 | languages               | `#212736`  | `#769ff0`  | Node.js / Bun / Rust / Go / PHP versions |
 | time                    | `#1d2230`  | `#a0a9cb`  | Current time (`HH:MM`)                   |
 
 ## Module settings
 
-### directory
+### Current directory
 
-| Key                 | Value | Description                                   |
-| ------------------- | ----- | --------------------------------------------- |
-| `truncation_length` | `3`   | Maximum number of directory levels to display |
-| `truncation_symbol` | `…/`  | Symbol used when truncated                    |
+The `custom.cwd` module renders the directory segment. Outside a
+[gh-qwt](./gh-qwt.md) worktree, it keeps every path component: paths inside the
+home directory use `~` as their prefix, while paths outside it remain absolute.
 
-Special directory replacements:
+For a gh-qwt worktree, the shared
+`dotfiles/zsh/starship-qwt-worktree.sh` helper validates the `.bare` directory
+and repository `.git` pointer, then displays `owner/repo/branch`. This applies
+from every subdirectory of the worktree and preserves branch names that contain
+`/`.
 
-| Directory | Display |
-| --------- | ------- |
-| Documents | `󰈙 `    |
-| Downloads | ` `     |
-| Music     | ` `     |
-| Pictures  | ` `     |
+### Git branch
 
-### git_branch
+The `custom.git_branch` module displays the branch in ordinary Git worktrees.
+In gh-qwt worktrees, it displays the Git icon `` without a branch name because
+`custom.cwd` already includes the branch in its `owner/repo/branch` label.
+Detached HEAD states display `HEAD`.
 
-Branch symbol: `` (Nerd Font)
+### qwt base warning
+
+The `custom.qwt_base_warning` module appears in yellow when `origin/main` is
+not an ancestor of the qwt worktree's `HEAD`. Its
+` origin/main +N` label reports the number of commits reachable from
+`origin/main` that the worktree does not contain.
+
+Fetch the remote and then merge or rebase `origin/main` into the worktree
+according to the repository workflow to remove the warning. The module does not
+render until an `origin/main` reference is available locally.
 
 ### Language modules
 

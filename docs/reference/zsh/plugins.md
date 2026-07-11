@@ -54,7 +54,9 @@ For details, see [Automatic Git identity switching](../../guides/04-git-identity
 
 A POSIX helper used by the Starship custom modules. It exits unsuccessfully
 outside a qwt worktree; otherwise, it prints its `owner/repo/branch` label after
-validating the shared `.bare` directory and repository `.git` pointer.
+validating the shared `.bare` directory and repository `.git` pointer, appending
+the path relative to the worktree root (`owner/repo/branch/path/to/subdir`) when
+run from a subdirectory.
 
 The directory, Git branch, and `origin/main` warning prompt modules share this
 check. As a result, ordinary Git worktrees retain their branch segment, while

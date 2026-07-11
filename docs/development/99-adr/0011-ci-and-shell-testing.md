@@ -30,7 +30,7 @@ Several constraints shaped the design:
   shortly before this ADR. That makes it — and `install.sh`'s symlink/migration
   logic — well suited to hermetic tests that don't touch the real machine.
 - `mise.toml` already manages `bun` for the documentation build, and `docs.yml`
-  already uses `jdx/mise-action@v4` to provision it.
+  already uses the `jdx/mise-action` action to provision it.
 
 ## Decision
 
@@ -53,7 +53,7 @@ Several constraints shaped the design:
     same build steps.
 - Provision `bats`, `shellcheck`, and `python` (for `tomllib`) via `mise.toml`,
   the same way `bun` is already managed, and install them in CI with the
-  existing `jdx/mise-action@v4` action. This keeps one source of truth for
+  existing `jdx/mise-action` action. This keeps one source of truth for
   tool versions for both CI and local contributors (`mise install`), instead of
   adding a separate marketplace action per tool.
 - Scope automated tests to hermetic, pure-logic behavior:

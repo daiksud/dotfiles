@@ -7,16 +7,35 @@ applyTo: ".github/workflows/**"
 
 ## Version Pinning Policy
 
-| Category | Pinning method |
+| Reference type | Pinning method |
 | --- | --- |
-| All actions | `@SHA # vX.Y.Z` (full-length commit SHA followed by the release version) |
+| Remote repository action or reusable workflow | `@SHA # vX.Y.Z` (full-length commit SHA followed by the release version) |
+| Local action or reusable workflow (`./...`) | Keep the local path; a ref pin is not applicable |
+| Docker action (`docker://...`) | Pin the image by digest, such as `docker://image@sha256:<digest>` |
 
 ```yaml
-# ✅ Good — Full-length SHA pin
-- uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
-- uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
+# ✅ Good — Remote repository action
+- uses: owner/action@0123456789abcdef0123456789abcdef01234567 # v1.2.3
+# ❌ Bad — Mutable remote tag
+- uses: owner/action@v1
+```
 
-# ❌ Bad — Mutable major-version tag
-- uses: actions/checkout@v7
-- uses: jdx/mise-action@v4
+```yaml
+# ✅ Good — Local action
+steps:
+  - uses: ./.github/actions/example
+```
+
+```yaml
+# ✅ Good — Local reusable workflow
+jobs:
+  call-reusable:
+    uses: ./.github/workflows/reusable.yml
+```
+
+```yaml
+# ✅ Good — Docker action
+- uses: docker://example/action@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+# ❌ Bad — Mutable Docker tag
+- uses: docker://example/action:latest
 ```

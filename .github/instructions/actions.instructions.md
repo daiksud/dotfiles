@@ -9,9 +9,9 @@ applyTo: ".github/workflows/**"
 
 | Category | Pinning method |
 | --- | --- |
-| GitHub-owned (`github_owned_allowed`) | `@vN` (major version pin) |
-| Verified badge (`verified_allowed`) | `@vN` (major version pin) |
-| All others (non-Verified) | `@SHA # vX.Y.Z` (SHA pin) |
+| GitHub-owned | `@vN` (major version pin) |
+| Marketplace Verified Creator | `@vN` (major version pin) |
+| All others (not GitHub-owned and not Verified) | `@SHA # vX.Y.Z` (SHA pin) |
 
 ```yaml
 # ✅ Good — GitHub-owned / Verified provider

@@ -25,11 +25,17 @@ As a result, `~/.config/mise/config.toml` becomes a machine-specific file manage
 
 Defines the development environment for the dotfiles repository itself.
 
-| Tool  | Version  | Description                              |
-| ----- | -------- | ---------------------------------------- |
-| `bun` | `latest` | Bun runtime (for building documentation) |
+| Tool         | Version  | Description                                          |
+| ------------ | -------- | ----------------------------------------------------- |
+| `bun`        | `latest` | Bun runtime (for building documentation)              |
+| `bats`       | `latest` | bats-core test runner (for `tests/*.bats`)            |
+| `shellcheck` | `latest` | Shell script linter (for `install.sh`, `scripts/*.sh`) |
+| `python`     | `latest` | Provides a `tomllib`-capable `python3` for CI's TOML checks and `install.sh`'s JSON parsing |
 
 The `[hooks]` section sets `postinstall = "bun install --frozen-lockfile"`, so dependencies are installed automatically after `mise install`.
+
+For how `bats`, `shellcheck`, and `python` are used in CI and how to run the
+same checks locally, see [Testing](../development/04-testing.md).
 
 ### `[settings]` (`mise.toml`)
 

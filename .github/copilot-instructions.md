@@ -45,6 +45,7 @@ Under `docs/`, place GitHub Flavored Markdown documentation built with Docusauru
 | Docs style         | `docs/development/02-docs-style.md`         | Contributors |
 | ADR index          | `docs/development/99-adr/README.md`         | Contributors |
 | Skills development | `docs/development/03-skills-development.md` | Contributors |
+| Testing            | `docs/development/04-testing.md`            | Contributors |
 
 Style reference to read before editing:
 

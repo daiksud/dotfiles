@@ -123,3 +123,4 @@ When making changes, check the following:
 | Changes to scripts             | `reference/scripts.md`                                                               |
 | Adding or changing skills      | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md` |
 | Changes to Docusaurus settings | `.docusaurus/README.md`                                                              |
+| Changes to CI or tests         | `development/04-testing.md`, `reference/mise.md` (if `mise.toml` tools changed)       |

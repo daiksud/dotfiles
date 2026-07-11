@@ -21,6 +21,13 @@ applyTo: ".github/workflows/**"
 ```
 
 ```yaml
+# ✅ Good — Remote reusable workflow
+jobs:
+  call-reusable:
+    uses: owner/repository/.github/workflows/reusable.yml@0123456789abcdef0123456789abcdef01234567 # v1.2.3
+```
+
+```yaml
 # ✅ Good — Local action
 steps:
   - uses: ./.github/actions/example

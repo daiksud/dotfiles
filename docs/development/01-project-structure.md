@@ -34,6 +34,8 @@ This page organizes the roles of the repository's main directories and files.
 ├── .devcontainer/          # Codespaces settings
 ├── .docusaurus/            # Docusaurus site build
 ├── .github/
+│   ├── instructions/
+│   │   └── actions.instructions.md # GitHub Actions authoring guidance
 │   ├── copilot-instructions.md
 │   ├── dependabot.yml      # Dependency update settings for bun / GitHub Actions
 │   ├── settings.yml        # Declarative repository settings managed by gh-infra
@@ -58,6 +60,7 @@ This page organizes the roles of the repository's main directories and files.
 | `scripts/`         | Setup scripts                                                          | When changing tool installation procedures            |
 | `tests/`           | bats-core test suite                                                   | When adding logic worth testing, or changing tested behavior |
 | `.devcontainer/`   | Container definitions for GitHub Codespaces                            | When changing the Codespaces environment              |
+| `.github/instructions/` | Scoped instructions for GitHub Actions workflow authoring           | When changing workflow authoring or action pinning guidance |
 | `.gitignore`       | Exclusion settings for files not tracked by Git                        | When adding generated files such as `node_modules/`   |
 
 ## Which Files Should Be Changed Together
@@ -83,4 +86,3 @@ This page organizes the roles of the repository's main directories and files.
 3. `mise.toml` — Add any new lint/test tool so CI and local contributors share one version
 4. `docs/development/04-testing.md` — Update the checks table and local run instructions
 5. If the change involves a non-obvious trade-off, record it in `docs/development/99-adr/`
-

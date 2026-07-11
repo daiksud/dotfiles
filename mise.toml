@@ -1,5 +1,8 @@
 [tools]
 bun = "latest"
+bats = "latest"
+shellcheck = "latest"
+python = "latest"
 
 [hooks]
 postinstall = "bun install --frozen-lockfile"

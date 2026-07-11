@@ -25,6 +25,7 @@ This page organizes the roles of the repository's main directories and files.
 │   ├── 001-homebrew.sh
 │   ├── 002-brewfile.sh
 │   └── 100-*.sh
+├── tests/                  # bats-core test suite (see docs/development/04-testing.md)
 ├── docs/                   # Documentation
 │   ├── README.mdx
 │   ├── guides/
@@ -36,7 +37,9 @@ This page organizes the roles of the repository's main directories and files.
 │   ├── copilot-instructions.md
 │   ├── dependabot.yml      # Dependency update settings for bun / GitHub Actions
 │   ├── settings.yml        # Declarative repository settings managed by gh-infra
-│   └── workflows/docs.yml
+│   └── workflows/
+│       ├── ci.yml          # Lint, bats tests, and a docs build check
+│       └── docs.yml        # Documentation deploy (main only)
 ├── mise.toml               # Repository-local mise settings
 ├── package.json            # Scripts for building the documentation
 ├── .gitignore              # Definitions for untracked generated and local files
@@ -53,6 +56,7 @@ This page organizes the roles of the repository's main directories and files.
 | `Brewfile`         | List of packages managed by Homebrew                                   | When adding or removing tools                         |
 | `dotfiles/`        | Configuration files that are symlinked                                 | When changing the settings for each tool              |
 | `scripts/`         | Setup scripts                                                          | When changing tool installation procedures            |
+| `tests/`           | bats-core test suite                                                   | When adding logic worth testing, or changing tested behavior |
 | `.devcontainer/`   | Container definitions for GitHub Codespaces                            | When changing the Codespaces environment              |
 | `.gitignore`       | Exclusion settings for files not tracked by Git                        | When adding generated files such as `node_modules/`   |
 
@@ -70,3 +74,13 @@ This page organizes the roles of the repository's main directories and files.
 
 1. `dotfiles/zsh/<name>.zsh` — Create the plugin (`.zshrc` does not need editing; it is sourced automatically)
 2. `docs/reference/zsh/plugins.md` — Update the list
+3. If the plugin has logic that doesn't depend on Homebrew, network access, or fzf/interactive input, consider adding a `tests/<name>.bats` test (see [Testing](./04-testing.md))
+
+### When changing CI or tests
+
+1. `.github/workflows/ci.yml` — Add or change a job/step
+2. `tests/*.bats` — Add or change a test
+3. `mise.toml` — Add any new lint/test tool so CI and local contributors share one version
+4. `docs/development/04-testing.md` — Update the checks table and local run instructions
+5. If the change involves a non-obvious trade-off, record it in `docs/development/99-adr/`
+

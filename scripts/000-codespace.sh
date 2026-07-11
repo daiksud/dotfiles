@@ -8,6 +8,7 @@ if [[ "${os}" == "Darwin" ]]; then
 fi
 
 if [[ -r /etc/os-release ]]; then
+  # shellcheck disable=SC1091 # /etc/os-release only exists on the target Linux host, not statically
   . /etc/os-release
 fi
 

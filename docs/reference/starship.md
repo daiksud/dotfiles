@@ -38,7 +38,8 @@ For a gh-qwt worktree, the shared
 and repository `.git` pointer, then displays `owner/repo/branch`. From a
 subdirectory of the worktree, it appends the path relative to the worktree
 root as `owner/repo/branch/path/to/subdir`. This preserves branch names that
-contain `/`.
+contain `/`. This behavior is covered by the bats suite — see
+[Testing](../development/04-testing.md).
 
 ### Git branch
 

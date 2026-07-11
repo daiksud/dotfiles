@@ -63,6 +63,9 @@ check. As a result, ordinary Git worktrees retain their branch segment, while
 qwt worktrees replace the duplicate branch name with a Git icon and can report a
 stale `origin/main` base.
 
+This script's behavior is covered by the bats suite in `tests/` — see
+[Testing](../../development/04-testing.md).
+
 ---
 
 ## go-to-qwt-repository.zsh

@@ -30,16 +30,16 @@ make_qwt_worktree() {
   printf 'gitdir: ./.bare\n' >"$repo_dir/.git"
 
   scratch="$(mktemp -d)"
-  git clone -q "$repo_dir/.bare" "$scratch" >/dev/null 2>&1
+  git clone -q "$repo_dir/.bare" "$scratch"
   (
     cd "$scratch" || exit 1
     git -c commit.gpgsign=false checkout -q -b "$branch"
     git -c commit.gpgsign=false commit -q --allow-empty -m init
     git -c commit.gpgsign=false push -q origin "$branch"
-  ) >/dev/null 2>&1
+  )
   rm -rf "$scratch"
 
-  git -C "$repo_dir" --git-dir=.bare worktree add -q "$branch" "$branch" >/dev/null 2>&1
+  git -C "$repo_dir" --git-dir=.bare worktree add -q "$branch" "$branch"
 }
 
 @test "prints owner/repo/branch at the worktree root" {

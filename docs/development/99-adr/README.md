@@ -20,6 +20,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0008](./0008-gh-qwt.md)                | Replace gh-q and gh-wt with gh-qwt                      | Accepted   |
 | [0009](./0009-shared-worktree-gh-auth.md) | Share gh authentication across Git worktrees           | Accepted   |
 | [0010](./0010-pr-skills-gh-qwt.md)        | Use gh-qwt worktrees for Pull Request skills           | Accepted   |
+| [0011](./0011-ci-and-shell-testing.md)    | Add a CI workflow with bats-core tests and mise-provisioned lint tools | Accepted |
 
 ## How to Write a New ADR
 

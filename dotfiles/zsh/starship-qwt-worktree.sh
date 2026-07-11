@@ -23,4 +23,10 @@ branch="${worktree#"$qwt_repo_dir"/}"
 repo="${qwt_repo_dir##*/}"
 owner_dir="${qwt_repo_dir%/*}"
 owner="${owner_dir##*/}"
-printf '%s/%s/%s\n' "$owner" "$repo" "$branch"
+
+prefix="$(git rev-parse --show-prefix 2>/dev/null)" || exit 1
+if [ -n "$prefix" ]; then
+  printf '%s/%s/%s/%s\n' "$owner" "$repo" "$branch" "${prefix%/}"
+else
+  printf '%s/%s/%s\n' "$owner" "$repo" "$branch"
+fi

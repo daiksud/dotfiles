@@ -107,6 +107,10 @@ gh qwt path cli/cli/fix/parser
 | `gh qwt path [<owner>/<repo>[/<branch>]]` | Print an absolute path (root, repository directory, or worktree path) for `cd` |
 | `gh qwt prune` | Remove worktrees whose branch is gone from the remote, discovered from the current directory |
 
+## Interactive session integration
+
+`dotfiles/copilot-instructions.md` is loaded as `~/.copilot/copilot-instructions.md` in every interactive Copilot CLI session (see [Using skills](../guides/06-skills.md)). It requires creating a `gh-qwt` worktree before starting any task and performing all work inside that worktree directory, so this applies beyond the PR skills below to every task in an interactive session.
+
 ## Pull Request skill integration
 
 The `pr-create`, `pr-fix`, and `pr-merge` Copilot skills use `gh-qwt` as their

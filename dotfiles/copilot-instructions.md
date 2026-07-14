@@ -1,5 +1,9 @@
 # Copilot Personal Instructions
 
+## Worktree usage
+
+Before starting any task, always use `gh qwt` to create a worktree (for example `gh qwt get <owner>/<repo>` for a new repository, or `gh qwt add <branch>` for a new branch in an existing repository), and perform all work inside that worktree directory.
+
 ## Pull Request skills
 
 If the user runs `/pr create` or asks to create a Pull Request, always use the `pr-create` skill.

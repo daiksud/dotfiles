@@ -121,16 +121,17 @@ If a PR cannot be brought to a mergeable state, it is skipped (with the reason r
 > [!IMPORTANT]
 > `pr-merge` waits for an existing automation that approves PRs labeled `self approval` — it does not create that automation. It also expects the `self approval` label to already exist in the repository.
 
-## Integration with `/pr create`, `/pr fix`, and `/pr merge`
+## Interactive session integration
 
 `install.sh` creates a symbolic link from `dotfiles/copilot-instructions.md` to `~/.copilot/copilot-instructions.md`.
 This file contains the following instructions and is always loaded in interactive sessions:
 
+- For repository tasks other than the PR workflows, resolve and reuse the matching `gh-qwt` worktree before doing any work. Provision a target only when it is missing, and specify the repository explicitly with `get` or `add --repo`.
 - When `/pr create` is invoked → use the `pr-create` skill
 - When `/pr fix` is invoked → use the `pr-fix` skill
 - When `/pr merge` is invoked → use the `pr-merge` skill
 
-As a result, even when you use the built-in `/pr` subcommand, it behaves according to the procedure defined in the skills.
+The general worktree setup does not run before these PR mappings. Each PR skill selects its own target, and `pr-create` first records the state of the checkout where it was invoked so it can migrate dirty changes safely. As a result, even when you use the built-in `/pr` subcommand, it behaves according to the procedure defined in the skills.
 
 > [!NOTE]
 > This integration works through Copilot instruction loading and is not a completely deterministic binding. If you want to ensure the skill is used, invoke it directly with `/pr-create`, `/pr-fix`, or `/pr-merge`.

@@ -109,7 +109,9 @@ gh qwt path cli/cli/fix/parser
 
 ## Interactive session integration
 
-`dotfiles/copilot-instructions.md` is loaded as `~/.copilot/copilot-instructions.md` in every interactive Copilot CLI session (see [Using skills](../guides/06-skills.md)). It requires creating a `gh-qwt` worktree before starting any task and performing all work inside that worktree directory, so this applies beyond the PR skills below to every task in an interactive session.
+`dotfiles/copilot-instructions.md` is loaded as `~/.copilot/copilot-instructions.md` in every interactive Copilot CLI session (see [Using skills](../guides/06-skills.md)). For repository tasks other than the PR workflows below, it resolves the expected `owner/repo/branch` path first and reuses that worktree when it exists. Only a missing target is provisioned, with the repository passed explicitly to `get` or `add --repo`, and subsequent work runs from the resolved path.
+
+PR requests are delegated directly from the invoking checkout to the matching skill before this general setup runs. This lets `pr-create` capture staged, unstaged, and untracked source changes before it selects and prepares its target worktree.
 
 ## Pull Request skill integration
 

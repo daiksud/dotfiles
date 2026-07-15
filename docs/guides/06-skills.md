@@ -126,10 +126,11 @@ If a PR cannot be brought to a mergeable state, it is skipped (with the reason r
 `install.sh` creates a symbolic link from `dotfiles/copilot-instructions.md` to `~/.copilot/copilot-instructions.md`.
 This file contains the following instructions and is always loaded in interactive sessions:
 
-- For repository tasks other than the PR workflows, record the invoking checkout's working state, identify an existing qwt repository by its `.bare` directory, and inspect the matching target before reuse.
+- For repository tasks other than the PR workflows, record the invoking checkout's repository-relative working directory and working state, identify an existing qwt repository by its `.bare` directory, and inspect the matching target before reuse.
 - Whenever the source and target differ, compare the recorded source commit with a tracking branch that belongs to the resolved repository, a matching remote branch, or the selected base, even when the source is dirty. Ahead or diverged source history requires an explicit publish, transfer-to-target, or omit decision; work does not continue in an ordinary source checkout.
 - If the source and target differ and either has uncommitted changes, migrate them deliberately with verification or stop to ask how to proceed instead of abandoning or mixing them. Provision a target only when it is missing, and specify the repository explicitly with `get` or `add --repo`.
-- Fetch and compare the target before work. Fast-forward only a clean target that is behind, stop on a dirty behind target, and require an explicit choice for ahead, diverged, or local-only target history. Treat a previously tracked branch whose remote disappeared as deleted rather than automatically recreating it as new.
+- Resolve the full GitHub `host/owner/repo` identity, verify an existing qwt repository's canonical `origin` before reuse, and pass the host explicitly when provisioning. This prevents the host-less qwt path layout from mixing repositories on different GitHub hosts.
+- Fetch and compare the target before work. Fast-forward only a clean target that is behind, stop on a dirty behind target, and require an explicit choice for ahead, diverged, or local-only target history. Treat a previously tracked branch whose remote disappeared as deleted rather than automatically recreating it as new. Continue from the existing target counterpart of the recorded source-relative directory only after its physical path is verified inside the target worktree.
 - When `/pr create` is invoked → use the `pr-create` skill
 - When `/pr fix` is invoked → use the `pr-fix` skill
 - When `/pr merge` is invoked → use the `pr-merge` skill

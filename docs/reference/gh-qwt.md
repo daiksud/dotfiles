@@ -39,6 +39,8 @@ Repository paths omit the host segment and follow `<qwt_root>/<owner>/<repo>/<br
   fix/parser/         # feature-branch worktree, created by `gh qwt add`
 ```
 
+Repositories with the same `owner/repo` on different GitHub hosts therefore cannot safely share one qwt root. Verify the existing bare repository's canonical `origin` before reuse, and use a separate `QWT_ROOT` when both repositories are needed.
+
 The `.git` pointer file uses a relative target (`gitdir: ./.bare`), so the whole repository directory is relocatable as long as `.bare/` and every worktree move together. Branch names containing `/` create nested worktree directories, so a branch named `feat` cannot coexist with a branch named `feat/x` (they need the same path for different purposes).
 
 ## Prompt display
@@ -99,7 +101,7 @@ gh qwt path cli/cli/fix/parser
 
 | Command | Description |
 | --- | --- |
-| `gh qwt get <owner>/<repo>\|<url>` | Clone a repository as a bare database and create a worktree for the default (or `--branch`) branch |
+| `gh qwt get [--host <host>] [--branch <branch>] <owner>/<repo>\|<url>` | Clone a repository as a bare database and create a worktree for the requested or default branch |
 | `gh qwt add <branch>` | Create a worktree for a new or existing branch in the current (or `--repo`) repository |
 | `gh qwt list [<query>] [-e\|--exact] [-p\|--full-path]` | List repositories and worktrees as a flat, sorted `owner/repo/branch` list, optionally filtered and/or printed as absolute paths |
 | `gh qwt remove <branch>\|<owner>/<repo>\|<owner>/<repo>/<branch>` (aliased `rm`) | Remove a single worktree, or an entire repository when given `owner/repo` from outside it |
@@ -109,13 +111,13 @@ gh qwt path cli/cli/fix/parser
 
 ## Interactive session integration
 
-`dotfiles/copilot-instructions.md` is loaded as `~/.copilot/copilot-instructions.md` in every interactive Copilot CLI session (see [Using skills](../guides/06-skills.md)). For repository tasks other than the PR workflows below, it records the invoking checkout's branch, working state, and commit before resolving the expected `owner/repo/branch` target. When the source and target differ, it fetches the remote for the resolved repository and compares the recorded source commit with a matching tracking branch, remote branch, or chosen creation base, even when the source is dirty. An unrelated tracking remote is not used. Publishing, deliberately transferring, or explicitly leaving out ahead or diverged source history requires a choice; work does not continue in an ordinary source checkout.
+`dotfiles/copilot-instructions.md` is loaded as `~/.copilot/copilot-instructions.md` in every interactive Copilot CLI session (see [Using skills](../guides/06-skills.md)). For repository tasks other than the PR workflows below, it records the invoking checkout's repository-relative working directory, branch, working state, and commit before resolving the expected `owner/repo/branch` target. When the source and target differ, it fetches the remote for the resolved repository and compares the recorded source commit with a matching tracking branch, remote branch, or chosen creation base, even when the source is dirty. An unrelated tracking remote is not used. Publishing, deliberately transferring, or explicitly leaving out ahead or diverged source history requires a choice; work does not continue in an ordinary source checkout.
 
-The repository is considered an existing qwt repository only when its `.bare` directory exists, because `gh qwt path` also calculates paths for repositories and worktrees that have not been created.
+The repository is considered an existing qwt repository only when its `.bare` directory exists, because `gh qwt path` also calculates paths for repositories and worktrees that have not been created. The source identity includes the GitHub host. Before an existing qwt repository is reused, its `origin` is resolved to a canonical GitHub repository and must match the full `host/owner/repo` identity. A missing repository is provisioned with the resolved host and branch explicitly.
 
 An existing target is reused only after its branch and working state are inspected. If the source and target are different and either contains uncommitted changes, the instructions prevent silently abandoning or mixing those changes: migration must be deliberate and verified, or the session stops to ask how to proceed. Only a missing target is provisioned, with the repository passed explicitly to `get` or `add --repo`.
 
-Before work begins, the target fetches `origin` and compares its commit with the remote branch, or with the selected default-branch base when the target branch has not been published. A clean target that is only behind is fast-forwarded, while a dirty behind target stops for direction. Ahead, diverged, or otherwise local-only target history requires an explicit choice instead of an automatic reset, rebase, push, or overwrite. A dormant local branch that previously tracked a now-missing remote branch is treated as a deletion, not as a new branch, and requires an explicit restore, publish, rename, or abandon decision. Subsequent work runs only from the verified target path.
+Before work begins, the target fetches `origin` and compares its commit with the remote branch, or with the selected default-branch base when the target branch has not been published. A clean target that is only behind is fast-forwarded, while a dirty behind target stops for direction. Ahead, diverged, or otherwise local-only target history requires an explicit choice instead of an automatic reset, rebase, push, or overwrite. A dormant local branch that previously tracked a now-missing remote branch is treated as a deletion, not as a new branch, and requires an explicit restore, publish, rename, or abandon decision. The recorded source-relative directory must have an existing counterpart that physically resolves inside the target worktree; missing directories and symlink escapes stop instead of falling back to the target root. Subsequent work runs from that verified counterpart.
 
 PR requests are delegated directly from the invoking checkout to the matching skill before this general setup runs. This lets `pr-create` capture staged, unstaged, and untracked source changes before it selects and prepares its target worktree.
 

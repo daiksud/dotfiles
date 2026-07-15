@@ -121,16 +121,22 @@ If a PR cannot be brought to a mergeable state, it is skipped (with the reason r
 > [!IMPORTANT]
 > `pr-merge` waits for an existing automation that approves PRs labeled `self approval` — it does not create that automation. It also expects the `self approval` label to already exist in the repository.
 
-## Integration with `/pr create`, `/pr fix`, and `/pr merge`
+## Interactive session integration
 
 `install.sh` creates a symbolic link from `dotfiles/copilot-instructions.md` to `~/.copilot/copilot-instructions.md`.
 This file contains the following instructions and is always loaded in interactive sessions:
 
+- For repository tasks other than the PR workflows, record the invoking checkout's repository-relative working directory and working state, identify an existing qwt repository by its `.bare` directory, and inspect the matching target before reuse.
+- Bypass RTK filtering for parsed or equality-checked safety probes while preserving their exit status, and recognize a registered target by an exact target-path line in raw `gh qwt list` output rather than requiring that query to return only one line.
+- Whenever the source and target differ, compare the recorded source commit with a tracking branch that belongs to the resolved repository, a matching remote branch, or the selected base, even when the source is dirty. Ahead or diverged source history requires an explicit publish, transfer-to-target, or omit decision; work does not continue in an ordinary source checkout.
+- If the source and target differ and either has uncommitted changes, migrate them deliberately with verification or stop to ask how to proceed instead of abandoning or mixing them. Provision a target only when it is missing, and specify the repository explicitly with `get` or `add --repo`.
+- Resolve the full GitHub `host/owner/repo` identity, verify an existing qwt repository's canonical `origin` before reuse, and pass the host explicitly when provisioning. This prevents the host-less qwt path layout from mixing repositories on different GitHub hosts.
+- Fetch and compare the target before work. Fast-forward only a clean target that is behind, stop on a dirty behind target, and require an explicit choice for ahead, diverged, or local-only target history. Treat a previously tracked branch whose remote disappeared as deleted rather than automatically recreating it as new. Continue from the existing target counterpart of the recorded source-relative directory only after its physical path is verified inside the target worktree.
 - When `/pr create` is invoked → use the `pr-create` skill
 - When `/pr fix` is invoked → use the `pr-fix` skill
 - When `/pr merge` is invoked → use the `pr-merge` skill
 
-As a result, even when you use the built-in `/pr` subcommand, it behaves according to the procedure defined in the skills.
+The general worktree setup does not run before these PR mappings. Each PR skill selects its own target, and `pr-create` first records the state of the checkout where it was invoked so it can migrate dirty changes safely. As a result, even when you use the built-in `/pr` subcommand, it behaves according to the procedure defined in the skills.
 
 > [!NOTE]
 > This integration works through Copilot instruction loading and is not a completely deterministic binding. If you want to ensure the skill is used, invoke it directly with `/pr-create`, `/pr-fix`, or `/pr-merge`.

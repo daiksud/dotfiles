@@ -40,6 +40,17 @@ rtk docker ps
 
 When the hook is enabled, GitHub Copilot CLI automatically runs commands through `rtk` (no manual prefix needed).
 
+### Machine-readable output
+
+Bypass RTK filtering whenever command output or exit status will be parsed, compared for equality, preserved for migration, or otherwise used for a safety decision. Either set `RTK_DISABLED=1` for the command or use `rtk proxy` for a simple command, then consume only the raw output and original exit status:
+
+```bash
+RTK_DISABLED=1 git status --porcelain=v1 -z
+rtk proxy gh qwt list owner/repo/branch --exact --full-path
+```
+
+This exception applies to the status, diff, ref, path, and list probes used by the interactive `gh-qwt` safety workflow.
+
 ## Meta commands
 
 ```bash

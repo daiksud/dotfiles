@@ -12,10 +12,15 @@ Invoke the matching skill directly from the checkout where the request was made.
 
 For every other repository task, perform all work inside a `gh-qwt` worktree.
 
-1. Resolve `<owner>/<repo>` and the intended `<branch>`, then calculate the target with `gh qwt path <owner>/<repo>/<branch>`.
-2. Confirm that the target is a registered worktree, for example by matching it against `gh qwt list <owner>/<repo>/<branch> --exact --full-path`; `gh qwt path` also prints paths for missing targets. If the worktree exists, reuse it without running `get` or `add`.
-3. If the target is missing, provision it with an explicit repository. When the qwt repository is missing, use `gh qwt get <owner>/<repo>` for its default branch or `gh qwt get <owner>/<repo> --branch <branch>` for an existing remote branch. For a new branch, initialize a missing repository with `get`, then use `gh qwt add --repo <owner>/<repo> <branch> --from origin/<default-branch>`. When the repository already exists, refresh `origin --prune` before `gh qwt add --repo <owner>/<repo> <branch>`, adding `--from` only for a new branch.
-4. Resolve the target path again, verify its branch, and run every repository command from that worktree.
+1. Treat the checkout where the request was made as the source. Before changing directories or provisioning a worktree, record its resolved absolute Git worktree root rather than the raw current directory, current branch, `HEAD`, staged and unstaged diffs, non-ignored untracked-file list, and `git status --porcelain=v1 -z`.
+2. Resolve `<owner>/<repo>` and the intended `<branch>`, then calculate the repository and target paths with `gh qwt path <owner>/<repo>` and `gh qwt path <owner>/<repo>/<branch>`. Treat the qwt repository as existing only when `<repository-path>/.bare` is a directory; `gh qwt path` also prints paths for missing repositories and worktrees.
+3. Confirm whether the target is a registered worktree by requiring the output of `gh qwt list <owner>/<repo>/<branch> --exact --full-path` to equal the calculated target path; a successful exit with empty output does not prove that it exists. If it exists, verify that its current branch equals the intended branch and stop on a mismatch, then record its staged, unstaged, untracked, and porcelain status before reuse.
+4. Compare the resolved source and target roots before doing any work:
+   - If the target is registered and they are the same worktree, continue there without discarding its current state. Treat an unregistered target as absent even if its calculated path matches the source textually.
+   - Otherwise, if the source or an existing target has uncommitted changes, do not silently leave the source or mix distinct states. Continue an existing dirty target only when the user explicitly identified its changes as the work to continue. Migrate source changes only when the user explicitly chose that outcome, preserving staged, unstaged, and non-ignored untracked state and verifying the target before clearing the source. In all other cases, stop and ask how to proceed; never combine two dirty worktrees automatically.
+   - Proceed without migration only when the source is clean and the target is absent or clean.
+5. If the target is missing and the recorded state permits provisioning, use an explicit repository. When the qwt repository is missing, use `gh qwt get <owner>/<repo>` for its default branch or `gh qwt get <owner>/<repo> --branch <branch>` for an existing remote branch. For a new branch, initialize a missing repository with `get`, then use `gh qwt add --repo <owner>/<repo> <branch> --from origin/<default-branch>`. When the repository already exists, refresh `origin --prune` before `gh qwt add --repo <owner>/<repo> <branch>`, adding `--from` only for a new branch.
+6. Resolve the target path again, verify its registered worktree, branch, and expected status, and run every repository command from that worktree.
 
 ## Comments on Issues / Pull Requests
 

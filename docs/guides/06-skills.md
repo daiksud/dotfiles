@@ -126,7 +126,8 @@ If a PR cannot be brought to a mergeable state, it is skipped (with the reason r
 `install.sh` creates a symbolic link from `dotfiles/copilot-instructions.md` to `~/.copilot/copilot-instructions.md`.
 This file contains the following instructions and is always loaded in interactive sessions:
 
-- For repository tasks other than the PR workflows, resolve and reuse the matching `gh-qwt` worktree before doing any work. Provision a target only when it is missing, and specify the repository explicitly with `get` or `add --repo`.
+- For repository tasks other than the PR workflows, record the invoking checkout's working state, identify an existing qwt repository by its `.bare` directory, and inspect the matching target before reuse.
+- If the source and target differ and either has uncommitted changes, migrate them deliberately with verification or stop to ask how to proceed instead of abandoning or mixing them. Provision a target only when it is missing, and specify the repository explicitly with `get` or `add --repo`.
 - When `/pr create` is invoked → use the `pr-create` skill
 - When `/pr fix` is invoked → use the `pr-fix` skill
 - When `/pr merge` is invoked → use the `pr-merge` skill

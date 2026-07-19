@@ -24,6 +24,7 @@ a detailed reference for the dotfiles configuration files, tool list, and struct
 - [gh-infra](./gh-infra.md) — Declarative repository settings management with `.github/settings.yml`
 - [gh-qwt](./gh-qwt.md) — Managing GitHub repositories and git worktrees together with the gh-qwt GitHub CLI extension
 - [install_map.json](./install-map.md) — Specification for the symbolic link mapping table
+- [Agent Skills](./skills.md) — Shared skill format, installation destinations, and PR workflow behavior
 - [Script list](./scripts.md) — The role of each script under `scripts/`
 - [Tool list](./tools.md) — Tools managed in the Brewfile and their purposes
 

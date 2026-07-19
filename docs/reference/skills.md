@@ -1,6 +1,7 @@
-# Copilot Skills
+# Agent Skills
 
-This is the specification reference for custom skills.
+This is the specification reference for custom skills shared by GitHub
+Copilot, Codex, and Claude Code.
 
 ## Skill list
 
@@ -12,22 +13,40 @@ This is the specification reference for custom skills.
 
 ## Installation destination
 
-When `install.sh` runs, `dotfiles/skills/` is symlinked to `~/.copilot/skills/`.
+`dotfiles/skills/` is the canonical source. When `install.sh` runs, each skill
+directory is linked separately into every configured discovery root.
 
-## Directory structure
+| Discovery root | Agents |
+| -------------- | ------ |
+| `~/.agents/skills/` | GitHub Copilot and Codex |
+| `~/.claude/skills/` | Claude Code |
 
-```
-dotfiles/skills/
-├── pr-create/
-│   └── SKILL.md
-├── pr-fix/
-│   └── SKILL.md
-└── pr-merge/
-    └── SKILL.md
-```
+Missing discovery roots are created as real directories, and existing roots
+are not replaced. Only their entries for `pr-create`, `pr-fix`, and `pr-merge`
+are managed as links, so unrelated built-in and independently installed skills
+remain untouched. The destinations are declared through `skill_targets`; see
+[`install_map.json`](./install-map.md).
+
+GitHub Copilot loads a same-named skill from `~/.copilot/skills/` before the
+shared copy under `~/.agents/skills/`. The installer removes
+`~/.copilot/skills` only when it is the former whole-directory link to this
+repository; it preserves real directories and links to other sources. Remove
+or rename a conflicting `pr-create`, `pr-fix`, or `pr-merge` entry in that
+higher-priority root to select the canonical shared version. See GitHub's
+[skill location priority](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference#skills-reference).
+
+## Canonical source layout
+
+Each direct child of `dotfiles/skills/` that contains the required `SKILL.md`
+is one installable skill directory. See the
+[canonical skills directory](https://github.com/daiksud/dotfiles/tree/main/dotfiles/skills)
+for the current files instead of reproducing their contents here.
 
 > [!NOTE]
-> This repository has no vendored skills at the moment. A skill installed directly from an upstream repository with `gh skill install <repo> <skill>` (fetching the skill's directory, including `SKILL.md` and any accompanying files, verbatim) would carry extra frontmatter fields such as `compatibility`, `license`, and a `metadata` provenance block, and should be treated as synced content — re-run `gh skill install` to update it instead of hand-editing it to match the spec below.
+> This repository has no vendored skills at the moment. A skill installed
+> directly from an upstream repository should be treated as synced content:
+> use the same installation mechanism to update it instead of hand-editing the
+> vendored files to match this specification.
 
 ## `SKILL.md` format specification
 
@@ -98,12 +117,27 @@ name: Skill name
 | Field         | Type   | Description                                     |
 | ------------- | ------ | ----------------------------------------------- |
 | `name`        | string | Skill identifier. Must match the directory name |
-| `description` | string | Skill summary. Displayed in the CLI skill list  |
+| `description` | string | Skill summary used for discovery and agent selection |
 
 ### Language used in the body
 
-- Write the frontmatter `description` in **English** (used in the CLI skill list display)
+- Write the frontmatter `description` in **English** (used for discovery and selection)
 - Write the body in **English**
+
+### Portability requirements
+
+- Describe when the skill applies in `description`; do not depend on one
+  product's slash-command mapping for discovery.
+- Refer to another shared skill by its name, such as “use the `pr-fix` skill”.
+  Do not embed a product-specific invocation such as `/pr-fix` in the canonical
+  procedure.
+- Use capability-based language for optional helpers. For example, request a
+  dedicated review skill or review subagent when the host provides one, then
+  define a provider-independent fallback.
+- Keep hooks, manifests, permissions, and proprietary integration settings out
+  of shared skill files. Those remain in vendor-specific configuration.
+- Proper names for external services, such as Copilot Code Review, are allowed
+  when the workflow genuinely depends on that service.
 
 ### Section guidelines
 
@@ -121,12 +155,29 @@ The three PR skills use [`gh-qwt`](./gh-qwt.md) as their only
 branch-workspace mechanism. A branch is represented by its own worktree, not
 by changing the branch of the invoking checkout.
 
+- Because qwt paths omit the GitHub host, every skill resolves the remote
+  through GitHub and records its canonical URL plus the full lowercase
+  `<host>/<owner>/<repo>` identity. Before it lists, fetches, reuses, pushes,
+  or removes an existing qwt repository, that identity must match the bare
+  repository's expanded `origin` URL. A mismatch stops the skill instead of
+  rewriting `origin`; repositories with colliding paths require a separate
+  `QWT_ROOT`.
 - The skills resolve a target with `gh qwt path` and run repository commands
   against that absolute path.
+- Before reusing a calculated target, and after each `get` or `add`, the skills
+  require an unfiltered `gh qwt list --exact --full-path` result to contain the
+  worktree created by that command byte-for-byte. A default-branch bootstrap
+  `get` is checked at the default path before a feature-branch `add`; the
+  feature target is checked after `add`. An occupied path without exact qwt
+  registration is a collision, not a worktree. An occupied repository path
+  without its qwt `.bare` database is likewise a collision, not a missing
+  repository to initialize in place.
 - A missing qwt repository is provisioned with `gh qwt get`. A missing branch
   worktree in an existing qwt repository is created with `gh qwt add`.
   `get --branch` is used only for an existing remote branch; creating a new
   branch first requires `get` for the default branch, followed by `add`.
+  Provisioning passes the verified host explicitly with `get --host`, then
+  verifies the new bare repository before it is used.
 - Before `add` runs in an existing qwt repository, the skills refresh
   `origin --prune` from the qwt repository root so cached refs cannot turn a
   just-pushed branch into a mistakenly new branch.
@@ -155,7 +206,8 @@ the skill; it stops and asks for explicit direction instead.
 1. Check the corresponding Task (Issue) (if it cannot be inferred, ask the user to confirm; if there is none, encourage them to create one)
 2. Understand the source changes with `git diff` and the Issue description and comments
 3. Resolve or create the feature branch's qwt worktree, migrating uncommitted changes only through the verified preservation procedure
-4. Commit from the target worktree using the Conventional Commits format
+4. Stage the intended uncommitted paths and commit from the target worktree
+   using the Conventional Commits format
 5. Push the target branch
 6. Create the PR description (write a readable, visually clear body that fully leverages GFM features such as tables, alerts, Mermaid, and emoji), then create a draft PR with `gh pr create --draft`
 7. Set the invoking user as the Assignee
@@ -163,7 +215,8 @@ the skill; it stops and asks for explicit direction instead.
 
 ### Input
 
-- Staged files, or already committed diffs
+- Intended changes that are already committed, staged, unstaged, or present as
+  non-ignored untracked files
 - Optional: reason for the change, related Issue number
 
 ### Output
@@ -179,7 +232,7 @@ the skill; it stops and asks for explicit direction instead.
 3. If there are CI failures, analyze the logs and repeat fixes (up to 3 times)
 4. Retrieve all review comments and judge the validity of each one
 5. Fix valid comments and skip invalid ones; for comments the user replied "対応しない" (will not address) to, record in the PR body that they will not be addressed along with the reason
-6. Before committing and pushing, run a local review with the `code-review` sub-agent
+6. Before committing and pushing, perform an independent local review. Use a dedicated review skill or review subagent when the host provides one; otherwise make a separate review pass over the full diff
 7. After pushing, reply to each review comment with how it was addressed
 
 The PR API remains scoped to the base repository. Git changes and pushes occur
@@ -202,11 +255,17 @@ creating a substitute branch in the base repository.
 
 `pr-merge` runs a single retry loop (up to 10 iterations) per PR:
 
-1. Run `/pr-fix all <PR>`, request a review from Copilot Code Review (same GraphQL mutation as `pr-fix`), and wait for it to complete
+1. Use the `pr-fix` skill in `all` mode for the PR, request a review from Copilot Code Review (using the same GraphQL mutation), and wait for it to complete
 2. Count the unresolved findings left by Copilot Code Review (paginated `reviewThreads`, filtered to `copilot-pull-request-reviewer`); if any remain, go back to step 1
-3. Mark the PR ready for review (`gh pr ready`) and apply the `self approval` label
-4. Wait for the pre-existing self-approval automation to approve the PR (short 3-minute timeout, since a miss usually means the automation is not configured)
-5. Wait for CI to go green and re-check mergeability; a merge conflict or a CI failure sends control back to step 1, since `/pr-fix all` can fix both
+3. Mark the PR ready for review (`gh pr ready`). Reuse an existing valid
+   approval; otherwise apply the `self approval` label once and keep that
+   request timestamp across every retry
+4. Wait for the pre-existing self-approval automation to approve the PR
+   (short 3-minute timeout measured from the one persistent request, since a
+   miss usually means the automation is not configured). An approval that
+   remains valid is not discarded merely because CI or conflict handling
+   restarted the loop
+5. Wait for CI to go green and re-check mergeability; a merge conflict or a CI failure sends control back to step 1 because the `pr-fix` skill can fix both
 6. Once CI is green and there are no conflicts, verify that the qwt worktree
    is clean and still matches the PR head, squash merge with the checked head
    SHA, then remove the qwt worktree and local branch with `gh qwt remove

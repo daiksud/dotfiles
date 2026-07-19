@@ -62,6 +62,9 @@ them.
 
 Current coverage:
 
+- `tests/agent_configuration.bats` — the root and GitHub Actions canonical
+  `AGENTS.md` files, their Copilot and Claude adapters, and the legacy personal
+  Copilot adapter's forward reference to canonical personal instructions.
 - `tests/starship_qwt_worktree.bats` — `dotfiles/zsh/starship-qwt-worktree.sh`
   behavior: the `owner/repo/branch` label at a worktree root, the appended
   subdirectory path from inside a worktree, slash-containing branch names, and
@@ -69,11 +72,19 @@ Current coverage:
 - `tests/install_symlinks.bats` — `install.sh`'s symlink-creation logic,
   exercised against a copy of the real script in an isolated sandbox (fixture
   `install_map.json` and `dotfiles/`, empty `scripts/` so no real installs
-  run): link creation, idempotent re-runs, and converting a symlinked parent
-  directory into a real one while migrating its existing contents.
-- `tests/install_map.bats` — every `install_map.json` entry resolves to a real
-  path under `dotfiles/`, and every destination looks like an absolute or
-  `~`-rooted path.
+  run): single- and multi-destination link creation, per-skill links into every
+  `skill_targets` root, idempotent re-runs, preservation of unrelated skills,
+  resolving relative parent links, converting valid symlinked parents while
+  migrating their contents, and preserving dangling or non-directory parent
+  links on failure. Failure cases cover invalid JSON, invalid skill-target
+  schema, and path-resolution helper errors before cleanup. Migration tests
+  also verify that the legacy Copilot skill link remains available until every
+  replacement link succeeds and throughout those failures, and that an empty
+  skill-target list does not remove the only legacy discovery path.
+- `tests/install_map.bats` — every `links` source resolves to a real path under
+  `dotfiles/`, destination values have the supported string or string-array
+  shape, the shared personal instruction destinations are present, and skill
+  targets include the common and Claude discovery roots using valid paths.
 
 ### Adding a new test
 

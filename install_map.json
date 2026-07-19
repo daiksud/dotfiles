@@ -8,8 +8,15 @@
     "nvim": "~/.config/nvim",
     "sheldon": "~/.config/sheldon",
     "starship.toml": "~/.config/starship.toml",
-    "skills": "~/.copilot/skills",
-    "copilot-instructions.md": "~/.copilot/copilot-instructions.md",
+    "agent-instructions.md": [
+      "~/.copilot/copilot-instructions.md",
+      "~/.codex/AGENTS.md",
+      "~/.claude/CLAUDE.md"
+    ],
     "copilot-hooks/rtk-rewrite.json": "~/.copilot/hooks/rtk-rewrite.json"
-  }
+  },
+  "skill_targets": [
+    "~/.agents/skills",
+    "~/.claude/skills"
+  ]
 }

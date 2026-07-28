@@ -134,8 +134,14 @@ repository's canonical skills directory. It leaves real directories and links
 to any other source untouched. If ordinary or replacement-skill link
 installation fails before cleanup, the legacy link stays in place.
 
-This ordering and exact-target check prevent migration from deleting either
-the last working discovery path, canonical skills, or independently managed
+The legacy link also stays in place when any configured skill target is itself
+a whole-directory symlink that resolves to the canonical skills. Such a target
+may traverse `~/.copilot/skills`; removing the legacy entry would make it
+dangling. Retaining both aliases is safe because they expose the same canonical
+skills.
+
+This ordering and the alias checks prevent migration from deleting either the
+last working discovery path, canonical skills, or independently managed
 Copilot content.
 
 Older installations may also have

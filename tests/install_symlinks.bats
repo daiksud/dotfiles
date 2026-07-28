@@ -411,6 +411,33 @@ run_install() {
   [ -f "${SANDBOX}/dotfiles/skills/managed/SKILL.md" ]
 }
 
+@test "keeps the legacy link when a replacement root aliases it" {
+  mkdir -p \
+    "${SANDBOX}/dotfiles/skills/managed" \
+    "${FAKE_HOME}/.copilot" \
+    "${FAKE_HOME}/.claude"
+  printf '%s\n' '---' 'name: managed' '---' >"${SANDBOX}/dotfiles/skills/managed/SKILL.md"
+  ln -s "${SANDBOX}/dotfiles/skills" "${FAKE_HOME}/.copilot/skills"
+  ln -s "../.copilot/skills" "${FAKE_HOME}/.claude/skills"
+  write_install_map '{}' '["~/.agents/skills", "~/.claude/skills"]'
+
+  run run_install
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Keeping legacy skills link"* ]]
+  [ -L "${FAKE_HOME}/.copilot/skills" ]
+  [ -L "${FAKE_HOME}/.claude/skills" ]
+  [ -f "${FAKE_HOME}/.agents/skills/managed/SKILL.md" ]
+  [ -f "${FAKE_HOME}/.claude/skills/managed/SKILL.md" ]
+
+  run run_install
+
+  [ "$status" -eq 0 ]
+  [ -L "${FAKE_HOME}/.copilot/skills" ]
+  [ -L "${FAKE_HOME}/.claude/skills" ]
+  [ -f "${FAKE_HOME}/.claude/skills/managed/SKILL.md" ]
+}
+
 @test "removes only the legacy Copilot skills link to the canonical source" {
   mkdir -p \
     "${SANDBOX}/dotfiles/skills/managed" \

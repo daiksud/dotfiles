@@ -30,7 +30,9 @@ remain untouched. The destinations are declared through `skill_targets`; see
 GitHub Copilot loads a same-named skill from `~/.copilot/skills/` before the
 shared copy under `~/.agents/skills/`. The installer removes
 `~/.copilot/skills` only when it is the former whole-directory link to this
-repository; it preserves real directories and links to other sources. Remove
+repository and no configured replacement root is a whole-directory alias to
+the canonical skills. It preserves real directories, links to other sources,
+and the legacy link when deleting it could dangle a replacement alias. Remove
 or rename a conflicting `pr-create`, `pr-fix`, or `pr-merge` entry in that
 higher-priority root to select the canonical shared version. See GitHub's
 [skill location priority](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference#skills-reference).

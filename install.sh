@@ -117,6 +117,7 @@ ensure_link_parent_dir() {
 # Remove only that exact legacy link. In particular, do not run the generic
 # parent-directory migration for it: doing so would move the canonical sources.
 cleanup_legacy_copilot_skills() {
+  local configured_targets="$1"
   local legacy_path="${HOME}/.copilot/skills"
   local canonical_skills="${DIR}/dotfiles/skills"
 
@@ -124,6 +125,8 @@ cleanup_legacy_copilot_skills() {
 
   local resolved_legacy
   local resolved_canonical
+  local resolved_target
+  local target_root
   if ! resolved_legacy="$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "${legacy_path}")"; then
     echo "Cannot resolve legacy skills link ${legacy_path}" >&2
     return 1
@@ -134,6 +137,21 @@ cleanup_legacy_copilot_skills() {
   fi
 
   if [[ "${resolved_legacy}" == "${resolved_canonical}" ]]; then
+    # A whole-directory replacement link that resolves to the canonical source
+    # may itself traverse the legacy path. Retaining the same canonical
+    # Copilot link is safer than making a configured discovery root dangling.
+    while IFS= read -r target_root; do
+      [[ -n "${target_root}" && -L "${target_root}" ]] || continue
+      if ! resolved_target="$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "${target_root}")"; then
+        echo "Cannot resolve skill target root ${target_root}" >&2
+        return 1
+      fi
+      if [[ "${resolved_target}" == "${resolved_canonical}" ]]; then
+        echo "Keeping legacy skills link ${legacy_path}: ${target_root} is a whole-directory alias to the canonical skills"
+        return 0
+      fi
+    done <<<"${configured_targets}"
+
     echo "Removing legacy skills link ${legacy_path}"
     rm "${legacy_path}"
   fi
@@ -230,7 +248,7 @@ if [[ -n "${PARSED_SKILL_TARGETS}" ]]; then
   # Keep the old Copilot discovery path available until every replacement link
   # has been installed successfully. An empty target list provides no
   # replacement discovery path, so it must not trigger legacy cleanup.
-  if ! cleanup_legacy_copilot_skills; then
+  if ! cleanup_legacy_copilot_skills "${PARSED_SKILL_TARGETS}"; then
     exit 1
   fi
 fi

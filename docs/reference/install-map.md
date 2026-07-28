@@ -73,13 +73,15 @@ When at least one skill target is configured, the installer checks the legacy
 `~/.copilot/skills` path after every ordinary link and replacement skill link
 succeeds. It removes that path only when it is a symbolic link that resolves
 to this repository's `dotfiles/skills/`; unrelated links and real directories
-are preserved. An empty `skill_targets` array provides no replacement
-discovery path, so it does not trigger cleanup. If link installation fails
-before cleanup, the legacy discovery path remains available. If a configured
-skill root is already a whole-directory link to the same canonical source, the
-installer also avoids deleting entries through that alias. Failure to resolve
-an existing or canonical path is treated as an installation error, not as
-evidence that two paths are equal.
+are preserved. Before removal, every configured target root that is itself a
+symbolic link is resolved. If any such whole-directory alias resolves to the
+canonical skills, the legacy path is retained because the alias may traverse
+it and would become dangling after removal. An empty `skill_targets` array
+provides no replacement discovery path, so it does not trigger cleanup. If
+link installation fails before cleanup, the legacy discovery path remains
+available. The installer also avoids deleting entries through a
+whole-directory alias. Failure to resolve an existing or canonical path is
+treated as an installation error, not as evidence that two paths are equal.
 
 ## Constraints
 

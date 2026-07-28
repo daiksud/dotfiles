@@ -51,10 +51,13 @@ directories.
 
 After all replacement links succeed, it removes the former whole-directory
 `~/.copilot/skills` link only when that link resolves to this repository's
-canonical skills source. A failure while installing ordinary or per-skill
-links before that cleanup therefore leaves the legacy Copilot discovery path
-intact. Failures in the later setup scripts occur after link migration has
-finished and do not restore that legacy path.
+canonical skills source and no configured replacement root is a
+whole-directory symlink to the same source. It retains the legacy link when a
+replacement alias may depend on it, avoiding a successful installation that
+leaves the replacement dangling. A failure while installing ordinary or
+per-skill links before cleanup also leaves the legacy Copilot discovery path
+intact. Failures in later setup scripts occur after link migration has
+finished and do not restore a removed legacy path.
 
 See [Adding and changing links](./03-managing-links.md) for procedures and
 [`install_map.json`](../reference/install-map.md) for the full format.

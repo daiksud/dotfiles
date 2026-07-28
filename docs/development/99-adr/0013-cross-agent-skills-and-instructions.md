@@ -54,6 +54,10 @@ Adopt a canonical-plus-delivery architecture:
 - Existing `~/.copilot`, `~/.codex`, and `~/.claude` directory symlinks are
   preserved so the shared personal instructions are installed through a
   deliberately relocated or synced configuration root.
+- The former `~/.copilot/skills` whole-directory link is retained when a
+  configured replacement root is itself a whole-directory alias to the
+  canonical skills. This avoids dangling an alias that may traverse the legacy
+  path.
 - Shared skills and instructions use product-neutral capability language.
   Product-specific hooks, manifests, permission settings, and integrations
   remain in vendor-specific files.
@@ -75,6 +79,14 @@ risky for worktree safety and PR automation, so this was not adopted.
 This would make installation simple, but it would replace each product's skill
 root. Built-in, system, or separately installed skills could be hidden or
 removed, so only per-skill links are created.
+
+### Rewrite replacement-root symlinks during legacy cleanup
+
+The installer could repoint or materialize a replacement root that traverses
+`~/.copilot/skills` before deleting the legacy link. That would unexpectedly
+rewrite a user-managed symlink or move its contents. Retaining the legacy link
+is non-destructive and exposes the same canonical skills, so cleanup stops
+when it finds such an alias.
 
 ### Generate every adapter from canonical files
 
@@ -109,6 +121,9 @@ need for vendor-specific configuration, so these files remain separate.
   string-array values in `links`.
 - Installing skills requires dedicated `skill_targets` processing and tests
   that verify unrelated destination entries are preserved.
+- A whole-directory replacement alias to the canonical skills keeps the
+  legacy Copilot link in place; the installer favors a redundant discovery
+  alias over a dangling configured root.
 - Skill authors must avoid product-specific invocation syntax and provide
   capability-based fallbacks when an optional helper is unavailable.
 - Canonical rule changes require updating the corresponding Copilot mirror;

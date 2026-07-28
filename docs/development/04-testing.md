@@ -81,8 +81,10 @@ Current coverage:
   links on failure. Failure cases cover invalid JSON, invalid skill-target
   schema, and path-resolution helper errors before cleanup. Migration tests
   also verify that the legacy Copilot skill link remains available until every
-  replacement link succeeds and throughout those failures, and that an empty
-  skill-target list does not remove the only legacy discovery path.
+  replacement link succeeds, throughout those failures, and whenever a
+  whole-directory replacement alias may depend on it. They also verify
+  idempotent re-runs of that alias case and that an empty skill-target list
+  does not remove the only legacy discovery path.
 - `tests/install_map.bats` — every `links` source resolves to a real path under
   `dotfiles/`, destination values have the supported string or string-array
   shape, the shared personal instruction destinations are present, and skill

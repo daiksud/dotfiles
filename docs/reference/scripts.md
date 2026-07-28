@@ -13,8 +13,10 @@ a real directory, including migration of its contents. The agent configuration
 roots `~/.copilot`, `~/.codex`, and `~/.claude` are preserved when they are
 valid directory symlinks so instructions are installed into the relocated
 configuration tree. Invalid root links stop installation without being
-removed. See [`install_map.json`](./install-map.md) for the complete link
-processing rules.
+removed. Legacy Copilot skill cleanup also retains the old link when a
+configured whole-directory target alias resolves to the same canonical skills,
+so the cleanup cannot dangle that replacement root. See
+[`install_map.json`](./install-map.md) for the complete link processing rules.
 
 ## Execution order
 

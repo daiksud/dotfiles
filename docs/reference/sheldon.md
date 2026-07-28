@@ -4,22 +4,20 @@ This is the configuration reference for the Zsh plugin manager (sheldon).
 
 ## File
 
-`dotfiles/sheldon/plugins.toml` → `~/.config/sheldon/plugins.toml`
+[`dotfiles/sheldon/plugins.toml`](https://github.com/daiksud/dotfiles/blob/main/dotfiles/sheldon/plugins.toml)
+→ `~/.config/sheldon/plugins.toml`
 
 ## Top-level settings
 
-```toml
-shell = "zsh"
-```
+The tracked configuration targets Zsh, so Sheldon generates initialization
+content using Zsh syntax.
 
 ## Template
 
-```toml
-[templates]
-fpath = "fpath=("{{ dir }}" $fpath)"
-```
-
-Plugins that specify `apply = ["fpath"]` are not sourced and are only added to `fpath` (for registering completion definitions).
+The configuration defines an `fpath` template that prepends a plugin directory
+to the current function search path. Plugins assigned to this template
+contribute completion definitions without having their files sourced. The
+`zsh-completions` entry uses this behavior.
 
 ## Plugin list
 

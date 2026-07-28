@@ -36,12 +36,12 @@ for the layout and rationale.
 
 All tools use **Tokyo Night Storm** as the unified color scheme.
 
-| Tool     | Configuration                                              |
-| -------- | ---------------------------------------------------------- |
-| Ghostty  | `theme = TokyoNight Storm`                                 |
-| Neovim   | `tokyonight.nvim` (style = `"storm"`, transparent)         |
-| tmux     | `tokyo-night-tmux` (theme = `storm`)                       |
-| Starship | Custom formatting matched to the Tokyo Night Storm palette |
+| Tool                                           | Theme behavior                                      |
+| ---------------------------------------------- | --------------------------------------------------- |
+| [Ghostty](../reference/ghostty.md)              | Uses the Tokyo Night Storm theme                    |
+| [Neovim](../reference/nvim.md)                  | Uses Tokyo Night Storm with transparent backgrounds |
+| [tmux](../reference/tmux.md)                    | Uses the Storm variant of `tokyo-night-tmux`        |
+| [Starship](../reference/starship.md)            | Uses a custom Tokyo Night Storm-compatible palette  |
 
 This creates a visually consistent environment without color discontinuities between the terminal, tmux, and editor.
 

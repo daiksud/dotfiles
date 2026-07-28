@@ -4,20 +4,19 @@ This is the configuration reference for development tool version management with
 
 ## Global settings
 
-The global settings (`~/.config/mise/config.toml`) are not managed in dotfiles. During setup, `scripts/100-mise.sh` configures them automatically with the `mise settings` command.
-
-```bash
-# Command executed by 100-mise.sh (idempotent)
-mise settings set github.credential_command "gh auth token"
-```
+The global settings (`~/.config/mise/config.toml`) are not managed in dotfiles.
+During setup,
+[`scripts/100-mise.sh`](https://github.com/daiksud/dotfiles/blob/main/scripts/100-mise.sh)
+uses `mise settings` to configure GitHub credential lookup through the
+authenticated `gh` session.
 
 As a result, `~/.config/mise/config.toml` becomes a machine-specific file managed by mise, and you can freely add entries such as private tools added with `mise use -g <tool>`.
 
 ### `[settings.github]`
 
-| Key                  | Value             | Description                                             |
-| -------------------- | ----------------- | ------------------------------------------------------- |
-| `credential_command` | `"gh auth token"` | Use the `gh` authentication token for GitHub API access |
+| Key                  | Description                                                       |
+| -------------------- | ----------------------------------------------------------------- |
+| `credential_command` | Ask the authenticated `gh` session for GitHub API credentials     |
 
 ## Repository-local settings
 
@@ -46,7 +45,10 @@ same checks locally, see [Testing](../development/04-testing.md).
 
 ## Shell integration
 
-Enabled in `.zshrc` via `eval "$(mise activate zsh)"`. Tool versions switch automatically on `cd` according to the project's `.mise.toml` or `.tool-versions`.
+The tracked
+[`dotfiles/zshrc`](https://github.com/daiksud/dotfiles/blob/main/dotfiles/zshrc)
+activates mise when Zsh starts. Tool versions then switch automatically on
+`cd` according to the project's `.mise.toml` or `.tool-versions`.
 
 ## Adding tools
 

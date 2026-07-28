@@ -4,16 +4,15 @@ This is the configuration reference for the cross-shell prompt (Starship).
 
 ## File
 
-`dotfiles/starship.toml` → `~/.config/starship.toml`
+[`dotfiles/starship.toml`](https://github.com/daiksud/dotfiles/blob/main/dotfiles/starship.toml)
+→ `~/.config/starship.toml`
 
 ## Prompt structure
 
-A two-line prompt composed of Powerline-style gradient segments:
-
-```
-[░▒▓ ][directory][git_branch + git_status][languages][time]
-[character]
-```
+The top-level format in the tracked configuration renders a two-line prompt
+with Powerline-style gradient segments. The first line shows the icon, current
+directory, Git information, detected language versions, and time in that
+order. The second line contains the input character.
 
 ### Segments and colors
 

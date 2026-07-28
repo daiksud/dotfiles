@@ -4,7 +4,8 @@ This is the configuration reference for Neovim (LazyVim).
 
 ## File
 
-`dotfiles/nvim/` → `~/.config/nvim/`
+[`dotfiles/nvim/`](https://github.com/daiksud/dotfiles/tree/main/dotfiles/nvim)
+→ `~/.config/nvim/`
 
 ## Structure
 
@@ -58,21 +59,10 @@ Adds Emacs-style cursor movement in insert mode:
 
 ## Color scheme
 
-Uses Tokyo Night Storm in transparent mode:
-
-```lua
-{
-  "folke/tokyonight.nvim",
-  opts = {
-    style = "storm",
-    transparent = true,
-    styles = {
-      sidebars = "transparent",
-      floats = "transparent",
-    },
-  },
-}
-```
+The tracked
+[`tokyonight.lua`](https://github.com/daiksud/dotfiles/blob/main/dotfiles/nvim/lua/plugins/tokyonight.lua)
+plugin specification selects Tokyo Night Storm and enables transparent main,
+sidebar, and floating-window backgrounds.
 
 ## lazy.nvim settings
 

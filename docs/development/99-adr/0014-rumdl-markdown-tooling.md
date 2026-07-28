@@ -35,9 +35,12 @@ Adopt rumdl as the only repository Markdown formatter and linter.
   them harder to copy or maintain.
 - Keep MD033 enabled and allow only the `<details>` and `<summary>` elements.
   Parse JSX components in `.mdx` files as MDX rather than raw HTML.
-- Require fenced code blocks through MD046, and do not keep per-file rule
-  exceptions. Existing documents and instruction adapters conform to the same
-  repository-wide rules.
+- Require fenced code blocks through MD046. Existing documents and instruction
+  adapters conform to the repository-wide rules.
+- Keep one MD025 exception for `docs/README.mdx`. Its Docusaurus front matter
+  title provides page metadata, while the matching H1 nested in the custom Hero
+  provides the visible and accessible title. They represent one logical title,
+  but rumdl correctly sees two title sources without this scoped exception.
 - Provide `mise run markdown:format` for automatic fixes and
   `mise run markdown:lint` for non-mutating validation.
 - Run the lint task in the existing CI lint job.

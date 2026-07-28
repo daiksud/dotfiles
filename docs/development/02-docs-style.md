@@ -91,6 +91,10 @@ Only MD013 (line length) and MD034 (bare URLs) are disabled. Use fenced code
 blocks, and use raw HTML only for `<details>` and `<summary>` disclosure
 elements. MDX components remain available in `.mdx` files.
 
+The only per-file rule exception is MD025 for `docs/README.mdx`. Its Docusaurus
+front matter title supplies page metadata while the matching H1 inside the
+custom Hero supplies the visible and accessible page title.
+
 Run the formatter after editing Markdown:
 
 ```bash

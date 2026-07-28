@@ -6,8 +6,8 @@ flavor = "gfm"
 [per-file-flavor]
 "**/*.mdx" = "mdx"
 
-[MD025]
-front-matter-title = ""
+[per-file-ignores]
+"docs/README.mdx" = ["MD025"]
 
 [MD033]
 allowed-elements = ["details", "summary"]

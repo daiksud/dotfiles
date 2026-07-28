@@ -39,9 +39,10 @@ changing existing links. For each ordinary `links` entry, it then creates
 every declared destination:
 
 1. Creates the destination parent directory with `mkdir -p` if it does not exist
-2. If the parent directory is a valid symbolic link to a directory, converts it to a real directory (to support migration from older environments); invalid targets stop without removing the link
-3. Removes any existing file or link
-4. Creates a symbolic link from `dotfiles/<source>` to `<target>`
+2. If the parent directory is a valid symbolic link to a directory, converts it to a real directory to support migration from older environments
+3. Preserves symlinked `~/.copilot`, `~/.codex`, and `~/.claude` configuration roots instead of converting them; dangling links and links to non-directories stop without removing the link
+4. Removes any existing file or link
+5. Creates a symbolic link from `dotfiles/<source>` to `<target>`
 
 It then finds direct children of `dotfiles/skills/` that contain `SKILL.md`
 and links each one separately under every `skill_targets` directory. This

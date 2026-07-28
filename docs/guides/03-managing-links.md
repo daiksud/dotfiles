@@ -112,6 +112,13 @@ Relative link targets are resolved from the directory containing the link. If
 the target is missing or is not a directory, installation stops without
 removing the original link.
 
+The agent configuration roots `~/.copilot`, `~/.codex`, and `~/.claude` are
+an exception. Existing links for those roots are preserved, and managed files
+are installed through them into the relocated configuration directories. This
+keeps synced or externally managed agent settings in place. A dangling root
+link or one that resolves to a non-directory remains untouched and stops the
+installation.
+
 Missing skill target directories are created as real directories. The
 installer replaces an existing entry only at
 `<skill-target>/<skill-name>`; it never replaces the entire skill target. An

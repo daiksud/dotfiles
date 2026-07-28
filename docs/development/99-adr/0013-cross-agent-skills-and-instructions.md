@@ -1,7 +1,8 @@
 # ADR 0013: Share Agent Skills and instructions across coding agents
 
-Use product-neutral canonical files with thin adapters so GitHub Copilot,
-Codex, and Claude Code follow the same skills and instructions.
+Use product-neutral canonical files with host-compatible imports or verified
+inline mirrors so GitHub Copilot, Codex, and Claude Code follow the same skills
+and instructions.
 
 ## Status
 
@@ -24,7 +25,7 @@ execution models are product-specific.
 
 ## Decision
 
-Adopt a canonical-plus-adapter architecture:
+Adopt a canonical-plus-delivery architecture:
 
 - `dotfiles/skills/` is the only maintained source for shared Agent Skills.
   `install.sh` creates a link for each individual skill under
@@ -39,20 +40,27 @@ Adopt a canonical-plus-adapter architecture:
   pulling the repository and rerunning the installer. New installs do not
   target that adapter.
 - Root `AGENTS.md` is the canonical repository instruction file. Root
-  `CLAUDE.md` and `.github/copilot-instructions.md` are thin adapters that
-  import or point to it instead of duplicating its rules.
+  `CLAUDE.md` imports it. Copilot Code Review requires instructions inline in
+  `.github/copilot-instructions.md`, so that file is a checked-in exact mirror
+  guarded by `tests/agent_configuration.bats`.
 - `.github/workflows/AGENTS.md` is the canonical path-scoped instruction file
-  for GitHub Actions workflows. `.github/instructions/actions.instructions.md`
-  and `.claude/rules/github-actions.md` are thin Copilot and Claude adapters.
+  for GitHub Actions workflows. `.claude/rules/github-actions.md` imports it.
+  The body of `.github/instructions/actions.instructions.md`, after its
+  required Copilot frontmatter, is a checked-in exact mirror guarded by the
+  same synchronization test.
 - `install_map.json` accepts either a string or an array of strings for each
   `links` value. A separate top-level `skill_targets` array declares skill
   discovery roots, and the installer expands it into per-skill links.
+- Existing `~/.copilot`, `~/.codex`, and `~/.claude` directory symlinks are
+  preserved so the shared personal instructions are installed through a
+  deliberately relocated or synced configuration root.
 - Shared skills and instructions use product-neutral capability language.
   Product-specific hooks, manifests, permission settings, and integrations
   remain in vendor-specific files.
 
-Canonical files hold policy and procedure. Adapters contain only the minimum
-syntax required to make a product load the nearest canonical file.
+Canonical files hold policy and procedure. A product uses an import adapter
+when it supports one; otherwise it receives an inline mirror whose equality is
+enforced by tests.
 
 ## Alternatives Considered
 
@@ -71,8 +79,17 @@ removed, so only per-skill links are created.
 ### Generate every adapter from canonical files
 
 Generation can support products that cannot import another file, but it adds a
-build step and generated-file synchronization checks. The current products can
-use small checked-in adapters, so generation is not needed now.
+script and another contributor step. Because Copilot Code Review consumes the
+checked-in files, generated output would still need to be committed. A small
+exact-content test catches drift without adding a generator.
+
+### Use import syntax in every product-specific file
+
+Claude supports importing the canonical files, but Copilot Code Review reads
+its recognized repository and path-specific instruction files as
+natural-language Markdown and does not promise to dereference an `@` import or
+a Markdown link. This would silently omit repository and immutable-action
+guidance during review, so Copilot receives inline mirrors.
 
 ### Force hooks and manifests into one common format
 
@@ -94,10 +111,13 @@ need for vendor-specific configuration, so these files remain separate.
   that verify unrelated destination entries are preserved.
 - Skill authors must avoid product-specific invocation syntax and provide
   capability-based fallbacks when an optional helper is unavailable.
-- Thin adapters must be kept valid for their host products, but ordinary rule
-  changes are made only in the canonical file.
+- Canonical rule changes require updating the corresponding Copilot mirror;
+  the Bats synchronization test fails if either mirror drifts.
 - Existing Copilot personal links continue through the compatibility adapter
   until the installer replaces them with a direct canonical link.
+- Relocated Copilot, Codex, and Claude configuration roots remain symlinks
+  during installation. Dangling links and links to non-directories stop safely
+  without being replaced.
 - Vendor-specific hooks and manifests still require separate maintenance and
   testing.
 - A shared skill change should be exercised in GitHub Copilot, Codex, and

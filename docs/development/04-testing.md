@@ -63,8 +63,9 @@ them.
 Current coverage:
 
 - `tests/agent_configuration.bats` — the root and GitHub Actions canonical
-  `AGENTS.md` files, their Copilot and Claude adapters, and the legacy personal
-  Copilot adapter's forward reference to canonical personal instructions.
+  `AGENTS.md` files, exact synchronization of their inline Copilot mirrors,
+  the Claude import adapters, and the legacy personal Copilot adapter's
+  forward reference to canonical personal instructions.
 - `tests/starship_qwt_worktree.bats` — `dotfiles/zsh/starship-qwt-worktree.sh`
   behavior: the `owner/repo/branch` label at a worktree root, the appended
   subdirectory path from inside a worktree, slash-containing branch names, and
@@ -75,7 +76,8 @@ Current coverage:
   run): single- and multi-destination link creation, per-skill links into every
   `skill_targets` root, idempotent re-runs, preservation of unrelated skills,
   resolving relative parent links, converting valid symlinked parents while
-  migrating their contents, and preserving dangling or non-directory parent
+  migrating their contents, preserving valid Copilot, Codex, and Claude
+  configuration-root links, and preserving dangling or non-directory parent
   links on failure. Failure cases cover invalid JSON, invalid skill-target
   schema, and path-resolution helper errors before cleanup. Migration tests
   also verify that the legacy Copilot skill link remains available until every

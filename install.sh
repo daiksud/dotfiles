@@ -87,6 +87,32 @@ ensure_real_parent_dir() {
   fi
 }
 
+# Copilot, Codex, and Claude may keep their complete configuration roots in a
+# synced or relocated directory. Preserve those root links instead of applying
+# the legacy parent-directory migration used for ordinary dotfile targets.
+ensure_link_parent_dir() {
+  local dst="$1"
+  local home_root
+  local parent
+  home_root="${HOME%/}"
+  [[ -n "${home_root}" ]] || home_root="/"
+  parent="$(dirname "${dst}")"
+
+  case "${parent}" in
+  "${home_root%/}/.copilot" | "${home_root%/}/.codex" | "${home_root%/}/.claude")
+    if [[ -L "${parent}" ]]; then
+      if [[ ! -d "${parent}" ]]; then
+        echo "Cannot use symlinked agent config directory ${parent}: target is not an existing directory" >&2
+        return 1
+      fi
+      return 0
+    fi
+    ;;
+  esac
+
+  ensure_real_parent_dir "${dst}"
+}
+
 # Previous versions linked the entire canonical skills directory into Copilot.
 # Remove only that exact legacy link. In particular, do not run the generic
 # parent-directory migration for it: doing so would move the canonical sources.
@@ -180,7 +206,7 @@ if [[ -n "${PARSED_LINKS}" ]]; then
   while IFS=$'\t' read -r src dst; do
     full_src="${DIR}/dotfiles/${src}"
 
-    if ! ensure_real_parent_dir "${dst}"; then
+    if ! ensure_link_parent_dir "${dst}"; then
       exit 1
     fi
 

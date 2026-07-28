@@ -57,6 +57,7 @@ Behavior when `install.sh` processes `install_map.json`:
 3. Normalize each `links` value to one or more destinations
 4. For each ordinary link destination:
    - If the destination's parent directory is a symbolic link, resolve relative targets from the link's directory, verify that the target is an existing directory, then convert the parent to a real directory and migrate the contents
+   - Preserve symlinked `~/.copilot`, `~/.codex`, and `~/.claude` parents and create the managed file through the link instead; this protects relocated or synced agent configuration roots
    - If that parent link is dangling or points to a non-directory, leave it intact and stop the installation
    - If the parent directory does not exist, create it with `mkdir -p`
    - If an existing file/link is present, remove it with `rm -rf`

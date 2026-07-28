@@ -72,6 +72,67 @@ run_install() {
   done
 }
 
+@test "preserves symlinked agent config roots when linking shared instructions" {
+  printf 'shared\n' >"${SANDBOX}/dotfiles/shared.txt"
+  mkdir -p "${SANDBOX}/dotfiles/skills/managed"
+  printf '%s\n' '---' 'name: managed' '---' >"${SANDBOX}/dotfiles/skills/managed/SKILL.md"
+  write_install_map \
+    '{"shared.txt": ["~/.copilot/instructions.md", "~/.codex/AGENTS.md", "~/.claude/CLAUDE.md"]}' \
+    '["~/.agents/skills", "~/.claude/skills"]'
+
+  for agent in copilot codex claude; do
+    mkdir -p "${FAKE_HOME}/relocated/${agent}"
+    printf 'keep-%s\n' "${agent}" >"${FAKE_HOME}/relocated/${agent}/existing.txt"
+    ln -s "relocated/${agent}" "${FAKE_HOME}/.${agent}"
+  done
+
+  run env HOME="${FAKE_HOME}/" /bin/bash "${SANDBOX}/install.sh"
+
+  [ "$status" -eq 0 ]
+  for agent in copilot codex claude; do
+    [ -L "${FAKE_HOME}/.${agent}" ]
+    [ "$(readlink "${FAKE_HOME}/.${agent}")" = "relocated/${agent}" ]
+    [ "$(cat "${FAKE_HOME}/.${agent}/existing.txt")" = "keep-${agent}" ]
+  done
+  [ -L "${FAKE_HOME}/.copilot/instructions.md" ]
+  [ -L "${FAKE_HOME}/.codex/AGENTS.md" ]
+  [ -L "${FAKE_HOME}/.claude/CLAUDE.md" ]
+  [ -L "${FAKE_HOME}/.claude/skills/managed" ]
+  [ "$(readlink "${FAKE_HOME}/.claude/skills/managed")" = "${SANDBOX}/dotfiles/skills/managed" ]
+}
+
+@test "leaves a dangling agent config root intact and fails installation" {
+  printf 'shared\n' >"${SANDBOX}/dotfiles/shared.txt"
+  write_install_map '{"shared.txt": "~/.codex/AGENTS.md"}'
+
+  ln -s "missing-codex-config" "${FAKE_HOME}/.codex"
+
+  run run_install
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"symlinked agent config directory"* ]]
+  [[ "$output" == *"target is not an existing directory"* ]]
+  [ -L "${FAKE_HOME}/.codex" ]
+  [ "$(readlink "${FAKE_HOME}/.codex")" = "missing-codex-config" ]
+}
+
+@test "leaves an agent config root linked to a file intact and fails installation" {
+  printf 'shared\n' >"${SANDBOX}/dotfiles/shared.txt"
+  write_install_map '{"shared.txt": "~/.claude/CLAUDE.md"}'
+
+  printf 'not a directory\n' >"${FAKE_HOME}/claude-config-file"
+  ln -s "claude-config-file" "${FAKE_HOME}/.claude"
+
+  run run_install
+
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"symlinked agent config directory"* ]]
+  [[ "$output" == *"target is not an existing directory"* ]]
+  [ -L "${FAKE_HOME}/.claude" ]
+  [ "$(readlink "${FAKE_HOME}/.claude")" = "claude-config-file" ]
+  [ "$(cat "${FAKE_HOME}/claude-config-file")" = "not a directory" ]
+}
+
 @test "re-running install.sh is idempotent" {
   printf 'hello-a\n' >"${SANDBOX}/dotfiles/a.txt"
   write_install_map '{"a.txt": "~/dst-a.txt"}'

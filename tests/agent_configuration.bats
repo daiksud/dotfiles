@@ -2,17 +2,20 @@
 
 REPO_ROOT="${BATS_TEST_DIRNAME}/.."
 
-@test "repository instruction adapters point to canonical AGENTS files" {
+@test "repository instruction files stay synchronized across agents" {
   [ -f "${REPO_ROOT}/AGENTS.md" ]
   [ -f "${REPO_ROOT}/.github/workflows/AGENTS.md" ]
 
   [ "$(<"${REPO_ROOT}/CLAUDE.md")" = "@AGENTS.md" ]
-  grep -Fxq '@../AGENTS.md' \
-    "${REPO_ROOT}/.github/copilot-instructions.md"
-  grep -Fq '[`../workflows/AGENTS.md`](../workflows/AGENTS.md)' \
-    "${REPO_ROOT}/.github/instructions/actions.instructions.md"
   grep -Fq '@../../.github/workflows/AGENTS.md' \
     "${REPO_ROOT}/.claude/rules/github-actions.md"
+
+  cmp -s \
+    "${REPO_ROOT}/AGENTS.md" \
+    "${REPO_ROOT}/.github/copilot-instructions.md"
+  cmp -s \
+    "${REPO_ROOT}/.github/workflows/AGENTS.md" \
+    <(tail -n +6 "${REPO_ROOT}/.github/instructions/actions.instructions.md")
 }
 
 @test "legacy Copilot personal source forwards to canonical instructions" {

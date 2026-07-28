@@ -165,11 +165,17 @@ fixing, and merging requests to the corresponding shared skills. The detailed
 procedures remain in the skills, so all three agents execute the same workflow
 instead of maintaining product-specific copies.
 
-Repository instructions follow the same canonical-plus-adapter pattern. Root
-`AGENTS.md` is canonical; `.github/copilot-instructions.md` and `CLAUDE.md` are
-thin adapters for tools that require their own filename. GitHub Actions rules
-are scoped by canonical `.github/workflows/AGENTS.md`, with thin Copilot and
-Claude adapters at their product-specific paths.
+Root `AGENTS.md` is the canonical repository instruction file. Claude imports
+it through `CLAUDE.md`. Copilot Code Review reads
+`.github/copilot-instructions.md` directly and does not import `AGENTS.md`, so
+that file is a checked-in exact mirror; `tests/agent_configuration.bats`
+prevents it from drifting.
+
+GitHub Actions rules are canonical in `.github/workflows/AGENTS.md`. Claude
+imports that file from its path-scoped rule, while the body of the
+path-specific Copilot file is an inline exact mirror after its required
+frontmatter. When changing either canonical file, update its Copilot mirror
+and run `bats tests/agent_configuration.bats`.
 
 Hooks, manifests, permissions, and other product-specific configuration do not
 share a schema. They remain under their vendor-specific directories and can

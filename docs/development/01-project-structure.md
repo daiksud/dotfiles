@@ -39,8 +39,8 @@ This page organizes the roles of the repository's main directories and files.
 ├── .docusaurus/            # Docusaurus site build
 ├── .github/
 │   ├── instructions/
-│   │   └── actions.instructions.md # Copilot adapter for workflow guidance
-│   ├── copilot-instructions.md # Copilot adapter for root AGENTS.md
+│   │   └── actions.instructions.md # Inline Copilot mirror of workflow guidance
+│   ├── copilot-instructions.md # Inline Copilot mirror of root AGENTS.md
 │   ├── dependabot.yml      # Dependency update settings for bun / GitHub Actions
 │   ├── settings.yml        # Declarative repository settings managed by gh-infra
 │   └── workflows/
@@ -62,7 +62,8 @@ This page organizes the roles of the repository's main directories and files.
 | Path               | Role                                                                   | When to change it                                     |
 | ------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------- |
 | `AGENTS.md`        | Canonical repository instructions for coding agents                    | When changing repository-wide agent guidance          |
-| `CLAUDE.md`, `.github/copilot-instructions.md` | Thin product adapters for `AGENTS.md` | When an adapter mechanism changes, not for normal guidance edits |
+| `CLAUDE.md` | Claude import adapter for `AGENTS.md` | When the Claude import mechanism changes |
+| `.github/copilot-instructions.md` | Exact inline Copilot mirror of `AGENTS.md` | Whenever repository-wide guidance changes |
 | `install.sh`       | Entry point for setup. Orchestrates link creation and script execution | When changing link handling or script execution logic |
 | `install_map.json` | Mapping table for ordinary links and Agent Skills targets              | When adding or changing link targets                  |
 | `Brewfile`         | List of packages managed by Homebrew                                   | When adding or removing tools                         |
@@ -74,7 +75,8 @@ This page organizes the roles of the repository's main directories and files.
 | `tests/`           | bats-core test suite                                                   | When adding logic worth testing, or changing tested behavior |
 | `.devcontainer/`   | Container definitions for GitHub Codespaces                            | When changing the Codespaces environment              |
 | `.github/workflows/AGENTS.md` | Canonical GitHub Actions authoring guidance                  | When changing workflow authoring or action pinning guidance |
-| `.github/instructions/`, `.claude/rules/` | Product adapters for path-scoped guidance       | When an adapter mechanism changes                     |
+| `.github/instructions/actions.instructions.md` | Copilot frontmatter plus an exact inline mirror of workflow guidance | Whenever workflow guidance changes |
+| `.claude/rules/` | Claude import adapters for path-scoped guidance | When an adapter mechanism changes |
 | `.gitignore`       | Exclusion settings for files not tracked by Git                        | When adding generated files such as `node_modules/`   |
 
 ## Which Files Should Be Changed Together
@@ -106,8 +108,12 @@ add a full-directory `links` entry for a product-specific skill root.
 ### When changing agent instructions
 
 Edit the closest canonical `AGENTS.md` for repository or path-scoped rules, or
-`dotfiles/agent-instructions.md` for personal rules. Keep product adapters
-thin; do not copy the canonical instructions into them.
+`dotfiles/agent-instructions.md` for personal rules. Keep Claude adapters thin.
+Copilot Code Review does not follow these imports, so also copy the complete
+root guidance to `.github/copilot-instructions.md`, or the complete workflow
+guidance after the frontmatter in
+`.github/instructions/actions.instructions.md`. Run
+`bats tests/agent_configuration.bats` to verify exact synchronization.
 
 ### When changing CI or tests
 

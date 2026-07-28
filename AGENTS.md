@@ -1,7 +1,6 @@
 # Agent Instructions
 
-This file is the canonical repository guidance shared by GitHub Copilot, Codex,
-and Claude Code.
+These repository rules are shared by GitHub Copilot, Codex, and Claude Code.
 
 ## Scoped instructions
 

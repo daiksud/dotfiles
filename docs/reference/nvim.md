@@ -11,7 +11,7 @@ This is the configuration reference for Neovim (LazyVim).
 
 Minimal customizations are applied on top of LazyVim.
 
-```
+```text
 nvim/
 ├── init.lua              # Entry point (requires config.lazy)
 ├── lua/
@@ -31,31 +31,31 @@ nvim/
 
 Extras enabled in `lazyvim.json`:
 
-| Extra             | Description                 |
+| Extra | Description |
 | ----------------- | --------------------------- |
-| `ai.copilot`      | GitHub Copilot completion   |
-| `editor.fzf`      | fzf file search             |
-| `lang.json`       | JSON LSP and highlighting   |
-| `lang.toml`       | TOML LSP and highlighting   |
+| `ai.copilot` | GitHub Copilot completion |
+| `editor.fzf` | fzf file search |
+| `lang.json` | JSON LSP and highlighting |
+| `lang.toml` | TOML LSP and highlighting |
 | `lang.typescript` | TypeScript / JavaScript LSP |
-| `lang.vue`        | Vue.js LSP                  |
-| `linting.eslint`  | ESLint integration          |
+| `lang.vue` | Vue.js LSP |
+| `linting.eslint` | ESLint integration |
 
 ## Custom keymaps
 
 Adds Emacs-style cursor movement in insert mode:
 
-| Key   | Action     |
+| Key | Action |
 | ----- | ---------- |
 | `C-a` | Line start |
-| `C-e` | Line end   |
-| `C-b` | Left       |
-| `C-f` | Right      |
-| `C-n` | Down       |
-| `C-p` | Up         |
-| `C-d` | Delete     |
-| `C-v` | Page Down  |
-| `M-v` | Page Up    |
+| `C-e` | Line end |
+| `C-b` | Left |
+| `C-f` | Right |
+| `C-n` | Down |
+| `C-p` | Up |
+| `C-d` | Delete |
+| `C-v` | Page Down |
+| `M-v` | Page Up |
 
 ## Color scheme
 
@@ -66,12 +66,12 @@ sidebar, and floating-window backgrounds.
 
 ## lazy.nvim settings
 
-| Setting               | Value                       | Description                                  |
+| Setting | Value | Description |
 | --------------------- | --------------------------- | -------------------------------------------- |
-| `defaults.lazy`       | `false`                     | Load custom plugins at startup               |
-| `defaults.version`    | `false`                     | Always use the latest git commit             |
-| `checker.enabled`     | `true`                      | Periodically check for plugin updates        |
-| `checker.notify`      | `false`                     | Do not show update notifications             |
+| `defaults.lazy` | `false` | Load custom plugins at startup |
+| `defaults.version` | `false` | Always use the latest git commit |
+| `checker.enabled` | `true` | Periodically check for plugin updates |
+| `checker.notify` | `false` | Do not show update notifications |
 | `install.colorscheme` | `["tokyonight", "habamax"]` | Fallback themes for the initial installation |
 
 ### Disabled rtp plugins

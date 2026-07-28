@@ -70,6 +70,7 @@ rtk gain --history    # Per-command savings history
 rtk discover          # Find missed rtk opportunities
 rtk proxy <cmd>       # Run raw (no filtering) but track usage
 ```
+
 <!-- /rtk-instructions -->
 
 ## Raw-output exception

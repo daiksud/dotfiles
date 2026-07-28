@@ -14,9 +14,9 @@ As a result, `~/.config/mise/config.toml` becomes a machine-specific file manage
 
 ### `[settings.github]`
 
-| Key                  | Description                                                       |
+| Key | Description |
 | -------------------- | ----------------------------------------------------------------- |
-| `credential_command` | Ask the authenticated `gh` session for GitHub API credentials     |
+| `credential_command` | Ask the authenticated `gh` session for GitHub API credentials |
 
 ## Repository-local settings
 
@@ -24,24 +24,27 @@ As a result, `~/.config/mise/config.toml` becomes a machine-specific file manage
 
 Defines the development environment for the dotfiles repository itself.
 
-| Tool         | Version  | Description                                          |
+| Tool | Version | Description |
 | ------------ | -------- | ----------------------------------------------------- |
-| `bun`        | `latest` | Bun runtime (for building documentation)              |
-| `bats`       | `latest` | bats-core test runner (for `tests/*.bats`)            |
+| `bun` | `latest` | Bun runtime (for building documentation) |
+| `bats` | `latest` | bats-core test runner (for `tests/*.bats`) |
 | `shellcheck` | `latest` | Shell script linter (for `install.sh`, `scripts/*.sh`) |
-| `python`     | `latest` | Provides a `tomllib`-capable `python3` for CI's TOML checks and `install.sh`'s JSON parsing |
+| `python` | `latest` | Provides a `tomllib`-capable `python3` for CI's TOML checks and `install.sh`'s JSON parsing |
+| `rumdl` | `0.2.44` | Markdown formatter and linter |
 
 The `[hooks]` section sets `postinstall = "bun install --frozen-lockfile"`, so dependencies are installed automatically after `mise install`.
 
-For how `bats`, `shellcheck`, and `python` are used in CI and how to run the
-same checks locally, see [Testing](../development/04-testing.md).
+The repository also exposes `markdown:format` and `markdown:lint` tasks so
+contributors and CI use the same rumdl commands. For how the tools are used in
+CI and how to run the same checks locally, see
+[Testing](../development/04-testing.md).
 
 ### `[settings]` (`mise.toml`)
 
-| Key            | Value  | Description                               |
+| Key | Value | Description |
 | -------------- | ------ | ----------------------------------------- |
-| `lockfile`     | `true` | Generate a lockfile (for reproducibility) |
-| `experimental` | `true` | Enable experimental features              |
+| `lockfile` | `true` | Generate a lockfile (for reproducibility) |
+| `experimental` | `true` | Enable experimental features |
 
 ## Shell integration
 

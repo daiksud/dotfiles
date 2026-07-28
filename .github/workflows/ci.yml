@@ -23,6 +23,9 @@ jobs:
       - name: Ensure zsh is available
         run: command -v zsh >/dev/null || (sudo apt-get update && sudo apt-get install -y zsh)
 
+      - name: Markdown lint
+        run: mise run markdown:lint
+
       - name: Shellcheck (bash/sh scripts)
         run: shellcheck install.sh scripts/*.sh dotfiles/zsh/starship-qwt-worktree.sh
 
@@ -44,7 +47,7 @@ jobs:
         run: |
           python3 -c "
           import tomllib
-          for f in ['mise.toml', 'dotfiles/starship.toml']:
+          for f in ['.rumdl.toml', 'mise.toml', 'dotfiles/starship.toml']:
               with open(f, 'rb') as fh:
                   tomllib.load(fh)
           "

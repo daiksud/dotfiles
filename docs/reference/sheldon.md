@@ -21,16 +21,16 @@ contribute completion definitions without having their files sourced. The
 
 ## Plugin list
 
-| Plugin name                    | Repository                                   | Description                                       |
+| Plugin name | Repository | Description |
 | ------------------------------ | -------------------------------------------- | ------------------------------------------------- |
-| `fzf-tab`                      | `Aloxaf/fzf-tab`                             | Replace standard zsh completion with fzf          |
-| `ohmyzsh-lib-git`              | `ohmyzsh/ohmyzsh` (lib/git.zsh)              | Utility functions required by the git plugin      |
-| `ohmyzsh-git`                  | `ohmyzsh/ohmyzsh` (plugins/git)              | Git alias set (`gst`, `gco`, `gcm`, `gp`, etc.)   |
-| `zsh-completions`              | `zsh-users/zsh-completions`                  | Additional completion definitions (`fpath` only)  |
-| `zsh-autosuggestions`          | `zsh-users/zsh-autosuggestions`              | Fish-style inline suggestions                     |
-| `zsh-autopair`                 | `hlissner/zsh-autopair`                      | Automatic pairing of brackets and quotes          |
-| `fast-syntax-highlighting`     | `zdharma-continuum/fast-syntax-highlighting` | Command syntax highlighting                       |
-| `zsh-history-substring-search` | `zsh-users/zsh-history-substring-search`     | Substring history search for the text being typed |
+| `fzf-tab` | `Aloxaf/fzf-tab` | Replace standard zsh completion with fzf |
+| `ohmyzsh-lib-git` | `ohmyzsh/ohmyzsh` (lib/git.zsh) | Utility functions required by the git plugin |
+| `ohmyzsh-git` | `ohmyzsh/ohmyzsh` (plugins/git) | Git alias set (`gst`, `gco`, `gcm`, `gp`, etc.) |
+| `zsh-completions` | `zsh-users/zsh-completions` | Additional completion definitions (`fpath` only) |
+| `zsh-autosuggestions` | `zsh-users/zsh-autosuggestions` | Fish-style inline suggestions |
+| `zsh-autopair` | `hlissner/zsh-autopair` | Automatic pairing of brackets and quotes |
+| `fast-syntax-highlighting` | `zdharma-continuum/fast-syntax-highlighting` | Command syntax highlighting |
+| `zsh-history-substring-search` | `zsh-users/zsh-history-substring-search` | Substring history search for the text being typed |
 
 ## Load-order constraints
 

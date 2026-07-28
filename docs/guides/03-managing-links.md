@@ -15,12 +15,12 @@ editing `install_map.json`.
 }
 ```
 
-| Field              | Description                                                                  |
+| Field | Description |
 | ------------------ | ---------------------------------------------------------------------------- |
-| `<source>`         | File or directory name inside the `dotfiles/` directory                      |
-| `<target>`         | One absolute destination path (`~` expands to the home directory)            |
-| `<shared-source>`  | A source that must be linked to more than one destination                    |
-| `skill_targets`    | Destination directories that receive one link per directory in `dotfiles/skills/` |
+| `<source>` | File or directory name inside the `dotfiles/` directory |
+| `<target>` | One absolute destination path (`~` expands to the home directory) |
+| `<shared-source>` | A source that must be linked to more than one destination |
+| `skill_targets` | Destination directories that receive one link per directory in `dotfiles/skills/` |
 
 ## Add a link
 

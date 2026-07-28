@@ -2,6 +2,22 @@
 
 This page explains the role and execution order of the setup scripts under `scripts/`.
 
+## Installer entry point
+
+`install.sh` validates `install_map.json`, creates ordinary and per-skill
+links, runs the numbered setup scripts, and generates the Git SSH
+`allowed_signers` file when its inputs exist.
+
+Ordinary destinations retain the legacy conversion of a symlinked parent into
+a real directory, including migration of its contents. The agent configuration
+roots `~/.copilot`, `~/.codex`, and `~/.claude` are preserved when they are
+valid directory symlinks so instructions are installed into the relocated
+configuration tree. Invalid root links stop installation without being
+removed. Legacy Copilot skill cleanup also retains the old link when a
+configured whole-directory target alias resolves to the same canonical skills,
+so the cleanup cannot dangle that replacement root. See
+[`install_map.json`](./install-map.md) for the complete link processing rules.
+
 ## Execution order
 
 Scripts are grouped by the numeric prefix in the file name.

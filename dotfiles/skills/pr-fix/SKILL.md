@@ -1,24 +1,21 @@
 ---
-description: A skill used when fixing a Pull Request. It handles CI failures, review feedback, and merge conflicts. This also applies when `/pr fix`, `/pr fix all`, `/pr fix ci`, `/pr fix feedback`, or `/pr fix conflicts` is invoked.
 name: pr-fix
+description: Bring an existing GitHub Pull Request into a mergeable state from an isolated gh-qwt worktree. Use when asked to fix a PR, resolve merge conflicts, repair failing CI checks, address unresolved review feedback, or run all of these workflows in sequence. Accept a PR number and an optional all, ci, feedback, or conflicts mode.
 ---
 
 # pr-fix
 
-This skill brings a Pull Request into a mergeable state from its own
-`gh-qwt` worktree.
+Bring a Pull Request into a mergeable state from its own `gh-qwt` worktree.
 
-## Usage
+## Inputs
 
-Invoke it with a PR number and an optional mode:
+Accept a PR number and an optional mode:
 
-```text
-/pr fix #42              # Fix everything (conflicts -> ci -> feedback)
-/pr fix all #42          # Same as above (explicit mode)
-/pr fix ci #42           # Fix CI failures only
-/pr fix feedback #42     # Handle review comments only
-/pr fix conflicts #42    # Resolve merge conflicts only
-```
+- Omit the mode or use `all` to fix everything in this order: conflicts, CI,
+  then feedback.
+- Use `ci` to fix CI failures only.
+- Use `feedback` to handle review comments only.
+- Use `conflicts` to resolve merge conflicts only.
 
 ## Prepare the PR worktree
 
@@ -27,23 +24,54 @@ directory is a different worktree.
 
 1. Confirm that `gh qwt --help` succeeds. Do not use `git switch`,
    `git checkout`, `git worktree`, or a normal-clone fallback.
-2. Resolve the base repository from the current GitHub repository context, and
-   retrieve the PR explicitly with:
+2. Resolve the selected base remote's expanded fetch URL through GitHub. Record
+   its canonical repository URL, lowercase host, canonical `nameWithOwner`,
+   and default branch. Define `<base-repository>` as the host-qualified
+   `<base-host>/<base-owner>/<base-repo>`. Do not infer `github.com` from an
+   unqualified repository name, and stop if any part of the base identity
+   cannot be verified.
+3. Retrieve the PR explicitly from that base identity with:
 
    ```bash
-   gh pr view <PR_NUMBER> -R <base-owner>/<base-repo> \
+   gh pr view <PR_NUMBER> -R <base-repository> \
      --json headRefName,headRepository,isCrossRepository,baseRefName,url
    ```
 
-3. Stop and report the error if `headRepository` is null, which commonly
+4. Stop and report the error if `headRepository` is null, which commonly
    means a fork was deleted. Do not create a replacement branch in the base
    repository.
-4. Set the target repository to `headRepository.nameWithOwner` and the target
-   branch to `headRefName`. This is the branch that will receive fixes. Keep
-   the base repository separately for PR API commands.
-5. Resolve the expected target path with
-   `gh qwt path <head-owner>/<head-repo>/<head-branch>`.
-   - If that worktree exists, verify that
+5. Resolve the returned head repository through GitHub on the base host. Record
+   its canonical repository URL, lowercase host, and canonical
+   `nameWithOwner`; stop if any part cannot be verified. Set the target branch
+   to `headRefName`. Use this head identity for all qwt and Git operations, and
+   keep `<base-repository>` separately for PR API commands.
+6. Calculate the qwt repository and target paths with
+   `gh qwt path <head-owner>/<head-repo>` and
+   `gh qwt path <head-owner>/<head-repo>/<head-branch>`. Treat the qwt
+   repository as existing only when `<qwt-repository>/.bare` is a directory.
+   If the calculated repository path is occupied but `.bare` is absent, stop
+   and report a repository-path collision; do not run `get` inside it.
+7. If the qwt repository exists, guard its identity before listing, fetching,
+   adding to, inspecting, or reusing it:
+   - Read the expanded fetch URL for `origin` directly from
+     `<qwt-repository>/.bare` and resolve that URL through GitHub.
+   - Require both its canonical repository URL and its full
+     `<lowercase-host>/<canonical-owner>/<canonical-repo>` identity to equal
+     the recorded head repository identity.
+   - Stop if either side cannot be verified or differs. Do not fetch, rewrite
+     `origin`, add a worktree, or reuse the repository. Report the host
+     collision and require a separately selected qwt root or manual
+     resolution.
+8. Provision or reuse the target only after the identity guard permits it:
+   - When the qwt repository exists, run
+     `gh qwt list <head-owner>/<head-repo>/<head-branch> --exact --full-path`
+     without output filtering and require it to succeed. Treat the target as
+     registered only when at least one stdout line equals the calculated target
+     path byte-for-byte; ignore every other line. If no exact line exists but
+     the path is occupied by a file, directory, or link, stop and report a path
+     collision. When the qwt repository is missing, likewise stop before
+     `get` if its calculated target path is already occupied.
+   - If that worktree is exactly registered, verify that
      `git -C <target> branch --show-current` equals the PR head branch.
      Inspect `git -C <target> status --porcelain`; if it is not empty, stop
      and ask the user how to handle the existing changes.
@@ -54,10 +82,15 @@ directory is a different worktree.
      `gh qwt add --repo <head-owner>/<head-repo> <head-branch>`.
    - If the qwt repository does not exist, clone it directly into the PR head
      branch with
-     `gh qwt get <head-owner>/<head-repo> --branch <head-branch>`.
-   - Resolve the path again with `gh qwt path` and verify both the directory
-     and its checked-out branch.
-6. Fetch `origin --prune` from the resolved target and confirm that
+     `gh qwt get --host <head-host> --branch <head-branch> <head-owner>/<head-repo>`.
+     Immediately run the identity guard against the new bare `origin`; stop
+     before inspecting or reusing the target if verification fails.
+   - After every `get` or `add`, resolve the path again and repeat the exact
+     unfiltered `gh qwt list` check. Require the calculated target path to
+     appear byte-for-byte, then verify both the directory and its checked-out
+     branch. Stop if registration is missing; never substitute an occupied
+     unregistered path.
+9. Fetch `origin --prune` from the resolved target and confirm that
    `origin/<head-branch>` exists. Compare it with local `HEAD` before
    editing:
    - If they match, continue.
@@ -65,13 +98,13 @@ directory is a different worktree.
      `git -C <target> merge --ff-only origin/<head-branch>`.
    - If local `HEAD` is ahead or diverged, stop rather than overwriting,
      force-pushing, or working on a stale PR head.
-7. If `gh-qwt` reports a slash-prefix path collision, cannot find the remote
+10. If `gh-qwt` reports a slash-prefix path collision, cannot find the remote
    branch, or cannot create the worktree, stop and report the qwt error. Do
    not fall back to a branch checkout.
-8. Inspect `git -C <target> status --porcelain` before changing files. If an
+11. Inspect `git -C <target> status --porcelain` before changing files. If an
    existing PR worktree has uncommitted changes, stop and ask the user how to
    handle them; never use `gh qwt remove --force`.
-9. Verify push access to the head repository before making fixes, for example
+12. Verify push access to the head repository before making fixes, for example
    with `git -C <target> push --dry-run origin <head-branch>`. For a fork PR,
    this checks access to the fork rather than assuming the base repository is
    writable. Stop if it is rejected.
@@ -79,8 +112,8 @@ directory is a different worktree.
 All Git commands that inspect, modify, test, commit, or push the PR must use
 the target path. Use `git -C <target> ...` or an equivalent command whose
 working directory is exactly the target worktree. All `gh pr` calls must use
-`-R <base-owner>/<base-repo>` so they continue to address the PR when the
-head is a fork.
+`-R <base-repository>` so they continue to address the canonical base host and
+repository when the head is a fork.
 
 ## Modes
 
@@ -99,7 +132,11 @@ head is a fork.
 - Retrieve `baseRefName` and the base repository during workspace preparation.
 - Fetch the PR base into the target worktree. For a same-repository PR, use
   `origin/<base-ref>`. For a fork PR, configure or reuse an `upstream` remote
-  for the base repository and fetch `upstream/<base-ref>`.
+  for the base repository and fetch `upstream/<base-ref>`. Before fetching a
+  newly configured or reused `upstream`, resolve its expanded fetch URL
+  through GitHub and require its canonical URL and full host/owner/repo
+  identity to equal the recorded base identity. Stop on an unverifiable or
+  mismatched remote instead of rewriting it.
 - Merge the fetched base into the target branch and resolve every conflict
   while preserving the intent of the PR changes. Prefer a merge over a rebase
   so the resulting branch can be pushed without force-pushing.
@@ -113,6 +150,7 @@ head is a fork.
 
 - Retrieve all unresolved review comments from the base repository.
   - Retrieve all replies to review comments as well.
+  - Run every GraphQL query against `<base-host>` explicitly.
   - When retrieving review threads via GraphQL, use
     `reviewThreads(first: 100, after: $cursor)` and inspect
     `pageInfo { hasNextPage endCursor }`.
@@ -144,7 +182,7 @@ head is a fork.
   - Use the retrieved node ID to request a review:
 
     ```bash
-    gh api graphql -f query='
+    gh api graphql --hostname <base-host> -f query='
     mutation {
       requestReviews(input: {
         pullRequestId: "<PR_NODE_ID>",
@@ -179,12 +217,14 @@ Conflicts must be resolved first for CI to run correctly.
 
 ## Common steps (all modes)
 
-### Local review before pushing
+### Perform a local review before pushing
 
-- Before committing and pushing changes, run a local code review using a
-  sub-agent with the `code-review` agent type.
-- Confirm there are no significant issues in the local review before
-  committing and pushing.
+- Before committing and pushing changes, perform an independent local code
+  review. Use an available dedicated review skill or review subagent when the
+  host provides one. Otherwise, perform a distinct review pass over the full
+  diff, checking correctness, regressions, security, and test coverage
+  separately from implementation.
+- Do not commit or push until the review has no unresolved significant issues.
 
 ### Update the PR title and description
 
@@ -198,8 +238,8 @@ Conflicts must be resolved first for CI to run correctly.
 
 ## Constraints
 
-- Keep the PR head worktree after the skill completes so a later `pr-fix` or
-  `pr-merge` invocation can reuse it.
+- Keep the PR head worktree after the skill completes so a later use of
+  `pr-fix` or `pr-merge` can reuse it.
 - Make one commit per logical fix and use a clear message.
 - Do not force-push unless explicitly instructed.
 - Do not use a branch checkout, a normal-clone `git worktree`, or a qwt force

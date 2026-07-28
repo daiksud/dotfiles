@@ -1,51 +1,51 @@
 ---
-description: A skill used to take a Pull Request all the way to merged. It resolves Copilot Code Review feedback in a loop, marks the PR ready for review, applies the `self approval` label, waits for approval and CI, and performs a squash merge. This also applies when `/pr merge` is invoked.
 name: pr-merge
+description: Take one or more GitHub Pull Requests through final review, approval, required CI, squash merge, and safe gh-qwt cleanup. Use when asked to merge PRs once ready, monitor them through merge, loop through Copilot Code Review feedback with the pr-fix skill, apply the self approval workflow, wait for required checks, or process multiple PRs to completion.
 ---
 
 # pr-merge
 
 ## Overview
 
-This skill takes one or more Pull Requests from "ready for final review" to
-"merged". For each PR, it repeatedly runs `pr-fix` and requests a Copilot Code
-Review until there are no unresolved findings. It then marks the PR ready,
-applies the `self approval` label, waits for approval and CI, and squash
-merges it.
+Take one or more Pull Requests from "ready for final review" to "merged". For
+each PR, repeatedly use `pr-fix` and request a Copilot Code Review until there
+are no unresolved findings. Then mark the PR ready, apply the `self approval`
+label, wait for approval and CI, and squash merge it.
 
-The PR head stays in its own `gh-qwt` worktree throughout review, CI, and the
-merge request. After GitHub confirms the merge, the skill removes the clean
-worktree and its local branch through `gh-qwt`, then deletes the head remote
-branch explicitly.
+Keep the PR head in its own `gh-qwt` worktree throughout review, CI, and the
+merge request. After GitHub confirms the merge, remove the clean worktree and
+its local branch through `gh-qwt`, then delete the head remote branch
+explicitly.
 
-## When to use
+## Inputs
 
-- When `/pr-merge` is invoked
-- When asked to merge a PR (or several PRs) once review is clean, for example
-  "merge PR #42 once it's ready" or "run these PRs through to merge"
-
-## Usage
-
-```text
-/pr-merge <PR number> [<PR number> ...]
-```
-
-- One or more PR numbers, separated by spaces
-- Example: `/pr-merge 12 34`
-- PRs are processed one at a time, in the order given
+- Require one or more PR numbers.
+- Process PRs one at a time in the order given.
 
 ## Workspace rules
 
-- Resolve the base repository for each PR and pass it explicitly as
-  `-R <base-owner>/<base-repo>` to every `gh pr` command.
+- Resolve the selected base remote's expanded fetch URL through GitHub for each
+  PR. Record its canonical repository URL, lowercase host, and canonical
+  `nameWithOwner`; define `<base-repository>` as the host-qualified
+  `<base-host>/<base-owner>/<base-repo>`. Stop if the base identity cannot be
+  verified, and pass `-R <base-repository>` to every `gh pr` command.
 - `pr-fix` owns preparation of the PR head worktree. Its `gh-qwt` contract
-  applies to every retry: no `git switch`, `git checkout`, normal-clone
-  fallback, or `git worktree`.
-- Resolve the head repository, head branch, and head SHA again before cleanup
-  with `gh pr view <PR> -R <base-repository> --json
-  headRepository,headRefName,headRefOid`.
+  and full canonical head repository identity guard apply to every retry: no
+  `git switch`, `git checkout`, normal-clone fallback, or `git worktree`.
+- Resolve the head repository, head branch, and head SHA again before cleanup.
+  Resolve the returned head repository through GitHub on the base host and
+  record its canonical URL, lowercase host, and canonical `nameWithOwner`.
+  Stop if this identity cannot be verified or differs from the head identity
+  used by the final `pr-fix` pass.
 - Use `gh qwt path <head-owner>/<head-repo>/<head-branch>` to locate the
   worktree. Never infer its path from the current directory.
+- Before fetching, reusing, removing, or otherwise operating on the cleanup
+  repository, read the expanded `origin` fetch URL directly from its bare Git
+  database and resolve it through GitHub. Require both the canonical URL and
+  full `<lowercase-host>/<canonical-owner>/<canonical-repo>` identity to equal
+  the freshly resolved PR head. Stop before cleanup on an unverifiable or
+  mismatched identity; never rewrite `origin` or act on a host-colliding qwt
+  path.
 - Do not use `gh qwt remove --force`. After a confirmed merge,
   `gh qwt remove --delete-branch` is the required, safe cleanup operation:
   it removes the clean worktree before deleting its now-unchecked-out local
@@ -58,10 +58,16 @@ iterations**. Two conditions send control back to the top of the loop;
 everything else either continues normally or stops and reports (see
 "Retryable vs. non-retryable failures").
 
+Before the first iteration, initialize persistent per-PR approval state outside
+the loop: an unset approval-request timestamp and no recorded approved review.
+Carry both values across every retry; never reset them at the top of the loop.
+
 ### Step 1: Resolve Copilot Code Review feedback
 
-1. Run `/pr-fix all <PR number>`. It provisions or reuses the PR head qwt
-   worktree, resolves merge conflicts, CI failures, and review feedback there.
+1. Use the `pr-fix` skill in `all` mode for the PR number. Let it provision or
+   reuse the PR head qwt worktree and resolve merge conflicts, CI failures,
+   and review feedback there. Retain the canonical head URL and full
+   host/owner/repo identity that its guard verifies during the final pass.
 2. Request a review from Copilot Code Review:
    - Get the PR node ID:
 
@@ -72,7 +78,7 @@ everything else either continues normally or stops and reports (see
    - Request the review:
 
      ```bash
-     gh api graphql -f query='
+     gh api graphql --hostname <base-host> -f query='
      mutation {
        requestReviews(input: {
          pullRequestId: "<PR_NODE_ID>",
@@ -100,6 +106,7 @@ everything else either continues normally or stops and reports (see
    after the request was sent. Use
    `gh pr view <PR_NUMBER> -R <base-repository> --json latestReviews`.
 4. Count the unresolved Copilot Code Review findings:
+   - Run every GraphQL query against `<base-host>` explicitly.
    - Paginate `reviewThreads(first: 100, after: $cursor)`, following
      `pageInfo { hasNextPage endCursor }` until `hasNextPage` is `false`.
    - For each thread, check `isResolved` and the login of the thread's first
@@ -113,20 +120,34 @@ everything else either continues normally or stops and reports (see
 - Run `gh pr ready <PR_NUMBER> -R <base-repository>`.
 - This is idempotent and safe to run again if the loop repeats.
 
-### Step 3: Apply the `self approval` label
+### Step 3: Establish persistent approval state
 
-- Run `gh pr edit <PR_NUMBER> -R <base-repository> --add-label "self approval"`.
-- The label is expected to already exist in the repository. If `gh` reports
-  that it does not exist, stop processing this PR immediately and report the
-  error. Do not create the label or retry; another loop iteration cannot fix
-  it.
+1. Query the current reviews. If an approval is already valid, record its
+   review identity and `submittedAt` in the persistent per-PR state and skip
+   the approval request and wait. On later iterations, retain the recorded
+   approval while the review remains `APPROVED`; do not require a newer review
+   merely because the loop restarted. Clear the recorded approval only if the
+   review no longer remains `APPROVED`.
+2. If no valid approval exists and the approval-request timestamp is unset,
+   record the current time once and run
+   `gh pr edit <PR_NUMBER> -R <base-repository> --add-label "self approval"`.
+   Keep that timestamp for every later iteration. Do not remove and re-add the
+   label or call `--add-label` again to try to retrigger the automation.
+3. Expect the label to already exist in the repository. If `gh` reports that
+   it does not exist, stop processing this PR immediately and report the
+   error. Do not create the label or retry; another loop iteration cannot fix
+   it.
 
 ### Step 4: Wait for bot approval
 
-- Immediately after applying the label, record the current time.
-- Poll once per minute, up to **3 minutes** (3 checks), for a review with
-  `state: APPROVED` whose `submittedAt` is after the recorded time. Use
-  `gh pr view <PR_NUMBER> -R <base-repository> --json reviews` or
+- Skip this step when the persistent state contains a review that remains
+  `APPROVED`.
+- Otherwise, poll once per minute for a review with `state: APPROVED`. When a
+  request was made in Step 3, require a newly observed review to have
+  `submittedAt` at or after the persistent approval-request timestamp, then
+  record its identity and timestamp. Measure the **3-minute** deadline from
+  that one persistent request timestamp, not from the start of each iteration.
+  Use `gh pr view <PR_NUMBER> -R <base-repository> --json reviews` or
   `latestReviews`.
 - If no approval appears within 3 minutes, stop processing this PR immediately
   and report that the self-approval automation is likely not configured or not
@@ -152,25 +173,39 @@ everything else either continues normally or stops and reports (see
 
 ### Step 6: Squash merge, then clean up the qwt branch workspace
 
-1. Retrieve the PR head repository, branch, and SHA again. Stop if the head
-   repository is missing or the PR head changed since the final successful
-   CI/mergeability check.
-2. Resolve the explicit qwt worktree path. Verify all of the following:
+1. Retrieve the PR head repository, branch, and SHA again with
+   `gh pr view <PR_NUMBER> -R <base-repository> --json
+   headRepository,headRefName,headRefOid`. Resolve the returned head repository
+   through GitHub on `<base-host>` and record its canonical URL, lowercase host,
+   and canonical `nameWithOwner`. Stop if the head repository or identity is
+   missing, the identity differs from the final verified `pr-fix` head, or the
+   PR head changed since the final successful CI/mergeability check.
+2. Calculate the qwt repository and explicit worktree paths. Require
+   `<qwt-repository>/.bare` to exist, then run the workspace identity guard
+   against the freshly resolved head before reading the target, fetching, or
+   performing cleanup. Stop on an unverifiable or mismatched `origin`.
+3. Run
+   `gh qwt list <head-owner>/<head-repo>/<head-branch> --exact --full-path`
+   without output filtering and require it to succeed. At least one stdout
+   line must equal the calculated target path byte-for-byte; ignore other
+   lines. Stop before reading, fetching, merging, or cleanup if the target is
+   not exactly registered, even when a directory occupies that path.
+4. Verify all of the following:
    - The path exists and its current branch is the PR head branch.
    - `git -C <target> status --porcelain` is empty.
    - After fetching `origin/<head-branch>`, the local `HEAD`, the
      `origin/<head-branch>` SHA, and the PR `headRefOid` are identical.
-3. Merge with the checked SHA, without `--delete-branch`:
+5. Merge with the checked SHA, without `--delete-branch`:
 
    ```bash
    gh pr merge <PR_NUMBER> -R <base-repository> --squash \
      --match-head-commit <head-ref-oid>
    ```
 
-4. Confirm that the PR is merged before cleanup. If the merge command fails or
+6. Confirm that the PR is merged before cleanup. If the merge command fails or
    the PR remains open, leave the worktree intact and report this PR as
    failed.
-5. Remove the clean worktree and its local branch:
+7. Remove the clean worktree and its local branch:
 
    ```bash
    (
@@ -184,7 +219,12 @@ everything else either continues normally or stops and reports (see
    explicit `owner/repo/branch` spec. Do not pass `--force`. If the worktree
    cannot be removed, the PR is already merged; report a cleanup warning with
    the remaining path instead of reporting a failed merge.
-6. Delete the head branch from its own repository, including for fork PRs:
+8. Resolve the remaining qwt bare `origin` through GitHub again after local
+   cleanup and require its canonical URL and full host/owner/repo identity to
+   still equal the verified head. If the repository is missing or fails this
+   guard, do not contact `origin`; report a cleanup warning while retaining the
+   successful merge result. Otherwise, delete the head branch from its own
+   repository, including for fork PRs:
 
    ```bash
    qwt_repo="$(gh qwt path <head-owner>/<head-repo>)"
@@ -225,12 +265,13 @@ everything else either continues normally or stops and reports (see
 | Merge request fails or PR remains open (Step 6) | Not retryable — stop and report |
 | Loop exceeds 10 iterations | Not retryable — stop and report |
 
-Because `gh pr ready` and `gh pr edit --add-label` are idempotent, and this
-repository's branch protection has `dismiss_stale_reviews_on_push: false`, an
-approval obtained on an earlier iteration is not dismissed by later commits
-from a conflict or CI fix. Re-running Steps 2 through 4 on a later iteration
-is therefore safe, and Step 4 typically resolves immediately because the
-earlier approval remains valid.
+Because this repository's branch protection has
+`dismiss_stale_reviews_on_push: false`, an approval obtained on an earlier
+iteration remains valid after later conflict or CI fixes. Keep the approved
+review identity and timestamp outside the retry loop, confirm that its state
+remains `APPROVED`, and skip the label request and wait while it is valid.
+Although `gh pr ready` is safe to repeat, never reset the approval-request
+timestamp or rely on re-adding the label to trigger another approval.
 
 ## Processing multiple PRs
 

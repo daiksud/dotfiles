@@ -1,8 +1,3 @@
----
-description: Guidelines for authoring and maintaining GitHub Actions workflows
-applyTo: ".github/workflows/**"
----
-
 # GitHub Actions Instructions
 
 Follow these rules when authoring or maintaining GitHub Actions workflows.

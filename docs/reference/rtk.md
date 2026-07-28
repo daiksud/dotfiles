@@ -4,10 +4,10 @@ RTK is a CLI proxy that filters and compresses shell command output to reduce th
 
 ## Files
 
-| dotfiles                                                     | Link destination                     |
-| ------------------------------------------------------------ | ------------------------------------ |
-| `dotfiles/copilot-hooks/rtk-rewrite.json`                    | `~/.copilot/hooks/rtk-rewrite.json`  |
-| `dotfiles/copilot-instructions.md` (including the RTK block) | `~/.copilot/copilot-instructions.md` |
+| Canonical file | Link destination |
+| -------------- | ---------------- |
+| `dotfiles/copilot-hooks/rtk-rewrite.json` | `~/.copilot/hooks/rtk-rewrite.json` |
+| `dotfiles/agent-instructions.md` (including shared RTK guidance) | `~/.copilot/copilot-instructions.md`, `~/.codex/AGENTS.md`, and `~/.claude/CLAUDE.md` |
 
 ## Setup
 
@@ -23,8 +23,11 @@ brew install rtk
 rtk init --global --copilot
 ```
 
-Generates `~/.copilot/hooks/rtk-rewrite.json` and the RTK block in `~/.copilot/copilot-instructions.md`.
-In this repository, the hook file is managed as `dotfiles/copilot-hooks/rtk-rewrite.json`, and `install.sh` creates the symlink.
+This upstream command generates `~/.copilot/hooks/rtk-rewrite.json` and RTK
+instructions for GitHub Copilot. In this repository, the hook remains a
+Copilot-specific file at `dotfiles/copilot-hooks/rtk-rewrite.json`, while the
+portable RTK guidance is maintained once in `dotfiles/agent-instructions.md`.
+`install.sh` creates all corresponding links.
 
 ## Usage
 
@@ -38,7 +41,10 @@ rtk cargo test
 rtk docker ps
 ```
 
-When the hook is enabled, GitHub Copilot CLI automatically runs commands through `rtk` (no manual prefix needed).
+When the hook is enabled, GitHub Copilot CLI automatically runs commands
+through `rtk` (no manual prefix needed). Codex and Claude Code receive the
+shared usage and safety guidance, but this Copilot hook is not installed into
+their product-specific configuration.
 
 ### Machine-readable output
 
@@ -67,7 +73,10 @@ rtk init --show       # Check hook status
 rtk init --uninstall --global --copilot
 ```
 
-This removes only `~/.copilot/hooks/rtk-rewrite.json` and the RTK block in `copilot-instructions.md`. Other files are unaffected.
+This upstream command targets the Copilot hook and the instructions reached
+through `~/.copilot/copilot-instructions.md`. Because that instruction path is
+a link to the shared canonical file in this repository, review the resulting
+change before using it; removing shared RTK guidance affects all three agents.
 
 ## References
 

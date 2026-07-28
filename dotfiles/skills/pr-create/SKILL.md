@@ -1,20 +1,15 @@
 ---
 name: pr-create
-description: A skill used when creating a Pull Request. This also applies when `/pr create` is invoked. It creates a draft PR according to the repository conventions.
+description: Create a draft GitHub Pull Request from current committed or uncommitted changes in an isolated gh-qwt worktree while preserving source state and following repository conventions. Use only when the user explicitly asks to create, open, prepare, or draft a PR. Within that PR workflow, migrate changes, commit, push, associate an issue, write the description, and assign the requester as needed. Do not use for standalone branch migration, commit, push, issue, or assignment requests without PR intent.
 ---
 
 # pr-create
 
 ## Overview
 
-This skill creates a draft Pull Request (PR) from the current changes.
-It uses `gh-qwt` to give the PR branch its own worktree rather than switching
-branches in a shared checkout.
-
-## When to use
-
-- When asked to "create a PR"
-- When `/pr-create` or `/pr create` is invoked in GitHub Copilot CLI
+Create a draft Pull Request (PR) from the current changes. Use `gh-qwt` to
+give the PR branch its own worktree rather than switching branches in a shared
+checkout.
 
 ## Workspace rules
 
@@ -28,6 +23,10 @@ branches in a shared checkout.
   repository command against that absolute path, for example
   `git -C "$worktree" status`. Do not rely on the invoking directory after the
   target worktree has been selected.
+- Treat repository identity as the canonical GitHub URL plus the canonical
+  `<owner>/<repo>` qualified by its lowercase host. Because qwt paths omit the
+  host, never list, fetch, add to, or reuse an existing qwt repository until
+  its bare `origin` has passed the identity guard in Step 3.
 - Never use `git reset --hard`, force-push, or `gh qwt remove --force` to move
   changes. An unsafe migration must stop with the source worktree or an
   identifiable stash intact.
@@ -38,7 +37,7 @@ branches in a shared checkout.
 
 - First, check whether there is a GitHub Issue (Task) corresponding to this
   change.
-  - Infer the related issue from the context at skill invocation time, the
+  - Infer the related issue from the request context, the
     source branch name, commit messages, and so on.
   - If you can infer it, inspect it with `gh issue view <number> --comments`
     and verify that it matches the changes.
@@ -54,7 +53,7 @@ branches in a shared checkout.
 
 ### Step 2: Understand the source changes deeply
 
-- Treat the checkout in which the skill was invoked as the **source
+- Treat the checkout in which the request originated as the **source
   worktree**. Record its absolute root, current branch, `HEAD`, staged diff,
   unstaged diff, untracked-file list, and `git status --porcelain=v1 -z`
   before changing anything.
@@ -65,7 +64,7 @@ branches in a shared checkout.
   default branch.
 - Read the diff for each file and understand **what** changed and **why**.
   For new files, read the entire file to understand its purpose and role.
-- Consider the context and reasons provided when the skill was invoked. When
+- Consider the context and reasons provided in the request. When
   inferring the change details or background, also refer to the corresponding
   issue description and comments.
 - If the changes span multiple logical units, consider splitting them into
@@ -76,18 +75,33 @@ branches in a shared checkout.
 #### Resolve the repository and source state
 
 1. Confirm that `gh qwt --help` succeeds.
-2. Resolve the canonical GitHub repository and default branch from the source
-   worktree:
-   - `gh repo view --json nameWithOwner,defaultBranchRef`
+2. Read the selected source remote's expanded fetch URL and resolve it through
+   GitHub. Record the returned canonical repository URL, its lowercase host,
+   the canonical `nameWithOwner`, and the default branch. Do not infer
+   `github.com` from an unqualified repository name. Also record:
    - `git -C <source> branch --show-current`
    - `git -C <source> rev-parse HEAD`
 3. Stop if `HEAD` is detached, the repository cannot be resolved by `gh`, or
-   the source branch cannot be determined.
-4. Determine whether a qwt repository already exists by checking that
-   `$(gh qwt path <owner>/<repo>)/.bare` is a directory. A normal clone,
-   including an ordinary linked worktree, is not a qwt repository.
-5. Before using `gh qwt add` in an existing qwt repository, refresh its
-   branch metadata with:
+   the source branch, canonical URL, host, owner, repo, or default branch cannot
+   be determined.
+4. Calculate the qwt repository path with `gh qwt path <owner>/<repo>`. Treat
+   it as existing only when `<qwt-repository>/.bare` is a directory. A normal
+   clone, including an ordinary linked worktree, is not a qwt repository.
+   If the calculated repository path is occupied but `.bare` is absent, stop
+   and report a repository-path collision; do not run `get` inside it.
+5. If the qwt repository exists, guard its identity before inspecting or
+   operating on it:
+   - Read the expanded fetch URL for `origin` directly from
+     `<qwt-repository>/.bare` and resolve that URL through GitHub.
+   - Require both its canonical repository URL and its full
+     `<lowercase-host>/<canonical-owner>/<canonical-repo>` identity to equal
+     the values recorded from the source remote.
+   - Stop if either side cannot be verified or differs. Do not list or fetch
+     the repository, rewrite `origin`, add a worktree, or reuse any existing
+     worktree. Report the host collision and require a separately selected qwt
+     root or manual resolution.
+6. Before using `gh qwt add` in an existing repository, and only after it
+   passes the guard, refresh its branch metadata with:
 
    ```bash
    git -C "$(gh qwt path <owner>/<repo>)" fetch origin --prune
@@ -98,9 +112,10 @@ branches in a shared checkout.
 
 #### Choose the target branch and create its worktree
 
-- If the source is already the qwt worktree for a non-default feature branch,
-  use that worktree as the target. Verify that its checked-out branch matches
-  the branch name; do not create another worktree.
+- If the source appears to be the qwt worktree for a non-default feature
+  branch, select it as the target candidate. It must still pass the exact qwt
+  registration check below; do not trust the calculated path or Git branch
+  alone.
 - Otherwise, derive a new feature branch name from the change. If the name
   cannot be inferred safely, ask the user.
   - The branch name should reflect the changes (for example,
@@ -111,6 +126,16 @@ branches in a shared checkout.
     affect the actual product deliverable, such as build tooling, CI/CD
     configuration, or repository infrastructure. Use an accurate prefix such
     as `docs/*`, `chore/*`, `ci/*`, or `build/*`.
+- After selecting the target branch, calculate its absolute path again. When
+  the guarded qwt repository exists, run
+  `gh qwt list <owner>/<repo>/<target-branch> --exact --full-path` without
+  output filtering and require the command to succeed. Treat the target as a
+  registered worktree only when at least one stdout line equals the calculated
+  target path byte-for-byte; ignore other lines. If it is unregistered but the
+  calculated path is occupied by any file, directory, or link, stop and report
+  a path collision. When the qwt repository is missing, likewise stop before
+  `get` if the calculated target path is already occupied. In the steps below,
+  “target worktree exists” means this exact registration check succeeded.
 - Before migrating a default-branch source, fetch its default branch and
   compare `HEAD` with `origin/<default-branch>`.
   - If the default branch has local commits or the base does not match, stop.
@@ -124,8 +149,19 @@ branches in a shared checkout.
   checkout. Stop if the push is rejected.
 - If the qwt repository does not yet exist:
   - For an existing remote target branch from a non-default source, run
-    `gh qwt get <owner>/<repo> --branch <target-branch>`.
-  - For a new target branch, run `gh qwt get <owner>/<repo>` first, then run
+    `gh qwt get --host <host> --branch <target-branch> <owner>/<repo>`.
+  - For a new target branch, run
+    `gh qwt get --host <host> --branch <default-branch> <owner>/<repo>` first.
+  - After either provisioning command, immediately resolve the new bare
+    repository's `origin` through GitHub and require the same canonical URL
+    and full host/owner/repo identity recorded above. If verification fails,
+    stop before listing, fetching, adding, or reusing it; do not rewrite
+    `origin`.
+  - For a new target branch only, and only after that verification, calculate
+    the default worktree path and require an unfiltered
+    `gh qwt list <owner>/<repo>/<default-branch> --exact --full-path` result to
+    contain it byte-for-byte. Verify that path is a directory on the default
+    branch, then run
     `gh qwt add --repo <owner>/<repo> <target-branch> --from origin/<default-branch>`.
 - If the qwt repository exists but the target worktree does not, run
   `gh qwt add --repo <owner>/<repo> <target-branch>`. Add
@@ -133,9 +169,15 @@ branches in a shared checkout.
 - If a separate target worktree already exists while source changes still
   need migration, stop rather than applying changes over it. Ask the user to
   choose a different target or handle the existing worktree.
-- Resolve the target path with `gh qwt path <owner>/<repo>/<target-branch>`
-  and verify it exists and `git -C <target> branch --show-current` equals the
-  target branch.
+- After a `get` that directly creates the target branch, after every `add`, and
+  again before migration, resolve the target path and repeat the exact
+  unfiltered `gh qwt list` check above. Between the default-branch `get` used
+  to initialize a new repository and the subsequent target-branch `add`, check
+  the default worktree registration as specified above; the target is checked
+  only after `add`. Require the calculated target path to appear byte-for-byte
+  after the applicable creation step, then verify it is a directory and
+  `git -C <target> branch --show-current` equals the target branch. Stop if
+  registration is missing; never reuse an occupied unregistered path.
 - When source and target differ, require
   `git -C <target> status --porcelain` to be empty, then fetch `origin --prune`
   in the target. If `origin/<target-branch>` exists, compare it with local
@@ -157,9 +199,9 @@ non-ignored untracked changes without changing branches.
    non-ignored untracked-file list in a private `mktemp -d` directory. Use
    these snapshots to validate the target after restoration.
 2. Create a uniquely named stash with `git -C <source> stash push
-   --include-untracked -m "copilot-pr-create-migration-<id>"`. Capture both
+   --include-untracked -m "agent-pr-create-migration-<id>"`. Capture both
    the resulting stash object ID and a temporary ref such as
-   `refs/copilot/pr-create-migration/<id>` that points to it with
+   `refs/agent/pr-create-migration/<id>` that points to it with
    `git -C <source> update-ref <temporary-ref> <stash-object-id>`.
 3. If source and target share a qwt common Git directory, restore with
    `git -C <target> stash apply --index <temporary-ref>`.
@@ -182,8 +224,20 @@ non-ignored untracked changes without changing branches.
 
 ### Step 4: Create a commit in the target worktree
 
-- Run `git -C <target> diff --staged --quiet` and commit only when the exit
-  code is 1, meaning staged files exist.
+- Confirm which target changes belong in the PR based on the scope established
+  in Step 2. If the target contains unrelated changes, ask the user which paths
+  to include instead of staging them silently.
+- Stage every intended uncommitted path explicitly, including selected
+  unstaged and non-ignored untracked files restored during migration. Use
+  `git add -A` only when the user has confirmed that the entire target state
+  belongs in this PR.
+- Inspect the full staged diff and verify it matches the intended scope. Then
+  run `git -C <target> diff --staged --quiet` and interpret the exit status:
+  - Exit 1 means staged changes exist; commit them.
+  - Exit 0 means there is nothing to commit. Continue only when the intended
+    changes are already committed on the target branch relative to the PR base;
+    otherwise stop instead of creating an empty PR.
+  - Any other exit status is an error; stop and report it.
 - Follow the [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
   format and write the commit message in English.
 - Check recent commits with `git -C <target> log --no-merges --oneline -100`
@@ -245,9 +299,9 @@ non-ignored untracked changes without changing branches.
 
 ### Step 7: Assign the requesting user
 
-- Set the user who invoked the skill as the PR assignee.
+- Set the requesting user as the PR assignee.
 - Use `gh pr edit <PR_NUMBER> --add-assignee <username>` from the target
-  worktree or with an explicit `-R <owner>/<repo>`.
+  worktree or with an explicit `-R <host>/<owner>/<repo>`.
 
 ### Step 8: Align the Issue (Task) description with the final changes
 

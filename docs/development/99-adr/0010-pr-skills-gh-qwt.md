@@ -30,6 +30,21 @@ branch-workspace mechanism.
   obtain its absolute path with `gh qwt path`.
 - Run repository commands against the resolved path, using `git -C <path>`
   where a Git command needs an explicit working directory.
+- Do not infer worktree registration from a calculated path or from a Git
+  checkout found there. Require raw `gh qwt list --exact --full-path` output to
+  contain the calculated worktree path byte-for-byte before reuse and after
+  the `get` or `add` that creates it. For a new feature branch, verify the
+  default worktree after its bootstrap `get`, then verify the feature target
+  after `add`. Treat an occupied unregistered target, or an occupied repository
+  path without its qwt `.bare` database, as a collision.
+- Treat canonical `<host>/<owner>/<repo>` identity as part of every qwt
+  repository key even though the on-disk qwt path contains only
+  `<owner>/<repo>`. Resolve and compare the expanded bare `origin` before any
+  existing repository is listed, fetched, reused, pushed, or removed. Pass the
+  verified host explicitly to `gh qwt get`, verify the newly created bare
+  repository, and stop on a host collision instead of rewriting `origin`.
+  Repositories with the same owner/name on different hosts require separate
+  qwt roots.
 - Do not run `git switch`, `git checkout`, or a normal-clone branch-switching
   fallback in these skills. Do not fall back to `git worktree`.
 - When `pr-create` starts with uncommitted changes on the default branch,
@@ -85,8 +100,10 @@ the skills can provision a worktree deterministically with `gh-qwt`.
 - A first use from a repository without a qwt checkout may clone the
   repository into the qwt root.
 - A qwt path conflict, unavailable `gh qwt`, missing or deleted fork, dirty
-  worktree at merge time, or unsafe default-branch migration stops the skill
-  with an actionable error. It must not silently fall back to a checkout.
+  worktree at merge time, missing exact worktree registration,
+  host/repository identity mismatch, or unsafe default-branch migration stops
+  the skill with an actionable error. It must not silently fall back to a
+  checkout or repoint the existing remote.
 - Feature worktrees remain after `pr-fix` for subsequent iterations. A
   successful `pr-merge` removes the corresponding clean worktree and local
   branch, then attempts lease-protected head-remote cleanup. A remote cleanup

@@ -16,3 +16,4 @@ A collection of guides covering everything from setting up these dotfiles to eve
 - [Adding and changing links](./03-managing-links.md) — How to edit `install_map.json`
 - [Automatic Git ID switching](./04-git-identity.md) — Multi-account workflows
 - [Concept](./05-concept.md) — Design philosophy and policies
+- [Using skills](./06-skills.md) — Shared Agent Skills for GitHub Copilot, Codex, and Claude Code

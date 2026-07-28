@@ -62,7 +62,9 @@ the remote branch according to the repository workflow.
 The `gh-config-dir.zsh` plugin recognizes the `.bare/` directory and `.git`
 pointer created by gh-qwt. It sets `GH_CONFIG_DIR` to the repository-level
 `.gh/` directory, so every branch worktree of the same repository uses the
-same `gh` account and Copilot token.
+same `gh` account. The plugin also synchronizes `COPILOT_GITHUB_TOKEN` for
+GitHub Copilot CLI; Codex and Claude Code continue to use their own agent
+authentication while sharing the same `gh` session for GitHub operations.
 
 Authentication stored in older worktree-specific directories is not copied,
 because it can contain tokens for different accounts. In any existing worktree,
@@ -109,23 +111,31 @@ gh qwt path cli/cli/fix/parser
 | `gh qwt path [<owner>/<repo>[/<branch>]]` | Print an absolute path (root, repository directory, or worktree path) for `cd` |
 | `gh qwt prune` | Remove worktrees whose branch is gone from the remote, discovered from the current directory |
 
-## Interactive session integration
+## Agent session integration
 
-`dotfiles/copilot-instructions.md` is loaded as `~/.copilot/copilot-instructions.md` in every interactive Copilot CLI session (see [Using skills](../guides/06-skills.md)). For repository tasks other than the PR workflows below, it records the invoking checkout's repository-relative working directory, branch, working state, and commit before resolving the expected `owner/repo/branch` target. When the source and target differ, it fetches the remote for the resolved repository and compares the recorded source commit with a matching tracking branch, remote branch, or chosen creation base, even when the source is dirty. An unrelated tracking remote is not used. Publishing, deliberately transferring, or explicitly leaving out ahead or diverged source history requires a choice; work does not continue in an ordinary source checkout.
+The canonical personal instructions at `dotfiles/agent-instructions.md` are
+linked to the paths loaded by GitHub Copilot, Codex, and Claude Code (see
+[Using skills](../guides/06-skills.md)). They apply the same `gh-qwt` safety
+workflow to general repository tasks in all three agents.
 
-The repository is considered an existing qwt repository only when its `.bare` directory exists, because `gh qwt path` also calculates paths for repositories and worktrees that have not been created. The source identity includes the GitHub host. Before an existing qwt repository is reused, its `origin` is resolved to a canonical GitHub repository and must match the full `host/owner/repo` identity. A missing repository is provisioned with the resolved host and branch explicitly.
+At a high level, the workflow records the invoking checkout, verifies the full
+GitHub host and repository identity, checks both source and target state, and
+uses only an explicitly resolved qwt worktree. It stops for a decision instead
+of silently abandoning dirty changes or rewriting ahead, diverged, deleted, or
+otherwise ambiguous history. Machine-readable safety probes bypass RTK
+filtering so their raw output and exit status remain reliable.
 
-An existing target is reused only after its branch and working state are inspected. Machine-readable safety probes bypass RTK filtering and preserve the original exit status. Because an exact `gh qwt list` query can also match another repository's branch name, registration requires an exact target-path line in the raw output; unrelated returned lines are ignored. If the source and target are different and either contains uncommitted changes, the instructions prevent silently abandoning or mixing those changes: migration must be deliberate and verified, or the session stops to ask how to proceed. Only a missing target is provisioned, with the repository passed explicitly to `get` or `add --repo`.
-
-Before work begins, the target fetches `origin` and compares its commit with the remote branch, or with the selected default-branch base when the target branch has not been published. A clean target that is only behind is fast-forwarded, while a dirty behind target stops for direction. Ahead, diverged, or otherwise local-only target history requires an explicit choice instead of an automatic reset, rebase, push, or overwrite. A dormant local branch that previously tracked a now-missing remote branch is treated as a deletion, not as a new branch, and requires an explicit restore, publish, rename, or abandon decision. The recorded source-relative directory must have an existing counterpart that physically resolves inside the target worktree; missing directories and symlink escapes stop instead of falling back to the target root. Subsequent work runs from that verified counterpart.
-
-PR requests are delegated directly from the invoking checkout to the matching skill before this general setup runs. This lets `pr-create` capture staged, unstaged, and untracked source changes before it selects and prepares its target worktree.
+PR requests use the matching shared skill before the general setup. This lets
+`pr-create` capture staged, unstaged, and untracked source changes before it
+selects and prepares its target worktree. The canonical instruction file and
+the skill definitions under `dotfiles/skills/` remain the authoritative
+procedure; this page describes their integration without copying them.
 
 ## Pull Request skill integration
 
-The `pr-create`, `pr-fix`, and `pr-merge` Copilot skills use `gh-qwt` as their
-only branch-workspace mechanism. They do not change the branch of the
-checkout that started the skill.
+The shared `pr-create`, `pr-fix`, and `pr-merge` Agent Skills use `gh-qwt` as
+their only branch-workspace mechanism in GitHub Copilot, Codex, and Claude
+Code. They do not change the branch of the checkout that started the skill.
 
 | PR phase | qwt behavior |
 | --- | --- |
@@ -133,12 +143,31 @@ checkout that started the skill.
 | Fix | Resolve the PR head repository and branch, including a fork head, then create or reuse that branch's worktree. |
 | Merge | Keep the head worktree through final CI, then remove the clean worktree and local branch after GitHub confirms the squash merge. |
 
+Since qwt paths omit the GitHub host, every PR skill records the canonical
+remote URL and full lowercase `<host>/<owner>/<repo>` identity. Before any
+existing qwt repository is listed, fetched, reused, pushed, or removed, its
+bare `origin` must resolve to that same identity. New repositories are created
+with the verified `--host` and checked again before use. A host collision stops
+the workflow and requires a separate `QWT_ROOT`; the skills never repoint the
+existing `origin`.
+
+A calculated path is not sufficient evidence that a branch is a qwt worktree.
+Before reuse and after each `get` or `add`, the skills require the raw
+`gh qwt list --exact --full-path` output to contain the worktree created by
+that command byte-for-byte. A default-branch bootstrap is checked at the
+default path before the feature target is created and checked after `add`. An
+unregistered occupied path is reported as a collision and is never inspected,
+edited, pushed, or removed as the PR target. An occupied repository path
+without the qwt `.bare` database also stops before `get` instead of being
+initialized in place.
+
 Before `add` is used in an existing qwt repository, the skills fetch
 `origin --prune` from the repository root. `add` relies on cached remote refs,
 so this refresh prevents a newly pushed PR branch from being mistaken for a
-new branch. A missing remote PR branch is created with `get --branch`; a new
-feature branch requires a default-branch `get` followed by `add`. A reused PR
-worktree must be clean and either fast-forward to its remote head or stop on
+new branch. A missing local qwt repository for an existing remote PR branch is
+created with `get --branch`; a new feature branch requires a default-branch
+`get` followed by `add`. A reused PR worktree must be clean and either
+fast-forward to its remote head or stop on
 an ahead/diverged branch.
 
 When `pr-create` starts from a dirty default branch, it transfers staged,
@@ -155,6 +184,11 @@ worktree spec outside a qwt repository. It then deletes the head remote branch
 only when its current ref still matches the verified PR head SHA, using a
 lease-protected push. This supports fork PR cleanup without risking deletion
 of a branch that changed after the merge check.
+
+The self-approval request used by `pr-merge` is also persistent across its
+review/CI retry loop. The label is applied at most once, the three-minute
+deadline is measured from that one request, and an approval that remains valid
+is reused after a retry instead of requiring a newer review.
 
 > [!IMPORTANT]
 > PR skills never use `git switch`, `git checkout`, ordinary `git worktree`,

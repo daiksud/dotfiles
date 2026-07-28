@@ -1,16 +1,19 @@
 [global]
-disable = ["MD013", "MD046"]
+disable = ["MD013", "MD034"]
 extend-enable = ["MD060"]
 flavor = "gfm"
 
 [per-file-flavor]
 "**/*.mdx" = "mdx"
 
-[per-file-ignores]
-".claude/rules/github-actions.md" = ["MD041"]
-"CLAUDE.md" = ["MD041"]
-"docs/README.mdx" = ["MD014", "MD025"]
-"dotfiles/agent-instructions.md" = ["MD025"]
+[MD025]
+front-matter-title = ""
+
+[MD033]
+allowed-elements = ["details", "summary"]
+
+[MD046]
+style = "fenced"
 
 [MD060]
 style = "compact"

@@ -87,6 +87,10 @@ Every Markdown table uses the `compact` form of MD060: each cell has one space
 between its content and the surrounding pipes, and columns are not padded to
 equal widths. This keeps table edits focused on changed content.
 
+Only MD013 (line length) and MD034 (bare URLs) are disabled. Use fenced code
+blocks, and use raw HTML only for `<details>` and `<summary>` disclosure
+elements. MDX components remain available in `.mdx` files.
+
 Run the formatter after editing Markdown:
 
 ```bash

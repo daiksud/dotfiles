@@ -30,11 +30,14 @@ Adopt rumdl as the only repository Markdown formatter and linter.
   Flavored Markdown, with MDX enabled for `*.mdx`.
 - Enable the opt-in MD060 rule in its `compact` mode. Compact tables keep one
   space around cell content without padding columns to equal widths.
-- Disable the pre-existing MD013 line-length rule and MD046 indented-code-block
-  preference. The documentation allows long command and link lines and
-  requires fenced code blocks with language names.
-- Keep narrow per-file exceptions for import-only adapters, the Docusaurus
-  landing page, and the embedded RTK instruction section.
+- Disable only MD013 for line length and MD034 for bare URLs. Long command,
+  path, and URL lines are intentionally preserved where wrapping would make
+  them harder to copy or maintain.
+- Keep MD033 enabled and allow only the `<details>` and `<summary>` elements.
+  Parse JSX components in `.mdx` files as MDX rather than raw HTML.
+- Require fenced code blocks through MD046, and do not keep per-file rule
+  exceptions. Existing documents and instruction adapters conform to the same
+  repository-wide rules.
 - Provide `mise run markdown:format` for automatic fixes and
   `mise run markdown:lint` for non-mutating validation.
 - Run the lint task in the existing CI lint job.

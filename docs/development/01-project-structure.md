@@ -50,6 +50,7 @@ This page organizes the roles of the repository's main directories and files.
 ├── .claude/
 │   └── rules/
 │       └── github-actions.md # Claude adapter for workflow guidance
+├── .rumdl.toml             # Markdown formatting and linting rules
 ├── mise.toml               # Repository-local mise settings
 ├── package.json            # Scripts for building the documentation
 ├── .gitignore              # Definitions for untracked generated and local files
@@ -59,25 +60,27 @@ This page organizes the roles of the repository's main directories and files.
 
 ## Roles of the Main Files
 
-| Path               | Role                                                                   | When to change it                                     |
+| Path | Role | When to change it |
 | ------------------ | ---------------------------------------------------------------------- | ----------------------------------------------------- |
-| `AGENTS.md`        | Canonical repository instructions for coding agents                    | When changing repository-wide agent guidance          |
+| `AGENTS.md` | Canonical repository instructions for coding agents | When changing repository-wide agent guidance |
 | `CLAUDE.md` | Claude import adapter for `AGENTS.md` | When the Claude import mechanism changes |
 | `.github/copilot-instructions.md` | Exact inline Copilot mirror of `AGENTS.md` | Whenever repository-wide guidance changes |
-| `install.sh`       | Entry point for setup. Orchestrates link creation and script execution | When changing link handling or script execution logic |
-| `install_map.json` | Mapping table for ordinary links and Agent Skills targets              | When adding or changing link targets                  |
-| `Brewfile`         | List of packages managed by Homebrew                                   | When adding or removing tools                         |
-| `dotfiles/`        | Canonical personal configuration and agent files                       | When changing the settings for each tool              |
-| `dotfiles/skills/` | Canonical Agent Skills shared across supported agents                  | When adding or changing a skill                       |
-| `dotfiles/copilot-instructions.md` | Compatibility adapter for older personal Copilot links       | Only when changing or removing the migration adapter  |
-| `dotfiles/copilot-hooks/` | GitHub Copilot-specific hook configuration                    | When changing the Copilot hook; do not treat it as shared agent configuration |
-| `scripts/`         | Setup scripts                                                          | When changing tool installation procedures            |
-| `tests/`           | bats-core test suite                                                   | When adding logic worth testing, or changing tested behavior |
-| `.devcontainer/`   | Container definitions for GitHub Codespaces                            | When changing the Codespaces environment              |
-| `.github/workflows/AGENTS.md` | Canonical GitHub Actions authoring guidance                  | When changing workflow authoring or action pinning guidance |
+| `install.sh` | Entry point for setup. Orchestrates link creation and script execution | When changing link handling or script execution logic |
+| `install_map.json` | Mapping table for ordinary links and Agent Skills targets | When adding or changing link targets |
+| `Brewfile` | List of packages managed by Homebrew | When adding or removing tools |
+| `dotfiles/` | Canonical personal configuration and agent files | When changing the settings for each tool |
+| `dotfiles/skills/` | Canonical Agent Skills shared across supported agents | When adding or changing a skill |
+| `dotfiles/copilot-instructions.md` | Compatibility adapter for older personal Copilot links | Only when changing or removing the migration adapter |
+| `dotfiles/copilot-hooks/` | GitHub Copilot-specific hook configuration | When changing the Copilot hook; do not treat it as shared agent configuration |
+| `scripts/` | Setup scripts | When changing tool installation procedures |
+| `tests/` | bats-core test suite | When adding logic worth testing, or changing tested behavior |
+| `.devcontainer/` | Container definitions for GitHub Codespaces | When changing the Codespaces environment |
+| `.github/workflows/AGENTS.md` | Canonical GitHub Actions authoring guidance | When changing workflow authoring or action pinning guidance |
 | `.github/instructions/actions.instructions.md` | Copilot frontmatter plus an exact inline mirror of workflow guidance | Whenever workflow guidance changes |
 | `.claude/rules/` | Claude import adapters for path-scoped guidance | When an adapter mechanism changes |
-| `.gitignore`       | Exclusion settings for files not tracked by Git                        | When adding generated files such as `node_modules/`   |
+| `.rumdl.toml` | Markdown formatting and linting configuration | When changing Markdown style or lint rules |
+| `mise.toml` | Development tools and shared local task commands | When adding a development tool or task |
+| `.gitignore` | Exclusion settings for files not tracked by Git | When adding generated files such as `node_modules/` |
 
 ## Which Files Should Be Changed Together
 

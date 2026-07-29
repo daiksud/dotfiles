@@ -1,0 +1,19 @@
+[global]
+disable = ["MD013", "MD034"]
+extend-enable = ["MD060"]
+flavor = "gfm"
+
+[per-file-flavor]
+"**/*.mdx" = "mdx"
+
+[per-file-ignores]
+"docs/README.mdx" = ["MD025"]
+
+[MD033]
+allowed-elements = ["details", "summary"]
+
+[MD046]
+style = "fenced"
+
+[MD060]
+style = "compact"

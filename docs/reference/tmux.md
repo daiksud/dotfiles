@@ -8,23 +8,23 @@ This is the configuration reference for the terminal multiplexer (tmux).
 
 ## Basic settings
 
-| Setting            | Value           | Description                                |
+| Setting | Value | Description |
 | ------------------ | --------------- | ------------------------------------------ |
-| prefix             | `C-t`           | Prefix key (disables the default `C-b`)    |
+| prefix | `C-t` | Prefix key (disables the default `C-b`) |
 | `default-terminal` | `xterm-ghostty` | Preserve Ghostty features even inside tmux |
-| `mode-keys`        | `vi`            | vi keybindings in copy mode                |
+| `mode-keys` | `vi` | vi keybindings in copy mode |
 
 ## Keybindings
 
 ### Window and pane operations
 
-| Key              | Action                                                          |
+| Key | Action |
 | ---------------- | --------------------------------------------------------------- |
-| `prefix c`       | New window (inherits the current path)                          |
-| `prefix \`       | Horizontal split with even-sized layout (inherits current path) |
-| `prefix -`       | Vertical split with even-sized layout (inherits current path)   |
-| `prefix h/j/k/l` | Move between panes (vim-style)                                  |
-| `prefix r`       | Reload configuration                                            |
+| `prefix c` | New window (inherits the current path) |
+| `prefix \` | Horizontal split with even-sized layout (inherits current path) |
+| `prefix -` | Vertical split with even-sized layout (inherits current path) |
+| `prefix h/j/k/l` | Move between panes (vim-style) |
+| `prefix r` | Reload configuration |
 
 When splitting panes, they automatically arrange in equal sizes using tmux's
 native layout engine. Each subsequent split redistributes space evenly among all
@@ -32,14 +32,14 @@ panes. This works seamlessly whether you split into 2, 3, or more panes.
 
 ### Copy mode
 
-| Key | Action                  |
+| Key | Action |
 | --- | ----------------------- |
-| `v` | Start selection         |
+| `v` | Start selection |
 | `y` | Copy and exit copy mode |
 
 ### Special keys
 
-| Key           | Action                                    |
+| Key | Action |
 | ------------- | ----------------------------------------- |
 | `Shift+Enter` | Send `\e[13;2u` (kitty keyboard protocol) |
 
@@ -47,15 +47,15 @@ panes. This works seamlessly whether you split into 2, 3, or more panes.
 
 Managed by TPM (Tmux Plugin Manager). Plugin directory: `~/.tmux/plugins/`
 
-| Plugin                        | Description                  |
+| Plugin | Description |
 | ----------------------------- | ---------------------------- |
-| `tmux-plugins/tpm`            | Plugin manager itself        |
-| `tmux-plugins/tmux-sensible`  | Basic best-practice settings |
-| `janoamaral/tokyo-night-tmux` | Tokyo Night theme            |
+| `tmux-plugins/tpm` | Plugin manager itself |
+| `tmux-plugins/tmux-sensible` | Basic best-practice settings |
+| `janoamaral/tokyo-night-tmux` | Tokyo Night theme |
 
 ### Tokyo Night settings
 
-| Key                       | Value   | Description   |
+| Key | Value | Description |
 | ------------------------- | ------- | ------------- |
 | `@tokyo-night-tmux_theme` | `storm` | Storm variant |
 

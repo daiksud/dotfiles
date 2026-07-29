@@ -5,11 +5,11 @@ Copilot, Codex, and Claude Code.
 
 ## Skill list
 
-| Skill       | Description                                                                                                                                  |
+| Skill | Description |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pr-create` | Create a draft PR from an isolated `gh-qwt` feature worktree, with an appropriate commit message and description                            |
-| `pr-fix`    | Use the PR head's `gh-qwt` worktree to fix CI errors and handle review comments                                                             |
-| `pr-merge`  | Loop `pr-fix` and Copilot Code Review until there are no findings, then merge and clean up the qwt branch workspace                         |
+| `pr-create` | Create a draft PR from an isolated `gh-qwt` feature worktree, with an appropriate commit message and description |
+| `pr-fix` | Use the PR head's `gh-qwt` worktree to fix CI errors and handle review comments |
+| `pr-merge` | Loop `pr-fix` and Copilot Code Review until there are no findings, then merge and clean up the qwt branch workspace |
 
 ## Installation destination
 
@@ -116,9 +116,9 @@ name: Skill name
 
 ### Frontmatter (required)
 
-| Field         | Type   | Description                                     |
+| Field | Type | Description |
 | ------------- | ------ | ----------------------------------------------- |
-| `name`        | string | Skill identifier. Must match the directory name |
+| `name` | string | Skill identifier. Must match the directory name |
 | `description` | string | Skill summary used for discovery and agent selection |
 
 ### Language used in the body
@@ -143,13 +143,13 @@ name: Skill name
 
 ### Section guidelines
 
-| Section              | Required    | Description                                          |
+| Section | Required | Description |
 | -------------------- | ----------- | ---------------------------------------------------- |
-| Overview or Usage    | ✅          | Explain the purpose of the skill or how to invoke it |
-| Procedure or Modes   | ✅          | Step-by-step or mode-specific operating procedure    |
-| Constraints          | Recommended | Constraints and behavior on failure                  |
-| Output               | Recommended | What is shown to the user when the skill finishes    |
-| Hints for developers | Optional    | Example alias configuration, etc.                    |
+| Overview or Usage | ✅ | Explain the purpose of the skill or how to invoke it |
+| Procedure or Modes | ✅ | Step-by-step or mode-specific operating procedure |
+| Constraints | Recommended | Constraints and behavior on failure |
+| Output | Recommended | What is shown to the user when the skill finishes |
+| Hints for developers | Optional | Example alias configuration, etc. |
 
 ## PR workspace policy
 

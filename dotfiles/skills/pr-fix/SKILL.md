@@ -99,15 +99,18 @@ directory is a different worktree.
    - If local `HEAD` is ahead or diverged, stop rather than overwriting,
      force-pushing, or working on a stale PR head.
 10. If `gh-qwt` reports a slash-prefix path collision, cannot find the remote
-   branch, or cannot create the worktree, stop and report the qwt error. Do
-   not fall back to a branch checkout.
+
+    branch, or cannot create the worktree, stop and report the qwt error. Do
+    not fall back to a branch checkout.
 11. Inspect `git -C <target> status --porcelain` before changing files. If an
-   existing PR worktree has uncommitted changes, stop and ask the user how to
-   handle them; never use `gh qwt remove --force`.
+
+    existing PR worktree has uncommitted changes, stop and ask the user how to
+    handle them; never use `gh qwt remove --force`.
 12. Verify push access to the head repository before making fixes, for example
-   with `git -C <target> push --dry-run origin <head-branch>`. For a fork PR,
-   this checks access to the fork rather than assuming the base repository is
-   writable. Stop if it is rejected.
+
+    with `git -C <target> push --dry-run origin <head-branch>`. For a fork PR,
+    this checks access to the fork rather than assuming the base repository is
+    writable. Stop if it is rejected.
 
 All Git commands that inspect, modify, test, commit, or push the PR must use
 the target path. Use `git -C <target> ...` or an equivalent command whose

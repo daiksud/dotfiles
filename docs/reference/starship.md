@@ -4,26 +4,25 @@ This is the configuration reference for the cross-shell prompt (Starship).
 
 ## File
 
-`dotfiles/starship.toml` → `~/.config/starship.toml`
+[`dotfiles/starship.toml`](https://github.com/daiksud/dotfiles/blob/main/dotfiles/starship.toml)
+→ `~/.config/starship.toml`
 
 ## Prompt structure
 
-A two-line prompt composed of Powerline-style gradient segments:
-
-```
-[░▒▓ ][directory][git_branch + git_status][languages][time]
-[character]
-```
+The top-level format in the tracked configuration renders a two-line prompt
+with Powerline-style gradient segments. The first line shows the icon, current
+directory, Git information, detected language versions, and time in that
+order. The second line contains the input character.
 
 ### Segments and colors
 
-| Segment                 | Background | Foreground | Contents                                 |
+| Segment | Background | Foreground | Contents |
 | ----------------------- | ---------- | ---------- | ---------------------------------------- |
-| Icon                    | `#a3aed2`  | `#090c0c`  | Fixed icon ` `                           |
-| directory               | `#769ff0`  | `#e3e5e5`  | Current directory or qwt worktree identifier |
-| git_branch / git_status | `#394260`  | `#769ff0`  | Branch name + status, or Git icon + status and base warning for qwt |
-| languages               | `#212736`  | `#769ff0`  | Node.js / Bun / Rust / Go / PHP versions |
-| time                    | `#1d2230`  | `#a0a9cb`  | Current time (`HH:MM`)                   |
+| Icon | `#a3aed2` | `#090c0c` | Fixed icon ` ` |
+| directory | `#769ff0` | `#e3e5e5` | Current directory or qwt worktree identifier |
+| git_branch / git_status | `#394260` | `#769ff0` | Branch name + status, or Git icon + status and base warning for qwt |
+| languages | `#212736` | `#769ff0` | Node.js / Bun / Rust / Go / PHP versions |
+| time | `#1d2230` | `#a0a9cb` | Current time (`HH:MM`) |
 
 ## Module settings
 
@@ -63,17 +62,17 @@ render until an `origin/main` reference is available locally.
 
 Displays the version of detected languages. All use the same unified style:
 
-| Module   | Symbol |
+| Module | Symbol |
 | -------- | ------ |
-| `nodejs` | ``     |
-| `bun`    | ``     |
-| `rust`   | ``     |
-| `golang` | ``     |
-| `php`    | ``     |
+| `nodejs` | `` |
+| `bun` | `` |
+| `rust` | `` |
+| `golang` | `` |
+| `php` | `` |
 
 ### time
 
-| Key           | Value   | Description    |
+| Key | Value | Description |
 | ------------- | ------- | -------------- |
-| `disabled`    | `false` | Enabled        |
-| `time_format` | `%R`    | `HH:MM` format |
+| `disabled` | `false` | Enabled |
+| `time_format` | `%R` | `HH:MM` format |

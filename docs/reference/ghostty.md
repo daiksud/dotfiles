@@ -10,31 +10,31 @@ This is the reference for the Ghostty terminal emulator configuration files.
 
 ### Appearance
 
-| Setting                     | Value                    | Description        |
+| Setting | Value | Description |
 | --------------------------- | ------------------------ | ------------------ |
-| `theme`                     | `TokyoNight Storm`       | Color scheme       |
-| `font-family`               | `Moralerspace Neon HW`   | Font               |
-| `font-size`                 | `13.5`                   | Font size          |
-| `background-image`          | `hololive-en-advent.jpg` | Background image   |
-| `background-image-fit`      | `cover`                  | Image fit method   |
-| `background-image-opacity`  | `0.06`                   | Background opacity |
-| `background-image-position` | `center`                 | Image placement    |
+| `theme` | `TokyoNight Storm` | Color scheme |
+| `font-family` | `Moralerspace Neon HW` | Font |
+| `font-size` | `13.5` | Font size |
+| `background-image` | `hololive-en-advent.jpg` | Background image |
+| `background-image-fit` | `cover` | Image fit method |
+| `background-image-opacity` | `0.06` | Background opacity |
+| `background-image-position` | `center` | Image placement |
 
 ### Window
 
-| Setting                            | Value                     | Description                                         |
+| Setting | Value | Description |
 | ---------------------------------- | ------------------------- | --------------------------------------------------- |
-| `fullscreen`                       | `non-native-visible-menu` | Fullscreen mode                                     |
-| `macos-non-native-fullscreen`      | `visible-menu`            | macOS non-native fullscreen                         |
-| `macos-titlebar-style`             | `hidden`                  | Hide the title bar                                  |
-| `window-inherit-working-directory` | `false`                   | Do not inherit the current directory in new windows |
-| `window-padding-y`                 | `0`                       | Vertical padding                                    |
+| `fullscreen` | `non-native-visible-menu` | Fullscreen mode |
+| `macos-non-native-fullscreen` | `visible-menu` | macOS non-native fullscreen |
+| `macos-titlebar-style` | `hidden` | Hide the title bar |
+| `window-inherit-working-directory` | `false` | Do not inherit the current directory in new windows |
+| `window-padding-y` | `0` | Vertical padding |
 
 ### Input
 
-| Setting                   | Value  | Description                        |
+| Setting | Value | Description |
 | ------------------------- | ------ | ---------------------------------- |
-| `macos-option-as-alt`     | `true` | Use the Option key as Alt          |
+| `macos-option-as-alt` | `true` | Use the Option key as Alt |
 | `mouse-hide-while-typing` | `true` | Hide the mouse cursor while typing |
 
 ### Disabled keybindings

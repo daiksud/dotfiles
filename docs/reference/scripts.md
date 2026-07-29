@@ -22,13 +22,13 @@ so the cleanup cannot dangle that replacement root. See
 
 Scripts are grouped by the numeric prefix in the file name.
 
-| Group                    | Execution method | Description                                     |
+| Group | Execution method | Description |
 | ------------------------ | ---------------- | ----------------------------------------------- |
-| `000-*`                  | Sequential       | OS-specific initial setup                       |
-| `001-*`                  | Sequential       | Homebrew installation                           |
-| `002-*`                  | Sequential       | Brewfile package installation                   |
-| `100-*` (Brew-dependent) | Sequential       | Configuration that depends on Homebrew packages |
-| `100-*` (others)         | Parallel         | Independent tool configuration                  |
+| `000-*` | Sequential | OS-specific initial setup |
+| `001-*` | Sequential | Homebrew installation |
+| `002-*` | Sequential | Brewfile package installation |
+| `100-*` (Brew-dependent) | Sequential | Configuration that depends on Homebrew packages |
+| `100-*` (others) | Parallel | Independent tool configuration |
 
 ## Script details
 

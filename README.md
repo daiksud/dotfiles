@@ -12,14 +12,14 @@ bash install.sh
 
 ## Included
 
-| Category        | Contents                                                        |
+| Category | Contents |
 | --------------- | --------------------------------------------------------------- |
-| Shell           | Zsh + Starship prompt + sheldon plugins                         |
-| Editor          | Neovim (LazyVim)                                                |
-| Terminal        | Ghostty + tmux                                                  |
-| Tool management | Homebrew + mise                                                 |
-| Git             | Automatic multi-account switching (gh-config-dir) + SSH signing |
-| CLI             | gh, fzf, ripgrep, lazygit, jq                                   |
+| Shell | Zsh + Starship prompt + sheldon plugins |
+| Editor | Neovim (LazyVim) |
+| Terminal | Ghostty + tmux |
+| Tool management | Homebrew + mise |
+| Git | Automatic multi-account switching (gh-config-dir) + SSH signing |
+| CLI | gh, fzf, ripgrep, lazygit, jq |
 
 ## How it works
 

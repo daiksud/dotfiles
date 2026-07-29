@@ -10,31 +10,31 @@ artifacts.
 
 ## Directory structure
 
-| Path                   | Purpose                                                               |
+| Path | Purpose |
 | ---------------------- | --------------------------------------------------------------------- |
-| `docusaurus.config.ts` | Site-wide configuration (title, URL, plugins, navbar, and more)      |
-| `plugins/`             | Custom Docusaurus plugins (Pagefind search index generation)          |
-| `sidebars.ts`          | Sidebar structure definitions                                         |
-| `src/components/`      | Custom MDX components (see below)                                     |
-| `src/theme/`           | Docusaurus theme overrides (`MDXComponents.ts`, `SearchBar/`)         |
-| `src/css/custom.css`   | Global custom CSS for the site (Tokyo Night Storm color scheme)       |
-| `src/pages/`           | Custom pages (React components)                                       |
-| `static/`              | Static assets                                                         |
-| `build/`               | Output directory for `docs:build` (ignored by `.gitignore`)           |
-| `package.json`         | Dependency definitions for Docusaurus and related plugins             |
+| `docusaurus.config.ts` | Site-wide configuration (title, URL, plugins, navbar, and more) |
+| `plugins/` | Custom Docusaurus plugins (Pagefind search index generation) |
+| `sidebars.ts` | Sidebar structure definitions |
+| `src/components/` | Custom MDX components (see below) |
+| `src/theme/` | Docusaurus theme overrides (`MDXComponents.ts`, `SearchBar/`) |
+| `src/css/custom.css` | Global custom CSS for the site (Tokyo Night Storm color scheme) |
+| `src/pages/` | Custom pages (React components) |
+| `static/` | Static assets |
+| `build/` | Output directory for `docs:build` (ignored by `.gitignore`) |
+| `package.json` | Dependency definitions for Docusaurus and related plugins |
 
 ## Custom components
 
 These components are available in MDX files under `docs/`. They are registered
 globally in `src/theme/MDXComponents.ts`.
 
-| Component                    | Purpose                                                |
+| Component | Purpose |
 | ---------------------------- | ------------------------------------------------------ |
-| `<Hero>`                     | Hero section for landing pages                         |
-| `<HeroLeft>` / `<HeroRight>` | Left/right layout within the hero section              |
-| `<Terminal>`                 | Terminal-style code block display (light/dark support) |
-| `<FeatureGrid>`              | Grid layout for feature lists                          |
-| `<Feature>`                  | Individual feature card inside the grid                |
+| `<Hero>` | Hero section for landing pages |
+| `<HeroLeft>` / `<HeroRight>` | Left/right layout within the hero section |
+| `<Terminal>` | Terminal-style code block display (light/dark support) |
+| `<FeatureGrid>` | Grid layout for feature lists |
+| `<Feature>` | Individual feature card inside the grid |
 
 ## Site search
 

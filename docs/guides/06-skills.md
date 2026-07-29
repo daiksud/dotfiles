@@ -49,11 +49,11 @@ explicit invocation is the most predictable choice.
 
 ## Available skills
 
-| Skill       | What it does                                                                              |
+| Skill | What it does |
 | ----------- | ----------------------------------------------------------------------------------------- |
-| `pr-create` | Automatically creates a draft PR from the current changes                                 |
-| `pr-fix`    | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR       |
-| `pr-merge`  | Loops `pr-fix` and Copilot Code Review to zero findings, then approves, waits for CI, and squash merges one or more PRs |
+| `pr-create` | Automatically creates a draft PR from the current changes |
+| `pr-fix` | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR |
+| `pr-merge` | Loops `pr-fix` and Copilot Code Review to zero findings, then approves, waits for CI, and squash merges one or more PRs |
 
 ## How PR skills use worktrees
 

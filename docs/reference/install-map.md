@@ -25,10 +25,10 @@ mapping file.
 
 An object that defines symbolic link mappings.
 
-| Key        | Type                 | Description                                                          |
+| Key | Type | Description |
 | ---------- | -------------------- | -------------------------------------------------------------------- |
-| `<source>` | string               | Relative name of a file or directory under the `dotfiles/` directory |
-| value      | string or string[]   | One destination or a list of destinations; `~` expands to the home directory |
+| `<source>` | string | Relative name of a file or directory under the `dotfiles/` directory |
+| value | string or string[] | One destination or a list of destinations; `~` expands to the home directory |
 
 Use an array when GitHub Copilot, Codex, Claude Code, or other tools must read
 the same canonical file from different product-specific paths. The current

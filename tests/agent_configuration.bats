@@ -6,7 +6,8 @@ REPO_ROOT="${BATS_TEST_DIRNAME}/.."
   [ -f "${REPO_ROOT}/AGENTS.md" ]
   [ -f "${REPO_ROOT}/.github/workflows/AGENTS.md" ]
 
-  [ "$(<"${REPO_ROOT}/CLAUDE.md")" = "@AGENTS.md" ]
+  [ "$(<"${REPO_ROOT}/CLAUDE.md")" = \
+    $'# Claude Repository Instructions\n\n@AGENTS.md' ]
   grep -Fq '@../../.github/workflows/AGENTS.md' \
     "${REPO_ROOT}/.claude/rules/github-actions.md"
 

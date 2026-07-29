@@ -7,11 +7,11 @@ This page explains the automated checks that run in CI and how to run each of th
 `.github/workflows/ci.yml` runs on every push to `main` and on every pull
 request, with three jobs:
 
-| Job          | Runs on                          | Checks                                                                                 |
+| Job | Runs on | Checks |
 | ------------ | --------------------------------- | --------------------------------------------------------------------------------------- |
-| `lint`       | `ubuntu-slim`                     | `shellcheck` on Bash/sh scripts, `zsh -n` on Zsh plugins, JSON/TOML config syntax        |
-| `test`       | `ubuntu-latest` and `macos-latest` | The `bats-core` suite under `tests/`                                                    |
-| `docs-build` | `ubuntu-slim`                     | Builds the Docusaurus site (build only, no deploy)                                       |
+| `lint` | `ubuntu-slim` | rumdl Markdown lint, `shellcheck`, Zsh syntax, and JSON/TOML config syntax |
+| `test` | `ubuntu-latest` and `macos-latest` | The `bats-core` suite under `tests/` |
+| `docs-build` | `ubuntu-slim` | Builds the Docusaurus site (build only, no deploy) |
 
 See [ADR 0011](./99-adr/0011-ci-and-shell-testing.md) for why the checks are
 split this way, and what is intentionally left out (a full `scripts/*.sh`
@@ -29,6 +29,12 @@ mise install
 Then, from the repository root:
 
 ```bash
+# Format Markdown
+mise run markdown:format
+
+# Markdown lint
+mise run markdown:lint
+
 # Shellcheck (Bash/sh scripts only — Zsh plugins use a different check below)
 shellcheck install.sh scripts/*.sh dotfiles/zsh/starship-qwt-worktree.sh
 

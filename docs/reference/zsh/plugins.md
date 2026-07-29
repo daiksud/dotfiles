@@ -4,19 +4,19 @@ This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 
 ## List
 
-| File                              | Alias | Keybinding | Description                                              |
+| File | Alias | Keybinding | Description |
 | --------------------------------- | ----- | ---------- | -------------------------------------------------------- |
-| `gh-config-dir.zsh`               | —     | —          | Automatically configure Git identity and `GH_CONFIG_DIR` |
-| `starship-qwt-worktree.sh`        | —     | —          | Identify qwt worktrees for the Starship prompt           |
-| `go-to-qwt-repository.zsh`        | `ggr` | `C-]`      | Select a gh-qwt repository/worktree and `cd` into it     |
-| `edit-qwt-repository.zsh`         | `egr` | —          | Select a gh-qwt repository/worktree and open it in `nvim` |
-| `edit-selected-file.zsh`          | `esf` | —          | Select a file and open it in `nvim`                      |
-| `fzf-select-history.zsh`          | —     | `C-r`      | Search history with fzf                                  |
-| `browse-github-notifications.zsh` | `bgn` | —          | Browse GitHub notifications                              |
-| `open-lazygit.zsh`                | `olg` | —          | Launch lazygit                                           |
-| `run-selected-command.zsh`        | —     | —          | Command execution utility                                |
-| `history-substring-search.zsh`    | —     | `↑` / `↓`  | Substring history search                                 |
-| `zshaddhistory.zsh`               | —     | —          | Exclude failed commands from history                     |
+| `gh-config-dir.zsh` | — | — | Automatically configure Git identity and `GH_CONFIG_DIR` |
+| `starship-qwt-worktree.sh` | — | — | Identify qwt worktrees for the Starship prompt |
+| `go-to-qwt-repository.zsh` | `ggr` | `C-]` | Select a gh-qwt repository/worktree and `cd` into it |
+| `edit-qwt-repository.zsh` | `egr` | — | Select a gh-qwt repository/worktree and open it in `nvim` |
+| `edit-selected-file.zsh` | `esf` | — | Select a file and open it in `nvim` |
+| `fzf-select-history.zsh` | — | `C-r` | Search history with fzf |
+| `browse-github-notifications.zsh` | `bgn` | — | Browse GitHub notifications |
+| `open-lazygit.zsh` | `olg` | — | Launch lazygit |
+| `run-selected-command.zsh` | — | — | Command execution utility |
+| `history-substring-search.zsh` | — | `↑` / `↓` | Substring history search |
+| `zshaddhistory.zsh` | — | — | Exclude failed commands from history |
 
 ---
 
@@ -37,14 +37,14 @@ Runs automatically on every `cd` via the `chpwd` hook:
 
 ### Functions provided
 
-| Function                    | Description                                                  |
+| Function | Description |
 | --------------------------- | ------------------------------------------------------------ |
-| `resolve_gh_config_dir`     | Resolve shared authentication storage for ordinary and gh-qwt worktrees |
-| `is_github_origin_repo`     | Determine whether `origin` is `github.com`                   |
-| `resolve_gh_identity`       | Get login name, name, and email from `gh api`                |
-| `sync_signing_key_from_gh`  | Set the SSH signing key and `allowed_signers`                |
+| `resolve_gh_config_dir` | Resolve shared authentication storage for ordinary and gh-qwt worktrees |
+| `is_github_origin_repo` | Determine whether `origin` is `github.com` |
+| `resolve_gh_identity` | Get login name, name, and email from `gh api` |
+| `sync_signing_key_from_gh` | Set the SSH signing key and `allowed_signers` |
 | `sync_git_identity_from_gh` | Sync `user.name`, `user.email`, and the signing key together |
-| `set_gh_config_dir`         | Set `GH_CONFIG_DIR` and call identity sync                   |
+| `set_gh_config_dir` | Set `GH_CONFIG_DIR` and call identity sync |
 
 For details, see [Automatic Git identity switching](../../guides/04-git-identity.md).
 
@@ -193,10 +193,10 @@ Keybinding settings for the `zsh-history-substring-search` plugin.
 
 ### Keybindings
 
-| Key          | Action                                                     |
+| Key | Action |
 | ------------ | ---------------------------------------------------------- |
 | `↑` (`^[[A`) | Search backward through history using the text being typed |
-| `↓` (`^[[B`) | Search forward through history using the text being typed  |
+| `↓` (`^[[B`) | Search forward through history using the text being typed |
 
 ---
 

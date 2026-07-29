@@ -4,9 +4,9 @@ This page explains how `install.sh` works and how to run it.
 
 ## Prerequisites
 
-| Platform            | Requirements                                                              |
+| Platform | Requirements |
 | ------------------- | ------------------------------------------------------------------------- |
-| macOS               | None in particular (`git` and `python3` are available by default)         |
+| macOS | None in particular (`git` and `python3` are available by default) |
 | Ubuntu (Codespaces) | `build-essential`, `git` (`000-codespace.sh` installs them automatically) |
 
 ## How to run
@@ -66,12 +66,12 @@ See [Adding and changing links](./03-managing-links.md) for procedures and
 
 It runs the scripts under `scripts/` in filename order.
 
-| Script             | Description                                                          |
+| Script | Description |
 | ------------------ | -------------------------------------------------------------------- |
-| `000-codespace.sh` | Ubuntu-specific initial setup (time zone, default shell)             |
-| `001-homebrew.sh`  | Installs Homebrew and updates gcc                                    |
-| `002-brewfile.sh`  | Installs the packages defined in `Brewfile`                          |
-| `100-*.sh`         | Per-tool setup (Ghostty, LazyVim, sheldon, mise, tmux, gh extension) |
+| `000-codespace.sh` | Ubuntu-specific initial setup (time zone, default shell) |
+| `001-homebrew.sh` | Installs Homebrew and updates gcc |
+| `002-brewfile.sh` | Installs the packages defined in `Brewfile` |
+| `100-*.sh` | Per-tool setup (Ghostty, LazyVim, sheldon, mise, tmux, gh extension) |
 
 Among the `100-*` scripts, those that depend on Homebrew (`ghostty`, `lazyvim`, `sheldon`) run sequentially, while the others run in parallel (maximum concurrency: the `DOTFILES_PARALLEL_JOBS` environment variable, default `3`).
 
@@ -88,6 +88,6 @@ canonical skill was deleted; remove those stale links manually.
 
 ## Environment variables
 
-| Variable                 | Default | Description                        |
+| Variable | Default | Description |
 | ------------------------ | ------- | ---------------------------------- |
-| `DOTFILES_PARALLEL_JOBS` | `3`     | Number of parallel `100-*` scripts |
+| `DOTFILES_PARALLEL_JOBS` | `3` | Number of parallel `100-*` scripts |

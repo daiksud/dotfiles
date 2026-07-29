@@ -6,12 +6,12 @@ This page defines the documentation writing rules for this repository.
 
 Everything under `docs/` is organized according to the four quadrants of the [Diátaxis framework](https://diataxis.fr/).
 
-| Diátaxis Quadrant | Section                                            | Content                                             |
+| Diátaxis Quadrant | Section | Content |
 | ----------------- | -------------------------------------------------- | --------------------------------------------------- |
-| Tutorial          | `guides/01-quick-start.md`                         | Guided, hands-on documentation with a learning goal |
-| How-to Guide      | `guides/02-*` to `guides/04-*`                     | Task-oriented procedures                            |
-| Reference         | `reference/`                                       | Comprehensive specification                         |
-| Explanation       | `guides/04-git-identity.md`, `development/99-adr/` | Design philosophy, background, and decisions        |
+| Tutorial | `guides/01-quick-start.md` | Guided, hands-on documentation with a learning goal |
+| How-to Guide | `guides/02-*` to `guides/04-*` | Task-oriented procedures |
+| Reference | `reference/` | Comprehensive specification |
+| Explanation | `guides/04-git-identity.md`, `development/99-adr/` | Design philosophy, background, and decisions |
 
 ## Basic Page Structure
 
@@ -78,6 +78,35 @@ graph LR
 
 - Do not prefix example commands with `$`
 
+## Formatting and Linting
+
+Use rumdl for both Markdown formatting and linting. Its configuration lives in
+`.rumdl.toml`, and its version and commands are managed by `mise.toml`.
+
+Every Markdown table uses the `compact` form of MD060: each cell has one space
+between its content and the surrounding pipes, and columns are not padded to
+equal widths. This keeps table edits focused on changed content.
+
+Only MD013 (line length) and MD034 (bare URLs) are disabled. Use fenced code
+blocks, and use raw HTML only for `<details>` and `<summary>` disclosure
+elements. MDX components remain available in `.mdx` files.
+
+The only per-file rule exception is MD025 for `docs/README.mdx`. Its Docusaurus
+front matter title supplies page metadata while the matching H1 inside the
+custom Hero supplies the visible and accessible page title.
+
+Run the formatter after editing Markdown:
+
+```bash
+mise run markdown:format
+```
+
+Run the same lint check used by CI before committing:
+
+```bash
+mise run markdown:lint
+```
+
 ## Source Code in Documentation
 
 Do not copy the project's real source code or configuration files into the documentation. Maintaining the same content in two places is costly and causes update omissions, where the documentation drifts out of sync with the implementation.
@@ -116,11 +145,11 @@ When making changes, check the following:
 
 ### Scope
 
-| Change                         | Documentation to review                                                              |
+| Change | Documentation to review |
 | ------------------------------ | ------------------------------------------------------------------------------------ |
-| Changes to `install_map.json`  | `reference/install-map.md`, `guides/03-managing-links.md`                            |
-| Adding or removing tools       | `reference/tools.md`, the corresponding individual reference pages                   |
-| Changes to scripts             | `reference/scripts.md`                                                               |
-| Adding or changing skills      | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md` |
-| Changes to Docusaurus settings | `.docusaurus/README.md`                                                              |
-| Changes to CI or tests         | `development/04-testing.md`, `reference/mise.md` (if `mise.toml` tools changed)       |
+| Changes to `install_map.json` | `reference/install-map.md`, `guides/03-managing-links.md` |
+| Adding or removing tools | `reference/tools.md`, the corresponding individual reference pages |
+| Changes to scripts | `reference/scripts.md` |
+| Adding or changing skills | `reference/skills.md`, `guides/06-skills.md`, `development/03-skills-development.md` |
+| Changes to Docusaurus settings | `.docusaurus/README.md` |
+| Changes to CI or tests | `development/04-testing.md`, `reference/mise.md` (if `mise.toml` tools changed) |

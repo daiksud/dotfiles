@@ -58,13 +58,13 @@ It resolves a repository-shared directory and sets the `GH_CONFIG_DIR` environme
 
 After updating `GH_CONFIG_DIR`, it gets a token with `gh auth token` and sets it in `COPILOT_GITHUB_TOKEN`. Copilot CLI gives this environment variable higher priority than stored credentials, so it uses the same account as `gh`.
 
-| Situation                               | `GH_CONFIG_DIR`                           | `COPILOT_GITHUB_TOKEN`                   |
+| Situation | `GH_CONFIG_DIR` | `COPILOT_GITHUB_TOKEN` |
 | --------------------------------------- | ----------------------------------------- | ---------------------------------------- |
-| Ordinary repository (authenticated)     | `<repo>/.git/gh`                          | Repository account token                 |
-| Linked worktree (authenticated)         | Primary repository's `.git/gh`            | Same repository account token            |
-| gh-qwt worktree (authenticated)         | `<qwt_root>/<owner>/<repo>/.gh`           | Same repository account token            |
-| Repository where `gh` is not logged in  | Resolved repository-shared directory      | unset (falls back to stored credentials) |
-| Outside a Git repository                | unset                                     | Global `gh` account token                |
+| Ordinary repository (authenticated) | `<repo>/.git/gh` | Repository account token |
+| Linked worktree (authenticated) | Primary repository's `.git/gh` | Same repository account token |
+| gh-qwt worktree (authenticated) | `<qwt_root>/<owner>/<repo>/.gh` | Same repository account token |
+| Repository where `gh` is not logged in | Resolved repository-shared directory | unset (falls back to stored credentials) |
+| Outside a Git repository | unset | Global `gh` account token |
 
 ## Relationship with global `.gitconfig`
 

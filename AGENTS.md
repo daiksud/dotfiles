@@ -25,34 +25,34 @@ Under `docs/`, place GitHub Flavored Markdown documentation built with Docusauru
 
 ### Documentation mapping table
 
-| Topic              | Path                                        | Audience     |
+| Topic | Path | Audience |
 | ------------------ | ------------------------------------------- | ------------ |
-| Quick start        | `docs/guides/01-quick-start.md`             | Users        |
-| Installation       | `docs/guides/02-installation.md`            | Users        |
-| Link management    | `docs/guides/03-managing-links.md`          | Users        |
-| Git identity       | `docs/guides/04-git-identity.md`            | Users        |
-| How to use skills  | `docs/guides/06-skills.md`                  | Users        |
-| Ghostty            | `docs/reference/ghostty.md`                 | Users        |
-| Git                | `docs/reference/git.md`                     | Users        |
-| mise               | `docs/reference/mise.md`                    | Users        |
-| Neovim             | `docs/reference/nvim.md`                    | Users        |
-| RTK                | `docs/reference/rtk.md`                     | Users        |
-| Sheldon            | `docs/reference/sheldon.md`                 | Users        |
-| Starship           | `docs/reference/starship.md`                | Users        |
-| tmux               | `docs/reference/tmux.md`                    | Users        |
-| Zsh                | `docs/reference/zsh/README.md`              | Users        |
-| Zsh plugins        | `docs/reference/zsh/plugins.md`             | Users        |
-| install_map.json   | `docs/reference/install-map.md`             | Users        |
-| gh-infra           | `docs/reference/gh-infra.md`                | Users        |
-| gh-qwt             | `docs/reference/gh-qwt.md`                  | Users        |
-| Scripts            | `docs/reference/scripts.md`                 | Users        |
-| Tools (Brewfile)   | `docs/reference/tools.md`                   | Users        |
-| Agent Skills       | `docs/reference/skills.md`                  | Users        |
-| Project structure  | `docs/development/01-project-structure.md`  | Contributors |
-| Docs style         | `docs/development/02-docs-style.md`         | Contributors |
-| ADR index          | `docs/development/99-adr/README.md`          | Contributors |
+| Quick start | `docs/guides/01-quick-start.md` | Users |
+| Installation | `docs/guides/02-installation.md` | Users |
+| Link management | `docs/guides/03-managing-links.md` | Users |
+| Git identity | `docs/guides/04-git-identity.md` | Users |
+| How to use skills | `docs/guides/06-skills.md` | Users |
+| Ghostty | `docs/reference/ghostty.md` | Users |
+| Git | `docs/reference/git.md` | Users |
+| mise | `docs/reference/mise.md` | Users |
+| Neovim | `docs/reference/nvim.md` | Users |
+| RTK | `docs/reference/rtk.md` | Users |
+| Sheldon | `docs/reference/sheldon.md` | Users |
+| Starship | `docs/reference/starship.md` | Users |
+| tmux | `docs/reference/tmux.md` | Users |
+| Zsh | `docs/reference/zsh/README.md` | Users |
+| Zsh plugins | `docs/reference/zsh/plugins.md` | Users |
+| install_map.json | `docs/reference/install-map.md` | Users |
+| gh-infra | `docs/reference/gh-infra.md` | Users |
+| gh-qwt | `docs/reference/gh-qwt.md` | Users |
+| Scripts | `docs/reference/scripts.md` | Users |
+| Tools (Brewfile) | `docs/reference/tools.md` | Users |
+| Agent Skills | `docs/reference/skills.md` | Users |
+| Project structure | `docs/development/01-project-structure.md` | Contributors |
+| Docs style | `docs/development/02-docs-style.md` | Contributors |
+| ADR index | `docs/development/99-adr/README.md` | Contributors |
 | Skills development | `docs/development/03-skills-development.md` | Contributors |
-| Testing            | `docs/development/04-testing.md`            | Contributors |
+| Testing | `docs/development/04-testing.md` | Contributors |
 
 Style reference to read before editing:
 

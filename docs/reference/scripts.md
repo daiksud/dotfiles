@@ -69,6 +69,12 @@ Installs the Ghostty terminal emulator and configures terminfo (if not already i
 - Linux: Install with the installation script
 - On macOS, copy the terminfo from `/Applications/Ghostty.app` to `~/.terminfo/` (so `xterm-ghostty` is recognized)
 
+### 100-herdr.sh
+
+Keeps the herdr server resident on macOS.
+
+- Start the `herdr` background service with `brew services start herdr`
+
 ### 100-lazyvim.sh
 
 Sets up dependencies for LazyVim (the Neovim configuration framework).
@@ -83,16 +89,6 @@ Installs sheldon and starship with Homebrew, then sets up plugins according to t
 
 - Install `sheldon` and `starship` with Homebrew
 - Install plugins with `sheldon lock`
-
-### 100-tmux.sh
-
-Installs tmux Plugin Manager (tpm) and sets up plugins and dependency packages.
-
-- Clone tpm into `~/.tmux/plugins/tpm/` (if not already installed)
-- Install plugins with tpm
-- Install common packages with Homebrew: `bash`, `bc`, `coreutils`, `gawk`, `gh`, `git`, `jq`
-- Additional packages on macOS: `glab`, `gsed`, `nowplaying-cli`, `font-noto-sans-symbols-2`
-- Additional package on Linux: `playerctl`
 
 ## Brew-dependent scripts
 

@@ -39,7 +39,7 @@ Under `docs/`, place GitHub Flavored Markdown documentation built with Docusauru
 | RTK | `docs/reference/rtk.md` | Users |
 | Sheldon | `docs/reference/sheldon.md` | Users |
 | Starship | `docs/reference/starship.md` | Users |
-| tmux | `docs/reference/tmux.md` | Users |
+| herdr | `docs/reference/herdr.md` | Users |
 | Zsh | `docs/reference/zsh/README.md` | Users |
 | Zsh plugins | `docs/reference/zsh/plugins.md` | Users |
 | install_map.json | `docs/reference/install-map.md` | Users |

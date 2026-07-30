@@ -40,10 +40,10 @@ All tools use **Tokyo Night Storm** as the unified color scheme.
 | ---------------------------------------------- | --------------------------------------------------- |
 | [Ghostty](../reference/ghostty.md) | Uses the Tokyo Night Storm theme |
 | [Neovim](../reference/nvim.md) | Uses Tokyo Night Storm with transparent backgrounds |
-| [tmux](../reference/tmux.md) | Uses the Storm variant of `tokyo-night-tmux` |
+| [herdr](../reference/herdr.md) | Uses the built-in `tokyo-night` theme |
 | [Starship](../reference/starship.md) | Uses a custom Tokyo Night Storm-compatible palette |
 
-This creates a visually consistent environment without color discontinuities between the terminal, tmux, and editor.
+This creates a visually consistent environment without color discontinuities between the terminal, herdr, and editor.
 
 ## Multi-account support
 

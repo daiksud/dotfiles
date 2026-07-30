@@ -10,12 +10,12 @@ a detailed reference for the dotfiles configuration files, tool list, and struct
 
 - [Ghostty](./ghostty.md) — Terminal emulator
 - [Git](./git.md) — Global Git settings
+- [herdr](./herdr.md) — Terminal multiplexer
 - [mise](./mise.md) — Development tool version management
 - [Neovim](./nvim.md) — Editor (LazyVim)
 - [RTK](./rtk.md) — CLI proxy for reducing LLM token usage
 - [Sheldon](./sheldon.md) — Zsh plugin manager
 - [Starship](./starship.md) — Prompt
-- [tmux](./tmux.md) — Terminal multiplexer
 - [Zsh](./zsh/README.md) — Shell configuration
   - [Custom plugins](./zsh/plugins.md) — Functions under `zsh/`
 

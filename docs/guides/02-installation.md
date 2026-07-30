@@ -71,7 +71,7 @@ It runs the scripts under `scripts/` in filename order.
 | `000-codespace.sh` | Ubuntu-specific initial setup (time zone, default shell) |
 | `001-homebrew.sh` | Installs Homebrew and updates gcc |
 | `002-brewfile.sh` | Installs the packages defined in `Brewfile` |
-| `100-*.sh` | Per-tool setup (Ghostty, LazyVim, sheldon, mise, tmux, gh extension) |
+| `100-*.sh` | Per-tool setup (Ghostty, LazyVim, sheldon, mise, herdr, gh extension) |
 
 Among the `100-*` scripts, those that depend on Homebrew (`ghostty`, `lazyvim`, `sheldon`) run sequentially, while the others run in parallel (maximum concurrency: the `DOTFILES_PARALLEL_JOBS` environment variable, default `3`).
 

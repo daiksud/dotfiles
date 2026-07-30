@@ -111,7 +111,7 @@ mise run markdown:lint
 
 Do not copy the project's real source code or configuration files into the documentation. Maintaining the same content in two places is costly and causes update omissions, where the documentation drifts out of sync with the implementation.
 
-- Describe **what** the code does and **why**, and link to the source file (for example, `dotfiles/zshrc` or `dotfiles/tmux.conf`) for the implementation itself
+- Describe **what** the code does and **why**, and link to the source file (for example, `dotfiles/zshrc` or `dotfiles/herdr.toml`) for the implementation itself
 - Only **examples** and **sample code** that are not maintained elsewhere may appear in documentation, such as a usage example, an illustrative command, or a minimal snippet that demonstrates a concept
 - When the implementation changes, you then only update the surrounding description instead of a duplicated copy of the code
 

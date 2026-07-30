@@ -12,6 +12,7 @@ This is the list of tools managed in the Brewfile and their purposes.
 | `fzf` | Fuzzy finder (file selection, history search) |
 | `gh` | GitHub CLI |
 | `git` | Version control |
+| `herdr` | Terminal multiplexer |
 | `jq` | JSON processor |
 | `lazygit` | TUI client for Git |
 | `lua` | Lua runtime (for Neovim plugins) |
@@ -23,7 +24,6 @@ This is the list of tools managed in the Brewfile and their purposes.
 | `rtk` | CLI proxy for reducing LLM token usage |
 | `sheldon` | Zsh plugin manager |
 | `starship` | Cross-shell prompt |
-| `tmux` | Terminal multiplexer |
 | `wget` | HTTP downloader |
 
 ## GUI applications (cask)

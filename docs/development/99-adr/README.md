@@ -15,7 +15,6 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0003](./0003-sheldon-starship.md) | Replace Oh-My-Zsh with Sheldon + Starship | Accepted |
 | [0004](./0004-gh-q.md) | Replace ghq with gh-q | Superseded |
 | [0005](./0005-gh-infra.md) | Manage repository settings declaratively with gh-infra | Accepted |
-| [0006](./0006-per-app-tmux-sessions.md) | Per-application tmux sessions on terminal launch | Accepted |
 | [0007](./0007-gh-wt.md) | Manage git worktrees with gh-wt | Superseded |
 | [0008](./0008-gh-qwt.md) | Replace gh-q and gh-wt with gh-qwt | Accepted |
 | [0009](./0009-shared-worktree-gh-auth.md) | Share gh authentication across Git worktrees | Accepted |
@@ -24,6 +23,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0012](./0012-github-actions-sha-pinning.md) | Require immutable SHA pins for GitHub Actions | Accepted |
 | [0013](./0013-cross-agent-skills-and-instructions.md) | Share Agent Skills and instructions across coding agents | Accepted |
 | [0014](./0014-rumdl-markdown-tooling.md) | Use rumdl for Markdown formatting and linting | Accepted |
+| [0015](./0015-herdr-terminal-multiplexer.md) | Adopt herdr as the terminal multiplexer | Accepted |
 
 ## How to Write a New ADR
 

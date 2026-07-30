@@ -39,7 +39,7 @@ This is the reference for the Ghostty terminal emulator configuration files.
 
 ### Disabled keybindings
 
-To manage tabs and panes with tmux, all built-in Ghostty keybindings related to tabs and splits are disabled.
+To manage tabs and panes with herdr, all built-in Ghostty keybindings related to tabs and splits are disabled.
 
 **Tab-related:**
 

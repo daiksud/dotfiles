@@ -16,7 +16,7 @@ bash install.sh
 | --------------- | --------------------------------------------------------------- |
 | Shell | Zsh + Starship prompt + sheldon plugins |
 | Editor | Neovim (LazyVim) |
-| Terminal | Ghostty + tmux |
+| Terminal | Ghostty + herdr |
 | Tool management | Homebrew + mise |
 | Git | Automatic multi-account switching (gh-config-dir) + SSH signing |
 | CLI | gh, fzf, ripgrep, lazygit, jq |

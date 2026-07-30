@@ -1,0 +1,5 @@
+# Skip herdr's first-run onboarding flow; integrations are set up separately.
+onboarding = false
+
+[theme]
+name = "tokyo-night"

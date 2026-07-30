@@ -14,7 +14,7 @@ This page organizes the roles of the repository's main directories and files.
 ├── dotfiles/               # Files used as symbolic link sources
 │   ├── zshrc               # -> ~/.zshrc
 │   ├── zsh/                # -> ~/.zsh (custom plugins)
-│   ├── tmux.conf           # -> ~/.tmux.conf
+│   ├── herdr.toml          # -> ~/.config/herdr/config.toml
 │   ├── gitconfig           # -> ~/.gitconfig
 │   ├── ghostty/            # -> ~/.config/ghostty
 │   ├── nvim/               # -> ~/.config/nvim (LazyVim)

@@ -13,18 +13,17 @@ This is the reference for Zsh shell configuration.
 
 `.zshrc` is processed in the following order:
 
-1. **Auto-start tmux** — Connect to or create a per-application tmux session
-2. **Homebrew** — Set shell environment variables
-3. **compinit** — Initialize the completion system (must come before sheldon)
-4. **Emacs keybindings** — `bindkey -e`
-5. **Sheldon** — Load plugins
-6. **History settings** — History options
-7. **Directory settings** — `auto_cd`, `auto_pushd`
-8. **Completion style** — Case-insensitive and hyphen-insensitive matching
-9. **EDITOR** — `nvim`
-10. **Starship** — Initialize the prompt
-11. **mise** — Enable runtime version management
-12. **Custom functions** — Source all `~/.zsh/*.zsh`
+1. **Homebrew** — Set shell environment variables
+2. **compinit** — Initialize the completion system (must come before sheldon)
+3. **Emacs keybindings** — `bindkey -e`
+4. **Sheldon** — Load plugins
+5. **History settings** — History options
+6. **Directory settings** — `auto_cd`, `auto_pushd`
+7. **Completion style** — Case-insensitive and hyphen-insensitive matching
+8. **EDITOR** — `nvim`
+9. **Starship** — Initialize the prompt
+10. **mise** — Enable runtime version management
+11. **Custom functions** — Source all `~/.zsh/*.zsh`
 
 ## History settings
 

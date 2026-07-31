@@ -25,6 +25,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0014](./0014-rumdl-markdown-tooling.md) | Use rumdl for Markdown formatting and linting | Accepted |
 | [0015](./0015-herdr-terminal-multiplexer.md) | Adopt herdr as the terminal multiplexer | Accepted |
 | [0016](./0016-ghostty-herdr-autostart.md) | Auto-start herdr from Ghostty | Accepted |
+| [0017](./0017-herdr-prefix-ctrl-t.md) | Change herdr's prefix key to `ctrl+t` | Accepted |
 
 ## How to Write a New ADR
 

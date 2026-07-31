@@ -37,6 +37,10 @@ Adopt herdr (`herdrdev/herdr`) as the terminal multiplexer.
   [herdr reference](../../reference/herdr.md) for the resulting file layout and
   behavior.
 
+> [!NOTE]
+> Ghostty now starts the client automatically instead; see
+> [ADR 0016](./0016-ghostty-herdr-autostart.md).
+
 ## Alternatives Considered
 
 ### tmux
@@ -60,6 +64,8 @@ would be no consolidated view across agents.
   has no `default-terminal`-equivalent setting.
 - Status is shown in herdr's sidebar rather than a dedicated status bar.
 - Opening a terminal does not attach to herdr automatically; `herdr` is run
-  explicitly when needed.
+  explicitly when needed. (Superseded for Ghostty by
+  [ADR 0016](./0016-ghostty-herdr-autostart.md); other launch paths are
+  unaffected.)
 - herdr is pre-1.0 (`v0.7.5`) and may introduce breaking configuration or
   keybinding changes between releases.

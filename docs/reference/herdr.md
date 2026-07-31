@@ -6,10 +6,10 @@ This is the configuration reference for the terminal multiplexer (herdr).
 
 `dotfiles/herdr.toml` → `~/.config/herdr/config.toml`
 
-Only two settings are pinned: onboarding is skipped, and the theme is set to
-Tokyo Night. Every other behavior — the prefix key, pane splits, pane
-navigation, and copy mode — uses herdr's built-in defaults. See
-`dotfiles/herdr.toml` for the exact values.
+Three settings are pinned: onboarding is skipped, the theme is set to Tokyo
+Night, and the prefix key is remapped from herdr's default. Every other
+behavior — pane splits, pane navigation, and copy mode — uses herdr's
+built-in defaults. See `dotfiles/herdr.toml` for the exact values.
 
 ## Model
 
@@ -22,15 +22,25 @@ navigation, and copy mode — uses herdr's built-in defaults. See
 ## Basic settings
 
 | Setting | Value | Description |
-| -------------- | ------------- | -------------------------------------- |
-| Prefix | `ctrl+b` | herdr's default prefix key (unchanged) |
+| -------------- | ------------- | ------------------------------------------------------- |
+| Prefix | `ctrl+t` | Overridden from herdr's default `ctrl+b` (see below) |
 | `theme.name` | `tokyo-night` | Built-in theme, no plugin required |
 | `onboarding` | `false` | Skips first-run setup |
 
+herdr's default prefix is `ctrl+b`, but this repository remaps it to
+`ctrl+t`. `ctrl+b` is `backward-char` in the Emacs keybindings used elsewhere
+(`bindkey -e` in `dotfiles/zshrc`, and insert-mode `<C-b>` in
+`dotfiles/nvim/lua/config/keymaps.lua`), and a multiplexer prefix always wins
+over the keys bound inside its panes. See
+[ADR 0017](../development/99-adr/0017-herdr-prefix-ctrl-t.md) for the full
+rationale.
+
 ## Keybindings
 
-Every binding below is herdr's built-in default; none are configured by this
-repository.
+Every action below is bound to herdr's built-in default key; none are
+configured by this repository. `prefix` itself is remapped to `ctrl+t` (see
+[Basic settings](#basic-settings) above), so read `prefix` in the tables below
+as `ctrl+t`.
 
 ### Panes and tabs
 
@@ -57,6 +67,11 @@ Enter with `prefix [`.
 
 Full navigation (`h/j/k/l`, `w/b/e`, `/` and `?` search) and the complete
 keymap are documented at [herdr's keyboard reference](https://herdr.dev/docs/keyboard/).
+
+Copy mode also binds `ctrl+b` / `ctrl+f` for page-up/page-down. herdr's
+built-in default prefix is `ctrl+b` too, which would shadow page-up; since
+this repository moves the prefix to `ctrl+t`, `ctrl+b` reaches copy mode's
+page-up as documented.
 
 ## Server lifecycle
 

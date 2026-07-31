@@ -36,7 +36,7 @@ mise run markdown:format
 mise run markdown:lint
 
 # Shellcheck (Bash/sh scripts only — Zsh plugins use a different check below)
-shellcheck install.sh scripts/*.sh dotfiles/zsh/starship-qwt-worktree.sh
+shellcheck install.sh scripts/*.sh dotfiles/zsh/starship-qwt-worktree.sh dotfiles/ghostty/herdr-launch.sh
 
 # Zsh syntax check (parse-only, no execution)
 for f in dotfiles/zsh/*.zsh; do zsh -n "$f"; done
@@ -76,6 +76,13 @@ Current coverage:
   behavior: the `owner/repo/branch` label at a worktree root, the appended
   subdirectory path from inside a worktree, slash-containing branch names, and
   the non-zero exit outside a qwt worktree or outside Git entirely.
+- `tests/herdr_launch.bats` — `dotfiles/ghostty/herdr-launch.sh` behavior,
+  with `herdr` and the login shell stubbed under a temp directory (via
+  `HERDR_LAUNCH_BREW_BINS` and `SHELL`, so no real Homebrew install or herdr
+  binary is required): resolving and launching herdr from a Homebrew-style
+  bin directory, falling back to a login shell when herdr is not found, and
+  falling back instead of nesting when already inside a herdr pane
+  (`HERDR_ENV=1`).
 - `tests/install_symlinks.bats` — `install.sh`'s symlink-creation logic,
   exercised against a copy of the real script in an isolated sandbox (fixture
   `install_map.json` and `dotfiles/`, empty `scripts/` so no real installs

@@ -2,6 +2,7 @@ background-image = hololive-en-advent.jpg
 background-image-fit = cover
 background-image-opacity = 0.06
 background-image-position = center
+command = shell:~/.config/ghostty/herdr-launch.sh
 font-family = Moralerspace Neon HW
 font-size = 13.5
 fullscreen = non-native-visible-menu

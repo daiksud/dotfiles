@@ -3,3 +3,9 @@ onboarding = false
 
 [theme]
 name = "tokyo-night"
+
+[keys]
+# ctrl+b is the default prefix, but it is also backward-char in Emacs
+# keybindings (dotfiles/zshrc, dotfiles/nvim/lua/config/keymaps.lua), so move
+# the prefix to ctrl+t and leave ctrl+b for that.
+prefix = "ctrl+t"

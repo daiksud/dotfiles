@@ -28,8 +28,8 @@ Adopt herdr (`herdrdev/herdr`) as the terminal multiplexer.
   `~/.config/herdr/config.toml`): skip first-run onboarding, and set
   `theme.name = "tokyo-night"` to match the Tokyo Night Storm theme used
   throughout this repository (see [Concept](../../guides/05-concept.md)).
-  Everything else — the `ctrl+b` prefix, pane splits, pane navigation, and vi-style
-  copy mode — stays at herdr's built-in defaults.
+  Everything else — pane splits, pane navigation, and vi-style copy mode —
+  stays at herdr's built-in defaults.
 - Keep the server resident with `brew services start herdr` on macOS
   (`scripts/100-herdr.sh`), so panes and agents keep running independently of
   any single terminal window. Start the client by running `herdr` explicitly;
@@ -40,6 +40,9 @@ Adopt herdr (`herdrdev/herdr`) as the terminal multiplexer.
 > [!NOTE]
 > Ghostty now starts the client automatically instead; see
 > [ADR 0016](./0016-ghostty-herdr-autostart.md).
+>
+> The prefix key is no longer herdr's default `ctrl+b`; see
+> [ADR 0017](./0017-herdr-prefix-ctrl-t.md).
 
 ## Alternatives Considered
 
@@ -59,7 +62,8 @@ would be no consolidated view across agents.
 
 ## Consequences
 
-- The prefix key is herdr's default, `ctrl+b`.
+- The prefix key is herdr's default at the time, `ctrl+b`. (Superseded by
+  [ADR 0017](./0017-herdr-prefix-ctrl-t.md), which moves it to `ctrl+t`.)
 - Panes advertise a fixed `TERM=xterm-256color` / `COLORTERM=truecolor`; herdr
   has no `default-terminal`-equivalent setting.
 - Status is shown in herdr's sidebar rather than a dedicated status bar.

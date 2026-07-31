@@ -27,7 +27,7 @@ jobs:
         run: mise run markdown:lint
 
       - name: Shellcheck (bash/sh scripts)
-        run: shellcheck install.sh scripts/*.sh dotfiles/zsh/starship-qwt-worktree.sh
+        run: shellcheck install.sh scripts/*.sh dotfiles/zsh/starship-qwt-worktree.sh dotfiles/ghostty/herdr-launch.sh
 
       - name: Zsh syntax check (zsh plugins)
         run: |

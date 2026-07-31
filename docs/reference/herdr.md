@@ -65,15 +65,20 @@ server owns panes and process state, so panes and any agents inside them keep
 running after a client detaches or a terminal window closes.
 
 `scripts/100-herdr.sh` keeps the server resident via `brew services start
-herdr` on macOS. Opening a terminal does not attach to herdr automatically;
-run `herdr` to attach to the default session, or `herdr --session <name>` for
-a separate named session.
+herdr` on macOS. Opening a Ghostty window attaches to the default session
+automatically through `command` in `dotfiles/ghostty/config` (see
+[Ghostty](./ghostty.md#startup-command)); other launch paths (VS Code,
+Codespaces, SSH sessions started some other way) still start a plain shell.
+Run `herdr` manually to attach from one of those, or `herdr --session <name>`
+for a separate named session.
 
 ## Environment variables
 
-Panes started by herdr expose `HERDR_PANE_ID`, `HERDR_TAB_ID`, and
-`HERDR_WORKSPACE_ID`, which scripts can use to detect that they are running
-inside herdr.
+Panes started by herdr expose `HERDR_ENV=1`, which scripts can check to
+detect that they are already running inside a herdr pane (herdr uses this
+itself to block nested launches; `dotfiles/ghostty/herdr-launch.sh` checks it
+for the same reason). Panes also expose `HERDR_PANE_ID`, `HERDR_TAB_ID`, and
+`HERDR_WORKSPACE_ID` to identify the current pane, tab, and workspace.
 
 ## Constraints
 

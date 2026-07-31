@@ -37,6 +37,27 @@ This is the reference for the Ghostty terminal emulator configuration files.
 | `macos-option-as-alt` | `true` | Use the Option key as Alt |
 | `mouse-hide-while-typing` | `true` | Hide the mouse cursor while typing |
 
+### Startup command
+
+| Setting | Value | Description |
+| --------- | ---------------------------------------- | -------------------------------------------------------------- |
+| `command` | `shell:~/.config/ghostty/herdr-launch.sh` | Runs `dotfiles/ghostty/herdr-launch.sh` for every new surface |
+
+Ghostty's GUI process does not inherit a login shell's `PATH`, so it cannot
+resolve a bare `herdr` command. `dotfiles/ghostty/herdr-launch.sh` adds the
+common Homebrew bin directories to `PATH` and then execs `herdr`, so every new
+window or tab attaches to herdr's persistent default session automatically
+(see [herdr](./herdr.md) for session and pane lifecycle). Because the wrapper
+replaces itself with `herdr` via `exec`, detaching (`prefix+q`) or otherwise
+exiting herdr closes that surface, while the server and its panes keep
+running in the background.
+
+The wrapper falls back to a login shell (`$SHELL -l`) instead of `herdr` when
+herdr is not installed, or when it is already running inside a herdr pane
+(`HERDR_ENV=1`) to avoid herdr's nested-launch guard. To open a plain shell
+deliberately instead of attaching to herdr, run `ghostty -e zsh` (or another
+shell); the `-e` flag overrides `command` for that one surface.
+
 ### Disabled keybindings
 
 To manage tabs and panes with herdr, all built-in Ghostty keybindings related to tabs and splits are disabled.

@@ -3,6 +3,10 @@
 FILE=$(readlink -f "$0")
 DIR=$(dirname "${FILE}")
 
+# Keep all Homebrew commands launched by setup scripts non-interactive while
+# preserving the normal update and installation behavior.
+export HOMEBREW_NO_ASK=1
+
 parse_links() {
   python3 -c "
 import json, os, sys

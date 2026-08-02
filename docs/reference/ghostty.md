@@ -58,6 +58,23 @@ herdr is not installed, or when it is already running inside a herdr pane
 deliberately instead of attaching to herdr, run `ghostty -e zsh` (or another
 shell); the `-e` flag overrides `command` for that one surface.
 
+### Disabled keybindings
+
+To manage tabs and panes with herdr, all built-in Ghostty keybindings related to tabs and splits are disabled.
+
+**Tab-related:**
+
+- `⌘T` (new tab)
+- `⌘⇧[` / `⌘⇧]` (switch tabs)
+- `⌘1` through `⌘9` (jump to tab number)
+
+**Split-related:**
+
+- `⌘D` / `⌘⇧D` (split)
+- `⌘⌥↑↓←→` (resize pane)
+- `⌘⌃↑↓←→` (move pane)
+- `⌘⇧Enter` (add pane)
+
 ## Reloading after configuration changes
 
 Ghostty reads its configuration into the running application process. The
@@ -98,23 +115,6 @@ missing value is expected for a deliberate `ghostty -e zsh` launch, but after a
 normal Ghostty launch it indicates that the wrapper [fell back to the login
 shell](https://github.com/daiksud/dotfiles/blob/main/dotfiles/ghostty/herdr-launch.sh) or that the running Ghostty
 process has not loaded the current configuration.
-
-### Disabled keybindings
-
-To manage tabs and panes with herdr, all built-in Ghostty keybindings related to tabs and splits are disabled.
-
-**Tab-related:**
-
-- `⌘T` (new tab)
-- `⌘⇧[` / `⌘⇧]` (switch tabs)
-- `⌘1` through `⌘9` (jump to tab number)
-
-**Split-related:**
-
-- `⌘D` / `⌘⇧D` (split)
-- `⌘⌥↑↓←→` (resize pane)
-- `⌘⌃↑↓←→` (move pane)
-- `⌘⇧Enter` (add pane)
 
 ## Background image
 

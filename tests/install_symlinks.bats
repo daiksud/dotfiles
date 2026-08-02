@@ -37,6 +37,25 @@ run_install() {
   HOME="$FAKE_HOME" /bin/bash "${SANDBOX}/install.sh"
 }
 
+@test "runs setup scripts without Homebrew confirmation prompts" {
+  local capture_file="${SANDBOX}/homebrew-no-ask"
+  write_install_map '{}'
+  printf '%s\n' \
+    '#!/bin/bash' \
+    'printf "%s\n" "${HOMEBREW_NO_ASK-}" >"${CAPTURE_FILE}"' \
+    >"${SANDBOX}/scripts/001-capture.sh"
+  chmod +x "${SANDBOX}/scripts/001-capture.sh"
+
+  run env \
+    -u HOMEBREW_NO_ASK \
+    HOME="${FAKE_HOME}" \
+    CAPTURE_FILE="${capture_file}" \
+    /bin/bash "${SANDBOX}/install.sh"
+
+  [ "$status" -eq 0 ]
+  [ "$(cat "${capture_file}")" = "1" ]
+}
+
 @test "creates a symlink for each mapping in install_map.json" {
   mkdir -p "${SANDBOX}/dotfiles/sub"
   printf 'hello-a\n' >"${SANDBOX}/dotfiles/a.txt"

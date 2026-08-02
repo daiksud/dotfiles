@@ -73,6 +73,11 @@ It runs the scripts under `scripts/` in filename order.
 | `002-brewfile.sh` | Installs the packages defined in `Brewfile` |
 | `100-*.sh` | Per-tool setup (Ghostty, LazyVim, sheldon, mise, herdr, gh extension) |
 
+When `install.sh` runs these setup scripts, it sets `HOMEBREW_NO_ASK=1` for
+their child processes. Homebrew updates and installations therefore continue
+without `y/n` confirmation prompts; the update operation itself is not
+disabled.
+
 Among the `100-*` scripts, those that depend on Homebrew (`ghostty`, `lazyvim`, `sheldon`) run sequentially, while the others run in parallel (maximum concurrency: the `DOTFILES_PARALLEL_JOBS` environment variable, default `3`).
 
 ### 3. Generate SSH `allowed_signers`

@@ -75,6 +75,47 @@ To manage tabs and panes with herdr, all built-in Ghostty keybindings related to
 - `⌘⌃↑↓←→` (move pane)
 - `⌘⇧Enter` (add pane)
 
+## Reloading after configuration changes
+
+Ghostty reads its configuration into the running application process. The
+`command` setting applies to new windows, tabs, and other surfaces; it does not
+replace the process already running in an existing surface. On macOS, closing
+the last window normally leaves the Ghostty application alive, so reopening a
+window can still use a configuration loaded before `install.sh` updated the
+symbolic link.
+
+After installing or updating this configuration while Ghostty is open:
+
+1. Press `⌘⇧,` (Command+Shift+comma) to reload the configuration.
+2. Open a new window or tab so the startup command is applied.
+3. If the old behavior remains, quit Ghostty with `⌘Q` and launch it again.
+
+The [Ghostty configuration guide](https://ghostty.org/docs/config#reloading-the-configuration) documents the reload action. Validate the file and inspect the effective command with:
+
+```bash
+ghostty +validate-config
+ghostty +show-config | rg '^command = '
+```
+
+These commands start a separate Ghostty CLI process and verify the
+configuration on disk; they do not prove that an already-running GUI process
+has reloaded it. Always create a new surface after reloading before checking
+the runtime environment.
+
+Run the following from the newly created surface to distinguish a herdr client
+from a plain shell:
+
+```bash
+printf 'HERDR_ENV=%s\n' "${HERDR_ENV:-<unset>}"
+herdr status client
+```
+
+`HERDR_ENV=1` confirms that the process is inside a herdr-managed pane. A
+missing value is expected for a deliberate `ghostty -e zsh` launch, but after a
+normal Ghostty launch it indicates that the wrapper [fell back to the login
+shell](https://github.com/daiksud/dotfiles/blob/main/dotfiles/ghostty/herdr-launch.sh) or that the running Ghostty
+process has not loaded the current configuration.
+
 ## Background image
 
 `dotfiles/ghostty/hololive-en-advent.jpg` is included in the configuration directory and placed via a symbolic link.

@@ -84,6 +84,19 @@ Among the `100-*` scripts, those that depend on Homebrew (`ghostty`, `lazyvim`, 
 
 If global `user.email` and `~/.ssh/id_ed25519.pub` exist, it generates `~/.ssh/allowed_signers` for Git SSH signature verification.
 
+## Refresh running applications
+
+`install.sh` updates configuration links on disk, but it does not restart
+applications that have already loaded those files. This matters for Ghostty
+on macOS: the application process normally remains alive after its last window
+closes, so launching another window can continue using the previous in-memory
+configuration.
+
+After installing or updating the dotfiles while Ghostty is running, press
+`⌘⇧,` (Command+Shift+comma) to reload Ghostty, then create a new window or
+tab. If the new surface still starts with the old behavior, quit Ghostty with
+`⌘Q` and launch it again. See the [Ghostty reference](../reference/ghostty.md#reloading-after-configuration-changes) for verification commands and herdr-specific troubleshooting.
+
 ## Re-running
 
 `install.sh` is idempotent for destinations still declared in the map. Existing

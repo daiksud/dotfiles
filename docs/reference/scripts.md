@@ -48,6 +48,10 @@ Installs Homebrew if it is not already installed.
 - Linux: `/home/linuxbrew/.linuxbrew/bin/brew`
 
 After installation, it installs `gcc` and upgrades all packages with `brew upgrade`.
+When invoked through `install.sh`, the script and the other setup scripts
+inherit `HOMEBREW_NO_ASK=1`, so Homebrew keeps updating and installing packages
+without asking for confirmation. The Homebrew installer itself also receives
+`NONINTERACTIVE=1` when a new Homebrew installation is required.
 
 ### 002-brewfile.sh
 

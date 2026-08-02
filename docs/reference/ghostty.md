@@ -96,7 +96,7 @@ herdr status client
 `HERDR_ENV=1` confirms that the process is inside a herdr-managed pane. A
 missing value is expected for a deliberate `ghostty -e zsh` launch, but after a
 normal Ghostty launch it indicates that the wrapper [fell back to the login
-shell](../../dotfiles/ghostty/herdr-launch.sh) or that the running Ghostty
+shell](https://github.com/daiksud/dotfiles/blob/main/dotfiles/ghostty/herdr-launch.sh) or that the running Ghostty
 process has not loaded the current configuration.
 
 ### Disabled keybindings

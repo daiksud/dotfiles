@@ -24,13 +24,20 @@ What this script does:
 3. Installs the packages listed in `Brewfile`
 4. Runs each setup script in `scripts/`
 
-## 3. Restart the shell
+## 3. Restart the shell and refresh Ghostty
 
 ```bash
 exec zsh
 ```
 
 If the Starship prompt appears, the setup was successful.
+
+If Ghostty was already running while `install.sh` created or updated its
+configuration link, reload the configuration with `⌘⇧,` (Command+Shift+comma),
+then open a new window or tab. Ghostty keeps its macOS application process
+alive after windows close by default, so a new window can otherwise reuse the
+configuration that was loaded before installation. If reloading does not take
+effect, quit Ghostty with `⌘Q` and launch it again.
 
 ## Verification
 
@@ -43,6 +50,10 @@ mise list
 
 # Check whether gh CLI is authenticated
 gh auth status
+
+# Run these from a newly created Ghostty surface to verify herdr autostart
+printf 'HERDR_ENV=%s\n' "${HERDR_ENV:-<unset>}"
+herdr status client
 ```
 
 ## Next steps

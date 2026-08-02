@@ -1,6 +1,6 @@
 ---
 name: pr-merge
-description: Take one or more GitHub Pull Requests through final review, approval, required CI, squash merge, and safe gh-qwt cleanup. Use when asked to merge PRs once ready, monitor them through merge, loop through Copilot Code Review feedback with the pr-fix skill, apply the self approval workflow, wait for required checks, or process multiple PRs to completion.
+description: Take one or more GitHub Pull Requests through final review, conditional approval, required CI, squash merge, and safe gh-qwt cleanup. Use when asked to merge PRs once ready, monitor them through merge, loop through enabled Copilot Code Review feedback with the pr-fix skill, apply self approval only when required, wait for required checks, or process multiple PRs to completion.
 ---
 
 # pr-merge
@@ -8,9 +8,10 @@ description: Take one or more GitHub Pull Requests through final review, approva
 ## Overview
 
 Take one or more Pull Requests from "ready for final review" to "merged". For
-each PR, repeatedly use `pr-fix` and request a Copilot Code Review until there
-are no unresolved findings. Then mark the PR ready, apply the `self approval`
-label, wait for approval and CI, and squash merge it.
+each PR, repeatedly use `pr-fix` and, when the base branch enables it, request
+a Copilot Code Review until there are no unresolved findings. Then mark the PR
+ready, request self approval only when GitHub reports that review is required,
+wait for CI, and squash merge it.
 
 Keep the PR head in its own `gh-qwt` worktree throughout review, CI, and the
 merge request. After GitHub confirms the merge, remove the clean worktree and
@@ -58,9 +59,20 @@ iterations**. Two conditions send control back to the top of the loop;
 everything else either continues normally or stops and reports (see
 "Retryable vs. non-retryable failures").
 
-Before the first iteration, initialize persistent per-PR approval state outside
-the loop: an unset approval-request timestamp and no recorded approved review.
-Carry both values across every retry; never reset them at the top of the loop.
+Before the first iteration:
+
+1. Retrieve `baseRefName` for the PR, URL-encode it as one path segment, and
+   query the active rules for that branch with
+   `gh api --hostname <base-host>
+   "repos/<base-owner>/<base-repo>/rules/branches/<encoded-base-ref>"`.
+   Stop this PR if the query fails; do not infer availability from local files
+   or continue with an assumed setting.
+2. Record whether the response contains a rule whose `type` is
+   `copilot_code_review`. This per-PR value controls every iteration of the
+   Copilot review loop.
+3. Initialize persistent per-PR approval state: an unset approval-request
+   timestamp and no recorded approved review. Carry both values across every
+   retry; never reset them at the top of the loop.
 
 ### Step 1: Resolve Copilot Code Review feedback
 
@@ -68,7 +80,10 @@ Carry both values across every retry; never reset them at the top of the loop.
    reuse the PR head qwt worktree and resolve merge conflicts, CI failures,
    and review feedback there. Retain the canonical head URL and full
    host/owner/repo identity that its guard verifies during the final pass.
-2. Request a review from Copilot Code Review:
+2. If the effective rules do not include `copilot_code_review`, record that
+   Copilot Code Review is disabled and proceed directly to Step 2. Do not
+   request a review, wait for one, or count Copilot findings.
+3. When Copilot Code Review is enabled, request a review:
    - Get the PR node ID:
 
      ```bash
@@ -101,11 +116,11 @@ Carry both values across every retry; never reset them at the top of the loop.
 
    - `BOT_kgDOCnlnWA` is the GraphQL node ID for
      `copilot-pull-request-reviewer`.
-3. Wait for the review to complete: poll once per minute, up to 30 minutes,
+4. Wait for the review to complete: poll once per minute, up to 30 minutes,
    for a review from `copilot-pull-request-reviewer` whose `submittedAt` is
    after the request was sent. Use
    `gh pr view <PR_NUMBER> -R <base-repository> --json latestReviews`.
-4. Count the unresolved Copilot Code Review findings:
+5. Count the unresolved Copilot Code Review findings:
    - Run every GraphQL query against `<base-host>` explicitly.
    - Paginate `reviewThreads(first: 100, after: $cursor)`, following
      `pageInfo { hasNextPage endCursor }` until `hasNextPage` is `false`.
@@ -113,7 +128,7 @@ Carry both values across every retry; never reset them at the top of the loop.
      comment author.
    - Count threads where `isResolved` is `false` and the author is
      `copilot-pull-request-reviewer`.
-5. If that count is greater than 0, go back to the top of the loop.
+6. If that count is greater than 0, go back to the top of the loop.
 
 ### Step 2: Mark the PR ready for review
 
@@ -122,37 +137,45 @@ Carry both values across every retry; never reset them at the top of the loop.
 
 ### Step 3: Establish persistent approval state
 
-1. Query the current reviews. If an approval is already valid, record its
-   review identity and `submittedAt` in the persistent per-PR state and skip
-   the approval request and wait. On later iterations, retain the recorded
-   approval while the review remains `APPROVED`; do not require a newer review
-   merely because the loop restarted. Clear the recorded approval only if the
-   review no longer remains `APPROVED`.
-2. If no valid approval exists and the approval-request timestamp is unset,
+1. Query `reviewDecision` and the current reviews after the PR is ready.
+   - If `reviewDecision` is null or empty, record that approval is not required
+     for this iteration and skip both the label request and Step 4.
+   - If `reviewDecision` is `APPROVED`, record the valid review identity and
+     `submittedAt` in the persistent per-PR state and skip the approval request
+     and wait.
+   - Otherwise, continue with the approval request. On later iterations,
+     retain a recorded approval only while `reviewDecision` remains
+     `APPROVED`; clear it when GitHub no longer reports approval.
+2. If approval is required, no valid approval exists, and the approval-request
+   timestamp is unset,
    record the current time once and run
    `gh pr edit <PR_NUMBER> -R <base-repository> --add-label "self approval"`.
    Keep that timestamp for every later iteration. Do not remove and re-add the
    label or call `--add-label` again to try to retrigger the automation.
-3. Expect the label to already exist in the repository. If `gh` reports that
-   it does not exist, stop processing this PR immediately and report the
-   error. Do not create the label or retry; another loop iteration cannot fix
-   it.
+3. Only when the label request is needed, expect the label to already exist in
+   the repository. If `gh` reports that it does not exist, stop processing
+   this PR immediately and report the error. Do not create the label or retry;
+   another loop iteration cannot fix it.
 
 ### Step 4: Wait for bot approval
 
-- Skip this step when the persistent state contains a review that remains
+- Skip this step when Step 3 found that `reviewDecision` is null or empty, or
+  when the persistent state contains an approval that GitHub still reports as
   `APPROVED`.
-- Otherwise, poll once per minute for a review with `state: APPROVED`. When a
-  request was made in Step 3, require a newly observed review to have
-  `submittedAt` at or after the persistent approval-request timestamp, then
-  record its identity and timestamp. Measure the **3-minute** deadline from
-  that one persistent request timestamp, not from the start of each iteration.
-  Use `gh pr view <PR_NUMBER> -R <base-repository> --json reviews` or
-  `latestReviews`.
-- If no approval appears within 3 minutes, stop processing this PR immediately
-  and report that the self-approval automation is likely not configured or not
-  running. Do not retry; this short timeout intentionally surfaces that case
-  quickly.
+- Otherwise, poll once per minute for `reviewDecision` and the current reviews.
+  When GitHub reports `APPROVED`, require the corresponding newly observed
+  review to have `submittedAt` at or after the persistent approval-request
+  timestamp, then record its identity and timestamp. If `reviewDecision`
+  becomes null or empty, approval is no longer required; record that state and
+  proceed.
+  Measure the **3-minute** deadline from the one persistent request timestamp,
+  not from the start of each iteration. Use
+  `gh pr view <PR_NUMBER> -R <base-repository> --json reviewDecision,reviews`
+  or include `latestReviews` when identifying the approving review.
+- If GitHub still requires review and no approval appears within 3 minutes,
+  stop processing this PR immediately and report that the self-approval
+  automation is likely not configured or not running. Do not retry; this short
+  timeout intentionally surfaces that case quickly.
 
 ### Step 5: Wait for CI to go green and re-check mergeability
 
@@ -254,24 +277,25 @@ Carry both values across every retry; never reset them at the top of the loop.
 
 | Condition | Behavior |
 | --- | --- |
+| Effective base-branch rules cannot be retrieved | Not retryable — stop and report |
 | Unresolved Copilot Code Review findings (Step 1) | Retryable — return to Step 1 |
 | Merge conflict detected (Step 5) | Retryable — return to Step 1 |
 | CI failure detected (Step 5) | Retryable — return to Step 1 |
-| Missing `self approval` label (Step 3) | Not retryable — stop and report |
-| Bot-approval timeout, 3 minutes (Step 4) | Not retryable — stop and report |
-| Review-completion timeout, 30 minutes (Step 1) | Not retryable — stop and report |
+| Missing required `self approval` label (Step 3) | Not retryable — stop and report |
+| Required bot-approval timeout, 3 minutes (Step 4) | Not retryable — stop and report |
+| Enabled review-completion timeout, 30 minutes (Step 1) | Not retryable — stop and report |
 | CI/mergeability-wait timeout, 30 minutes (Step 5) | Not retryable — stop and report |
 | Dirty, missing, or out-of-date qwt worktree (Step 6) | Not retryable — stop and report |
 | Merge request fails or PR remains open (Step 6) | Not retryable — stop and report |
 | Loop exceeds 10 iterations | Not retryable — stop and report |
 
-Because this repository's branch protection has
-`dismiss_stale_reviews_on_push: false`, an approval obtained on an earlier
-iteration remains valid after later conflict or CI fixes. Keep the approved
-review identity and timestamp outside the retry loop, confirm that its state
-remains `APPROVED`, and skip the label request and wait while it is valid.
-Although `gh pr ready` is safe to repeat, never reset the approval-request
-timestamp or rely on re-adding the label to trigger another approval.
+Keep the approved review identity and timestamp outside the retry loop. Reuse
+it only while GitHub continues to report `reviewDecision: APPROVED`; this
+prevents a stale review from satisfying a repository that dismisses approvals
+after later conflict or CI fixes. Although `gh pr ready` is safe to repeat,
+never reset the approval-request timestamp or rely on re-adding the label to
+trigger another approval. If an approval becomes stale, the wait remains bound
+to the original request and deadline.
 
 ## Processing multiple PRs
 
@@ -284,11 +308,12 @@ timestamp or rely on re-adding the label to trigger another approval.
 ## Constraints
 
 - Poll every waiting step once per minute.
-- Time out review completion and CI/mergeability waits after 30 minutes, and
-  bot approval after 3 minutes.
+- Time out enabled review completion and CI/mergeability waits after 30
+  minutes, and required bot approval after 3 minutes.
 - Limit the retry loop to 10 iterations per PR.
 - Never auto-create the `self approval` label. A missing label is a hard error
-  for that PR.
+  only when GitHub reports that review is required and no valid approval
+  exists.
 - The approval automation itself is outside this skill's scope; this skill
   only waits for its result.
 - Do not force-push branch updates unless explicitly instructed. The
@@ -300,4 +325,6 @@ timestamp or rely on re-adding the label to trigger another approval.
 
 - For each PR: the merged PR URL on success, or the failure reason and step on
   failure.
+- Report when Copilot Code Review or self approval was skipped because the
+  repository configuration did not require it.
 - A final summary across all given PRs.

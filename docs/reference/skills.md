@@ -9,7 +9,7 @@ Copilot, Codex, and Claude Code.
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pr-create` | Create a draft PR from an isolated `gh-qwt` feature worktree, with an appropriate commit message and description |
 | `pr-fix` | Use the PR head's `gh-qwt` worktree to fix CI errors and handle review comments |
-| `pr-merge` | Loop `pr-fix` and Copilot Code Review until there are no findings, then merge and clean up the qwt branch workspace |
+| `pr-merge` | Loop enabled Copilot Code Review until there are no findings, request approval only when required, then merge and clean up the qwt branch workspace |
 
 ## Installation destination
 
@@ -236,6 +236,8 @@ the skill; it stops and asks for explicit direction instead.
 5. Fix valid comments and skip invalid ones; for comments the user replied "対応しない" (will not address) to, record in the PR body that they will not be addressed along with the reason
 6. Before committing and pushing, perform an independent local review. Use a dedicated review skill or review subagent when the host provides one; otherwise make a separate review pass over the full diff
 7. After pushing, reply to each review comment with how it was addressed
+8. Query the active rules for the PR base branch and request Copilot Code
+   Review only when an effective `copilot_code_review` rule exists
 
 The PR API remains scoped to the base repository. Git changes and pushes occur
 only in the head worktree. For a fork PR, the head repository is used as the
@@ -249,6 +251,7 @@ creating a substitute branch in the base repository.
 ### Output
 
 - Replies to each review comment
+- Whether Copilot Code Review was requested or skipped because it is disabled
 - Error report if CI still does not pass
 
 ## Detailed specification for `pr-merge`
@@ -257,21 +260,30 @@ creating a substitute branch in the base repository.
 
 `pr-merge` runs a single retry loop (up to 10 iterations) per PR:
 
-1. Use the `pr-fix` skill in `all` mode for the PR, request a review from Copilot Code Review (using the same GraphQL mutation), and wait for it to complete
-2. Count the unresolved findings left by Copilot Code Review (paginated `reviewThreads`, filtered to `copilot-pull-request-reviewer`); if any remain, go back to step 1
-3. Mark the PR ready for review (`gh pr ready`). Reuse an existing valid
-   approval; otherwise apply the `self approval` label once and keep that
-   request timestamp across every retry
-4. Wait for the pre-existing self-approval automation to approve the PR
-   (short 3-minute timeout measured from the one persistent request, since a
-   miss usually means the automation is not configured). An approval that
-   remains valid is not discarded merely because CI or conflict handling
-   restarted the loop
+1. Query the active rules for the PR base branch. If they include
+   `copilot_code_review`, use the `pr-fix` skill in `all` mode, request a
+   Copilot Code Review, and wait for it to complete. Otherwise, run `pr-fix`
+   but skip the review request and wait
+2. When Copilot Code Review is enabled, count its unresolved findings
+   (paginated `reviewThreads`, filtered to
+   `copilot-pull-request-reviewer`); if any remain, go back to step 1
+3. Mark the PR ready for review (`gh pr ready`) and query GitHub's computed
+   `reviewDecision`. Skip approval when it is null or empty, reuse an existing
+   valid approval when it is `APPROVED`, or apply the `self approval` label
+   once when review is required
+4. When review is required, wait for the pre-existing self-approval automation
+   to make `reviewDecision` become `APPROVED` (short 3-minute timeout measured
+   from the one persistent request). Re-check the decision after retries and
+   reuse an approval only while GitHub continues to report it as valid
 5. Wait for CI to go green and re-check mergeability; a merge conflict or a CI failure sends control back to step 1 because the `pr-fix` skill can fix both
 6. Once CI is green and there are no conflicts, verify that the qwt worktree
    is clean and still matches the PR head, squash merge with the checked head
    SHA, then remove the qwt worktree and local branch with `gh qwt remove
    --delete-branch`
+
+The active-rules query is evaluated per PR against its canonical base host and
+base branch. A failed query stops that PR rather than being interpreted as an
+absent `copilot_code_review` rule.
 
 After the qwt cleanup, `pr-merge` deletes the head remote branch directly from
 its repository only when it still equals the verified PR head SHA. The
@@ -283,7 +295,10 @@ runs from qwt root so its argument cannot be mistaken for a branch name.
 Multiple PR numbers are processed one at a time; a PR that fails or times out is skipped (recorded) so the rest of the batch still runs.
 
 > [!NOTE]
-> `pr-merge` assumes an automation that approves PRs labeled `self approval` already exists (outside this skill's scope) and only waits for its result. It also assumes the `self approval` label already exists in the repository; it does not create the label.
+> When GitHub reports that review is required, `pr-merge` assumes an automation
+> that approves PRs labeled `self approval` and the label itself already exist.
+> It does not create either one. Repositories where `reviewDecision` is null or
+> empty do not need that automation or label for this workflow.
 
 ### Input
 
@@ -293,4 +308,5 @@ Multiple PR numbers are processed one at a time; a PR that fails or times out is
 
 - The merged PR's URL for each successfully merged PR
 - The failure reason (which step, and why) for any PR that could not be merged
+- Whether Copilot Code Review or self approval was skipped as unnecessary
 - A final summary across all given PR numbers

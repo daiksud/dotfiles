@@ -61,8 +61,14 @@ everything else either continues normally or stops and reports (see
 
 Before the first iteration:
 
-1. Retrieve `baseRefName` for the PR, URL-encode it as one path segment, and
-   query the active rules for that branch with
+1. Retrieve `baseRefName` for the PR. After storing it in `base_ref`, URL-encode
+   it as one path segment, for example:
+
+   ```bash
+   encoded_base_ref="$(python3 -c 'import sys; from urllib.parse import quote; print(quote(sys.argv[1], safe=""))' "$base_ref")"
+   ```
+
+   Query the active rules for that branch with
    `gh api --hostname <base-host>
    "repos/<base-owner>/<base-repo>/rules/branches/<encoded-base-ref>"`.
    Stop this PR if the query fails; do not infer availability from local files

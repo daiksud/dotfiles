@@ -181,8 +181,14 @@ repository when the head is a fork.
 - After sending replies, resolve the review comment threads.
 - Once all responses are complete, determine whether Copilot Code Review is
   enabled for the PR base branch before requesting a review:
-  - URL-encode `baseRefName` as one path segment and retrieve the active rules
-    that apply to it with
+  - After storing `baseRefName` in `base_ref`, URL-encode it as one path
+    segment, for example:
+
+    ```bash
+    encoded_base_ref="$(python3 -c 'import sys; from urllib.parse import quote; print(quote(sys.argv[1], safe=""))' "$base_ref")"
+    ```
+
+    Retrieve the active rules that apply to it with
     `gh api --hostname <base-host>
     "repos/<base-owner>/<base-repo>/rules/branches/<encoded-base-ref>"`.
   - If the request fails, stop and report that Copilot Code Review availability

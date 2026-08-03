@@ -1,4 +1,4 @@
-# ADR 0018: Evaluate repository review requirements before PR automation
+# 0018: Evaluate repository review requirements before PR automation
 
 Query GitHub's live state before requesting optional reviews or approvals in
 the Pull Request skills.

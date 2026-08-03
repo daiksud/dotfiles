@@ -70,7 +70,7 @@ Before the first iteration:
 
    Query the active rules for that branch with
    `gh api --hostname <base-host>
-   "repos/<base-owner>/<base-repo>/rules/branches/<encoded-base-ref>"`.
+   "repos/<base-owner>/<base-repo>/rules/branches/${encoded_base_ref}"`.
    Stop this PR if the query fails; do not infer availability from local files
    or continue with an assumed setting.
 2. Record whether the response contains a rule whose `type` is

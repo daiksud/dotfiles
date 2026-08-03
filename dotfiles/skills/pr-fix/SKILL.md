@@ -190,7 +190,7 @@ repository when the head is a fork.
 
     Retrieve the active rules that apply to it with
     `gh api --hostname <base-host>
-    "repos/<base-owner>/<base-repo>/rules/branches/<encoded-base-ref>"`.
+    "repos/<base-owner>/<base-repo>/rules/branches/${encoded_base_ref}"`.
   - If the request fails, stop and report that Copilot Code Review availability
     could not be determined. Do not guess from local repository files or try
     the review request anyway.

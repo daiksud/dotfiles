@@ -96,6 +96,12 @@ Before the first iteration:
      gh pr view <PR_NUMBER> -R <base-repository> --json id -q .id
      ```
 
+   - Immediately before sending the request, record its timestamp:
+
+     ```bash
+     copilot_review_requested_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+     ```
+
    - Request the review:
 
      ```bash
@@ -124,7 +130,7 @@ Before the first iteration:
      `copilot-pull-request-reviewer`.
 4. Wait for the review to complete: poll once per minute, up to 30 minutes,
    for a review from `copilot-pull-request-reviewer` whose `submittedAt` is
-   after the request was sent. Use
+   after `copilot_review_requested_at`. Use
    `gh pr view <PR_NUMBER> -R <base-repository> --json latestReviews`.
 5. Count the unresolved Copilot Code Review findings:
    - Run every GraphQL query against `<base-host>` explicitly.

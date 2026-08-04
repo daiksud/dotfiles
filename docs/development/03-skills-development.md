@@ -76,6 +76,22 @@ If you see a loading error, check whether the `name` and `description` in the fr
 - Test explicit invocation in all supported agents when a change affects
   discovery, inputs, or cross-skill delegation.
 
+## Repository-dependent automation
+
+When a skill invokes an optional GitHub repository feature, query the live
+state for the canonical host, repository, and affected branch before invoking
+it. Do not infer availability from a checked-in settings file because
+organization rules and live repository settings can also apply.
+
+- Distinguish a successful query that reports a disabled feature from an API,
+  permission, or network failure. Skip the feature only in the first case and
+  stop with a clear error in the second.
+- Prefer GitHub's computed PR state, such as `reviewDecision`, when deciding
+  whether a workflow requirement has already been satisfied or does not
+  apply.
+- Include optional-feature decisions in the skill output so the user can tell
+  whether an action ran or was deliberately skipped.
+
 ## Branch-workspace skills
 
 When a PR skill needs a branch workspace, use the repository's

@@ -179,7 +179,25 @@ repository when the head is a fork.
   - If the user decided not to address it: State that it will not be addressed
     and that the reason is recorded in the PR body.
 - After sending replies, resolve the review comment threads.
-- Once all responses are complete, request a review from Copilot Code Review.
+- Once all responses are complete, determine whether Copilot Code Review is
+  enabled for the PR base branch before requesting a review:
+  - After storing `baseRefName` in `base_ref`, URL-encode it as one path
+    segment, for example:
+
+    ```bash
+    encoded_base_ref="$(python3 -c 'import sys; from urllib.parse import quote; print(quote(sys.argv[1], safe=""))' "$base_ref")"
+    ```
+
+    Retrieve the active rules that apply to it with
+    `gh api --hostname <base-host>
+    "repos/<base-owner>/<base-repo>/rules/branches/${encoded_base_ref}"`.
+  - If the request fails, stop and report that Copilot Code Review availability
+    could not be determined. Do not guess from local repository files or try
+    the review request anyway.
+  - If the response contains no rule whose `type` is
+    `copilot_code_review`, report that Copilot Code Review is not enabled for
+    the base branch and skip the review request.
+- When the effective rules include `copilot_code_review`, request a review.
   - Get the PR node ID with
     `gh pr view <PR_NUMBER> -R <base-repository> --json id -q .id`.
   - Use the retrieved node ID to request a review:
@@ -247,3 +265,10 @@ Conflicts must be resolved first for CI to run correctly.
 - Do not force-push unless explicitly instructed.
 - Do not use a branch checkout, a normal-clone `git worktree`, or a qwt force
   removal to work around a workspace error.
+
+## Output
+
+- Report whether Copilot Code Review was requested or skipped because the
+  effective base-branch rules do not enable it.
+- Report any availability-query failure as a blocking error rather than
+  treating Copilot Code Review as enabled or disabled.

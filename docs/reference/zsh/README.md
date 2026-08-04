@@ -25,6 +25,28 @@ This is the reference for Zsh shell configuration.
 10. **mise** — Enable runtime version management
 11. **Custom functions** — Source all `~/.zsh/*.zsh`
 
+## Custom plugins
+
+`.zshrc` sources every `~/.zsh/*.zsh` file in glob order. `dotfiles/zsh/`
+currently provides:
+
+| File | Purpose |
+| --- | --- |
+| `browse-github-notifications.zsh` | Browse GitHub notifications |
+| `edit-qwt-repository.zsh` | Select a gh-qwt checkout and open it in `nvim` |
+| `edit-selected-file.zsh` | Select a file and open it in `nvim` |
+| `fzf-select-history.zsh` | Search history with fzf |
+| `gh-account.zsh` | Select the GitHub account and Git identity per repository |
+| `go-to-qwt-repository.zsh` | Select a gh-qwt checkout and `cd` into it |
+| `history-substring-search.zsh` | Substring history search keybindings |
+| `open-lazygit.zsh` | Launch lazygit and follow its directory changes |
+| `qwt-select.zsh` | Shared fzf selector for gh-qwt managed checkouts |
+| `run-selected-command.zsh` | Command execution utility used by other plugins |
+| `zshaddhistory.zsh` | Exclude failed commands from history |
+
+See [Zsh custom plugins](./plugins.md) for each plugin's behavior, alias, and
+keybinding.
+
 ## History settings
 
 | Option | Description |

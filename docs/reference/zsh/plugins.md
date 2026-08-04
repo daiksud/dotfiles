@@ -6,10 +6,10 @@ This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 
 | File | Alias | Keybinding | Description |
 | --------------------------------- | ----- | ---------- | -------------------------------------------------------- |
-| `gh-config-dir.zsh` | — | — | Automatically configure Git identity and `GH_CONFIG_DIR` |
-| `starship-qwt-worktree.sh` | — | — | Identify qwt worktrees for the Starship prompt |
-| `go-to-qwt-repository.zsh` | `ggr` | `C-]` | Select a gh-qwt repository/worktree and `cd` into it |
-| `edit-qwt-repository.zsh` | `egr` | — | Select a gh-qwt repository/worktree and open it in `nvim` |
+| `gh-account.zsh` | `ghu` | — | Select the GitHub account and Git identity per repository |
+| `qwt-select.zsh` | — | — | Shared fzf selector for gh-qwt managed checkouts |
+| `go-to-qwt-repository.zsh` | `ggr` | `C-]` | Select a gh-qwt checkout and `cd` into it |
+| `edit-qwt-repository.zsh` | `egr` | — | Select a gh-qwt checkout and open it in `nvim` |
 | `edit-selected-file.zsh` | `esf` | — | Select a file and open it in `nvim` |
 | `fzf-select-history.zsh` | — | `C-r` | Search history with fzf |
 | `browse-github-notifications.zsh` | `bgn` | — | Browse GitHub notifications |
@@ -20,63 +20,101 @@ This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 
 ---
 
-## gh-config-dir.zsh
+## gh-account.zsh
 
-The most important plugin, which automatically configures GitHub account information and the SSH signing key for each repository.
+The most important plugin, which selects the GitHub account, Git identity, and
+SSH signing key to use in each repository.
+
+Every account stays in `gh`'s single user-level configuration. The central
+mapping file `~/.config/gh/repos.json` (override with `GH_ACCOUNT_MAP_FILE`)
+records which of those accounts each repository uses, keyed by the canonical
+lowercase `<host>/<owner>/<repo>` identity of `origin`. The choice is applied
+through `GH_TOKEN` and `GIT_CONFIG_*` environment variables so it never leaves
+the current shell. `GH_CONFIG_DIR` is not used at all, and `gh auth switch` is
+deliberately avoided because it would move the globally active account for
+every terminal.
 
 ### Behavior
 
-Runs automatically on every `cd` via the `chpwd` hook:
+`gh-account-sync` is registered on the `chpwd` hook and runs on every `cd`:
 
-1. Check whether the current directory is inside a Git repository
-2. Resolve and create a repository-shared `GH_CONFIG_DIR`: ordinary repositories use the common `.git/gh/`, while gh-qwt repositories use `.gh/` at the repository root
-3. Only for GitHub origins, perform the following identity sync:
-   - If local `user.name` / `user.email` are not set, fetch them with `gh api` and set them
-   - Set `~/.ssh/<login>.pub` as `user.signingkey`
-   - Update `~/.ssh/allowed_signers`
+1. Resolve the `<host>/<owner>/<repo>` identity of `origin`, and clear the
+   injected environment when the directory is not a GitHub repository
+2. Look the identity up in the mapping file, reusing the already applied
+   account when it has not changed
+3. Export `GH_TOKEN` and `COPILOT_GITHUB_TOKEN` for the stored account, and
+   inject `user.name`, `user.email`, and — when `~/.ssh/<login>.pub` exists —
+   `user.signingkey` through `GIT_CONFIG_COUNT` / `GIT_CONFIG_KEY_<n>` /
+   `GIT_CONFIG_VALUE_<n>`, which take precedence over every configuration file
+4. Prompt for an account with fzf when the repository is unmapped
+
+The prompt appears only in an interactive shell: it is skipped inside a zle
+widget, when stdin is not a terminal, and when `TERM` is `dumb`, so a
+non-interactive shell never blocks on it.
 
 ### Functions provided
 
 | Function | Description |
 | --------------------------- | ------------------------------------------------------------ |
-| `resolve_gh_config_dir` | Resolve shared authentication storage for ordinary and gh-qwt worktrees |
-| `is_github_origin_repo` | Determine whether `origin` is `github.com` |
-| `resolve_gh_identity` | Get login name, name, and email from `gh api` |
-| `sync_signing_key_from_gh` | Set the SSH signing key and `allowed_signers` |
-| `sync_git_identity_from_gh` | Sync `user.name`, `user.email`, and the signing key together |
-| `set_gh_config_dir` | Set `GH_CONFIG_DIR` and call identity sync |
+| `gh-account-repo-id` | Normalize a remote URL into a `<host>/<owner>/<repo>` identity |
+| `gh-account-map-get` | Read one field of a mapping entry |
+| `gh-account-map-set` | Create or replace a mapping entry |
+| `gh-account-map-unset` | Delete a mapping entry |
+| `gh-account-logins` | List the logins stored in `gh`'s configuration for a host |
+| `gh-account-token` | Print the stored token of a login |
+| `gh-account-login` | Run `gh auth login` with a clean environment to add an account |
+| `gh-account-select` | Choose (or re-choose) the account for the current repository; `--forget` removes the mapping |
+| `gh-account-cleanup-local` | Remove the local identity settings written by the previous design |
+| `gh-account-sync` | `chpwd` hook that applies the mapped account to the shell |
+
+### Alias
+
+- `ghu` — `gh-account-select`
+
+This plugin's behavior is covered by the bats suite in `tests/` — see
+[Testing](../../development/04-testing.md).
 
 For details, see [Automatic Git identity switching](../../guides/04-git-identity.md).
 
 ---
 
-## starship-qwt-worktree.sh
+## qwt-select.zsh
 
-A POSIX helper used by the Starship custom modules. It exits unsuccessfully
-outside a qwt worktree; otherwise, it prints its `owner/repo/branch` label after
-validating the shared `.bare` directory and repository `.git` pointer, appending
-the path relative to the worktree root (`owner/repo/branch/path/to/subdir`) when
-run from a subdirectory.
+A shared fzf selector for [gh-qwt](../gh-qwt.md) managed checkouts, used by
+both `go-to-qwt-repository.zsh` and `edit-qwt-repository.zsh`.
 
-The directory, Git branch, and `origin/main` warning prompt modules share this
-check. As a result, ordinary Git worktrees retain their branch segment, while
-qwt worktrees replace the duplicate branch name with a Git icon and can report a
-stale `origin/main` base.
+### Behavior
 
-This script's behavior is covered by the bats suite in `tests/` — see
-[Testing](../../development/04-testing.md).
+1. List every managed checkout with `gh qwt list --all`, because `gh qwt list`
+   alone is scoped to the current repository and fails outside the ghq roots
+2. Hide the `github.com/` prefix in the fzf display while keeping the canonical
+   host-qualified spec in a hidden field, so other hosts stay unambiguous
+3. Resolve the selected spec with `gh qwt path`
+4. Verify that the resolved directory exists, since `gh qwt path` also prints
+   the planned path of a worktree that has not been created yet
+5. Print the absolute path on stdout
+
+It writes a message to stderr and returns non-zero when `gh` is missing, the
+listing is empty, the selection cannot be resolved, or the resolved path does
+not exist.
+
+### Interface
+
+```zsh
+qwt-select-path "initial query" [extra fzf options...]
+```
 
 ---
 
 ## go-to-qwt-repository.zsh
 
-Get a flat list of [gh-qwt](../gh-qwt.md)-managed repositories and worktrees with `gh qwt list`, select one with fzf, and `cd` into it.
+Select a [gh-qwt](../gh-qwt.md) managed checkout with fzf and `cd` into it.
 
 ### Behavior
 
-1. Get a list of `owner/repo/branch` specs with `gh qwt list` (a flat, sorted mapping, with no qwt root prefix)
-2. Select one with fzf
-3. Combine the selection with `gh qwt root` to build the absolute path, then `cd` into it
+1. Call `qwt-select-path` with the current command line as the initial query
+2. `cd` into the returned absolute path
+3. Redraw the prompt when it was invoked as a ZLE widget
 
 ### Keybinding
 
@@ -90,13 +128,12 @@ Get a flat list of [gh-qwt](../gh-qwt.md)-managed repositories and worktrees wit
 
 ## edit-qwt-repository.zsh
 
-Select a [gh-qwt](../gh-qwt.md)-managed repository or worktree with fzf and open it in Neovim.
+Select a [gh-qwt](../gh-qwt.md) managed checkout with fzf and open it in Neovim.
 
 ### Behavior
 
-1. Get a list of `owner/repo/branch` specs with `gh qwt list` and select one with fzf
-2. Combine the selection with `gh qwt root` to build the absolute path
-3. Run `nvim <path>` via `run-selected-command`
+1. Call `qwt-select-path` to get the absolute path of a checkout
+2. Run `nvim <path>` via `run-selected-command`
 
 ### Alias
 

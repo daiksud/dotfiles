@@ -6,6 +6,10 @@ Run all Pull Request skill branch workflows in `gh-qwt` worktrees instead of swi
 
 Accepted
 
+The worktree-only policy still stands. Its mechanical details — path
+resolution, registration checks, and managed-repository detection — were
+updated by [ADR 0019](./0019-gh-qwt-ghq-layout.md).
+
 ## Context
 
 The `pr-create` skill previously instructed agents to create and check out a
@@ -36,7 +40,7 @@ branch-workspace mechanism.
   the `get` or `add` that creates it. For a new feature branch, verify the
   default worktree after its bootstrap `get`, then verify the feature target
   after `add`. Treat an occupied unregistered target, or an occupied repository
-  path without its qwt `.bare` database, as a collision.
+  path that gh-qwt does not manage, as a collision.
 - Treat canonical `<host>/<owner>/<repo>` identity as part of every qwt
   repository key even though the on-disk qwt path contains only
   `<owner>/<repo>`. Resolve and compare the expanded bare `origin` before any

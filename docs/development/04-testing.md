@@ -36,7 +36,7 @@ mise run markdown:format
 mise run markdown:lint
 
 # Shellcheck (Bash/sh scripts only — Zsh plugins use a different check below)
-shellcheck install.sh scripts/*.sh dotfiles/zsh/starship-qwt-worktree.sh dotfiles/ghostty/herdr-launch.sh
+shellcheck install.sh scripts/*.sh dotfiles/ghostty/herdr-launch.sh
 
 # Zsh syntax check (parse-only, no execution)
 for f in dotfiles/zsh/*.zsh; do zsh -n "$f"; done
@@ -72,10 +72,19 @@ Current coverage:
   `AGENTS.md` files, exact synchronization of their inline Copilot mirrors,
   the Claude import adapters, and the legacy personal Copilot adapter's
   forward reference to canonical personal instructions.
-- `tests/starship_qwt_worktree.bats` — `dotfiles/zsh/starship-qwt-worktree.sh`
-  behavior: the `owner/repo/branch` label at a worktree root, the appended
-  subdirectory path from inside a worktree, slash-containing branch names, and
-  the non-zero exit outside a qwt worktree or outside Git entirely.
+- `tests/gh_account.bats` — `dotfiles/zsh/gh-account.zsh` behavior, loaded in a
+  non-interactive `zsh -c` subshell with a scratch mapping file
+  (`GH_ACCOUNT_MAP_FILE`) so no real `gh` account or credential is touched:
+  remote-URL normalization into a lowercase `<host>/<owner>/<repo>` identity
+  (and rejection of unusable URLs), creating, reading, updating, and forgetting
+  mapping entries without disturbing the others, the `GIT_CONFIG_*` and token
+  variables exported when an identity is applied, the extra `user.signingkey`
+  entry plus `allowed_signers` upsert when the key file exists, clearing every
+  exported variable outside Git or for a non-GitHub remote, and that an
+  unmapped repository never prompts in a non-interactive shell. Two cases build
+  a real temporary repository to confirm that the `chpwd` hook function applies
+  a mapped account and that the injected environment configuration overrides
+  leftover `git config --local` identity values.
 - `tests/herdr_launch.bats` — `dotfiles/ghostty/herdr-launch.sh` behavior,
   with `herdr` and the login shell stubbed under a temp directory (via
   `HERDR_LAUNCH_BREW_BINS` and `SHELL`, so no real Homebrew install or herdr

@@ -152,6 +152,15 @@ run_zsh() {
   grep -Fq "alice@example.com ssh-ed25519 AAAATEST" "${TEST_TMP}/.ssh/allowed_signers"
 }
 
+@test "the missing-signing-key warning is suppressed in a non-interactive shell" {
+  run_zsh '
+    gh-account-token() { print -r -- "test-token"; }
+    _gh_account_apply "github.com/owner/repo" "nosuchaccount" "Alice A" "alice@example.com"
+  '
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"signing key not found"* ]]
+}
+
 @test "clearing removes every variable the plugin exported" {
   run_zsh '
     gh-account-token() { print -r -- "test-token"; }

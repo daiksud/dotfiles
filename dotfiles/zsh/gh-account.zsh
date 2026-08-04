@@ -192,7 +192,7 @@ _gh_account_apply() {
     values+=("$key_path")
     _gh_account_update_allowed_signers "$email" "$key_path"
   else
-    print -u2 -- "gh-account: signing key not found at ${key_path}. Skipping commit signing setup."
+    _gh_account_shell_is_interactive && print -u2 -- "gh-account: signing key not found at ${key_path}. Skipping commit signing setup."
   fi
 
   local i
@@ -240,11 +240,16 @@ _gh_account_current_id() {
   gh-account-repo-id "$origin"
 }
 
-_gh_account_is_interactive() {
+_gh_account_shell_is_interactive() {
   [[ -o interactive ]] || return 1
   [[ -z "${WIDGET:-}" ]] || return 1
   [[ -t 0 ]] || return 1
   [[ "${TERM:-dumb}" != "dumb" ]] || return 1
+}
+
+# Whether the account picker can run: an interactive shell with fzf.
+_gh_account_is_interactive() {
+  _gh_account_shell_is_interactive || return 1
   command -v fzf >/dev/null 2>&1
 }
 

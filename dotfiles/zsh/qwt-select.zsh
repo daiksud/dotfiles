@@ -16,6 +16,11 @@ function qwt-select-path() {
     return 1
   fi
 
+  if ! command -v fzf >/dev/null 2>&1; then
+    print -u2 -- "qwt-select-path: fzf is not installed"
+    return 1
+  fi
+
   if ! listing="$(gh qwt list --all 2>/dev/null)" || [[ -z "$listing" ]]; then
     print -u2 -- "qwt-select-path: no gh-qwt managed worktrees found"
     return 1

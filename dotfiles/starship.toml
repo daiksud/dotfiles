@@ -4,10 +4,9 @@ format = """
 [░▒▓](#a3aed2)\
 [  ](bg:#a3aed2 fg:#090c0c)\
 [](bg:#769ff0 fg:#a3aed2)\
-${custom.cwd}\
+${directory}\
 [](fg:#769ff0 bg:#394260)\
-${custom.git_branch}\
-${custom.qwt_base_warning}\
+${git_branch}\
 $git_status\
 [](fg:#394260 bg:#212736)\
 $nodejs\
@@ -20,54 +19,15 @@ $time\
 [ ](fg:#1d2230)\
 \n$character"""
 
-[custom.cwd]
-command = '''
-if qwt_worktree_label="$(sh "$HOME/.zsh/starship-qwt-worktree.sh" 2>/dev/null)"; then
-  printf '%s\n' "$qwt_worktree_label"
-  exit 0
-fi
-
-cwd="$(pwd -L)" || exit 1
-case "$cwd" in
-  "$HOME") printf '%s\n' '~' ;;
-  "$HOME"/*) printf '~/%s\n' "${cwd#"$HOME"/}" ;;
-  *) printf '%s\n' "$cwd" ;;
-esac
-'''
-when = true
-shell = ["sh"]
+[directory]
 style = "fg:#e3e5e5 bg:#769ff0"
-format = "[ $output ]($style)"
+read_only_style = "fg:#e3e5e5 bg:#769ff0"
+format = "[ $path$read_only ]($style)"
 
-[custom.git_branch]
-command = '''
-if sh "$HOME/.zsh/starship-qwt-worktree.sh" >/dev/null 2>&1; then
-  printf '%s\n' ''
-  exit 0
-fi
-
-branch="$(git symbolic-ref --quiet --short HEAD 2>/dev/null)" || branch="HEAD"
-printf ' %s\n' "$branch"
-'''
-when = "git rev-parse --is-inside-work-tree >/dev/null 2>&1"
-shell = ["sh"]
+[git_branch]
+symbol = " "
 style = "bg:#394260"
-format = '[[ $output ](fg:#769ff0 bg:#394260)]($style)'
-
-[custom.qwt_base_warning]
-command = '''
-missing_commits="$(git rev-list --count HEAD..origin/main 2>/dev/null)" || exit 1
-printf ' origin/main +%s\n' "$missing_commits"
-'''
-when = '''
-sh "$HOME/.zsh/starship-qwt-worktree.sh" >/dev/null 2>&1 || exit 1
-git rev-parse --verify --quiet origin/main >/dev/null || exit 1
-git merge-base --is-ancestor origin/main HEAD && exit 1
-exit 0
-'''
-shell = ["sh"]
-style = "fg:#e0af68 bg:#394260"
-format = "[ $output ]($style)"
+format = '[[ $symbol$branch ](fg:#769ff0 bg:#394260)]($style)'
 
 [git_status]
 style = "bg:#394260"

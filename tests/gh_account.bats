@@ -33,6 +33,16 @@ run_zsh() {
   [ "$status" -eq 0 ]
 }
 
+@test "github.com is always considered a known host" {
+  # github.com must stay usable even when gh has no stored authentication
+  # yet (for example a fresh CI runner), unlike an arbitrary Enterprise host.
+  run_zsh '
+    _gh_account_host_is_known "github.com" && print -r -- known || print -r -- unknown
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "known" ]
+}
+
 @test "remote URLs normalize to a lowercase host/owner/repo identity" {
   run_zsh '
     for url in \

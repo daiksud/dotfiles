@@ -120,13 +120,16 @@ gh-account-token() {
   command env -u GH_TOKEN gh auth token --hostname "$host" --user "$login" 2>/dev/null
 }
 
-# Whether gh has any stored authentication for a host. Hostname suffix
-# matching (e.g. requiring "github.com" or "ghe.com") cannot cover every
-# possible GitHub Enterprise Server hostname, so gh-account-sync defers to
-# gh's own knowledge of which hosts it is authenticated against instead.
+# Whether gh has any stored authentication for a host. github.com is always
+# treated as known, since gh's primary purpose is talking to it even before
+# any account has been added; hostname suffix matching (e.g. requiring
+# "github.com" or "ghe.com") cannot cover every possible GitHub Enterprise
+# Server hostname though, so any other host defers to gh's own knowledge of
+# which hosts it is authenticated against.
 _gh_account_host_is_known() {
   local host="${1:-}"
   [[ -n "$host" ]] || return 1
+  [[ "$host" == "github.com" ]] && return 0
 
   command env -u GH_TOKEN gh auth status --hostname "$host" >/dev/null 2>&1
 }

@@ -120,6 +120,17 @@ gh-account-token() {
   command env -u GH_TOKEN gh auth token --hostname "$host" --user "$login" 2>/dev/null
 }
 
+# Whether gh has any stored authentication for a host. Hostname suffix
+# matching (e.g. requiring "github.com" or "ghe.com") cannot cover every
+# possible GitHub Enterprise Server hostname, so gh-account-sync defers to
+# gh's own knowledge of which hosts it is authenticated against instead.
+_gh_account_host_is_known() {
+  local host="${1:-}"
+  [[ -n "$host" ]] || return 1
+
+  command env -u GH_TOKEN gh auth status --hostname "$host" >/dev/null 2>&1
+}
+
 # `gh auth login` also reads GH_TOKEN, so adding an account needs a clean env.
 gh-account-login() {
   command env -u GH_TOKEN -u GITHUB_TOKEN gh auth login "$@"
@@ -302,7 +313,7 @@ gh-account-sync() {
   fi
 
   host="${id%%/*}"
-  if [[ "$host" != "github.com" && "$host" != *.github.com && "$host" != *ghe.com ]]; then
+  if ! _gh_account_host_is_known "$host"; then
     _gh_account_clear_env
     return 0
   fi

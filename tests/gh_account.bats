@@ -196,6 +196,25 @@ run_zsh() {
   [ "$output" = "gh=unset" ]
 }
 
+@test "a mapped repository on an Enterprise host is applied when gh knows that host" {
+  # Regression test: the previous host filter only matched literal
+  # "github.com", "*.github.com", or "*ghe.com" suffixes, which excludes
+  # realistic GitHub Enterprise Server hostnames such as this one even though
+  # gh-account-repo-id normalizes them correctly.
+  git init -q "${TEST_TMP}/repo"
+  git -C "${TEST_TMP}/repo" remote add origin "https://git.example-enterprise.com/owner/repo.git"
+
+  run_zsh '
+    _gh_account_host_is_known() { [ "$1" = "git.example-enterprise.com" ]; }
+    gh-account-map-set "git.example-enterprise.com/owner/repo" "alice" "Alice A" "alice@example.com" >/dev/null
+    gh-account-token() { print -r -- "test-token"; }
+    cd "'"${TEST_TMP}"'/repo" 2>/dev/null
+    print -r -- "gh=${GH_TOKEN:-unset}"
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "gh=test-token" ]
+}
+
 @test "an unmapped repository never prompts in a non-interactive shell" {
   git init -q "${TEST_TMP}/repo"
   git -C "${TEST_TMP}/repo" remote add origin "https://github.com/owner/unmapped.git"

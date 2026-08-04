@@ -84,6 +84,14 @@ Follow the upstream layout rather than reconstructing the old one.
 - Treat host-qualified specs as the only supported form when calling
   `gh qwt path`, and migrate legacy `~/qwt` repositories explicitly with
   `gh qwt migrate`.
+- Add an "Ensure zsh is available" step to the `test` job's `ubuntu-latest`
+  leg in `.github/workflows/ci.yml`, matching the one already used by `lint`.
+  `tests/gh_account.bats` (see
+  [ADR 0020](./0020-central-gh-account-mapping.md)) is the first `tests/`
+  suite that executes `zsh` rather than only parsing it, and the
+  `ubuntu-latest` runner image does not provide `zsh` by default; the
+  `macos-latest` leg already has it preinstalled, so the guard is a no-op
+  there.
 
 ## Alternatives Considered
 

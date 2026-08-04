@@ -32,25 +32,40 @@ explicitly.
   verified, and pass `-R <base-repository>` to every `gh pr` command.
 - `pr-fix` owns preparation of the PR head worktree. Its `gh-qwt` contract
   and full canonical head repository identity guard apply to every retry: no
-  `git switch`, `git checkout`, normal-clone fallback, or `git worktree`.
+  `git switch`, `git checkout`, branch-checkout fallback in another clone, or
+  `git worktree`.
 - Resolve the head repository, head branch, and head SHA again before cleanup.
   Resolve the returned head repository through GitHub on the base host and
   record its canonical URL, lowercase host, and canonical `nameWithOwner`.
   Stop if this identity cannot be verified or differs from the head identity
   used by the final `pr-fix` pass.
-- Use `gh qwt path <head-owner>/<head-repo>/<head-branch>` to locate the
-  worktree. Never infer its path from the current directory.
+- Use `gh qwt path <head-host>/<head-owner>/<head-repo>/<head-branch>` to
+  locate the worktree. Never infer its path from the current directory. Every
+  `gh qwt path` spec must be host-qualified
+  (`github.com/<owner>/<repo>[/<branch>]` for GitHub.com), because a
+  three-segment spec is read as `<host>/<owner>/<repo>`. The primary checkout
+  is an ordinary clone at `<ghq-root>/<host>/<owner>/<repo>`, and linked
+  worktrees live under `<qwt.worktreeroot>/<host>/<owner>/<repo>/<branch>`,
+  which defaults to `<ghq-root>-worktrees`.
 - Before fetching, reusing, removing, or otherwise operating on the cleanup
-  repository, read the expanded `origin` fetch URL directly from its bare Git
-  database and resolve it through GitHub. Require both the canonical URL and
+  repository, read the expanded `origin` fetch URL from its primary checkout
+  with
+  `git -C "$(gh qwt path <head-host>/<head-owner>/<head-repo>)" remote get-url origin`
+  and resolve it through GitHub. Require both the canonical URL and
   full `<lowercase-host>/<canonical-owner>/<canonical-repo>` identity to equal
-  the freshly resolved PR head. Stop before cleanup on an unverifiable or
-  mismatched identity; never rewrite `origin` or act on a host-colliding qwt
-  path.
+  the freshly resolved PR head, and require
+  `git -C <primary-checkout> config --get qwt.identity` to equal that same
+  identity. The paths are host-qualified, but the same `<owner>/<repo>` can
+  still exist on several hosts and `path`, `list --exact`, and `remove --repo`
+  all accept short `<owner>/<repo>` specs that silently mean `github.com`. Stop
+  before cleanup on an unverifiable or mismatched identity; never rewrite
+  `origin` or act on a host-colliding qwt path. Resolve a host collision with a
+  separately configured ghq root (`GHQ_ROOT` or `ghq.root`).
 - Do not use `gh qwt remove --force`. After a confirmed merge,
-  `gh qwt remove --delete-branch` is the required, safe cleanup operation:
-  it removes the clean worktree before deleting its now-unchecked-out local
-  branch.
+  `gh qwt remove --repo <head-host>/<head-owner>/<head-repo> <head-branch> --delete-branch`
+  is the required, safe cleanup operation: `--repo` targets the managed
+  repository explicitly from any directory, and the command removes the clean
+  worktree before deleting its now-unchecked-out local branch.
 
 ## Procedure (per PR)
 
@@ -215,16 +230,26 @@ Before the first iteration:
    and canonical `nameWithOwner`. Stop if the head repository or identity is
    missing, the identity differs from the final verified `pr-fix` head, or the
    PR head changed since the final successful CI/mergeability check.
-2. Calculate the qwt repository and explicit worktree paths. Require
-   `<qwt-repository>/.bare` to exist, then run the workspace identity guard
-   against the freshly resolved head before reading the target, fetching, or
-   performing cleanup. Stop on an unverifiable or mismatched `origin`.
+2. Calculate the primary checkout and explicit worktree paths with
+   `gh qwt path <head-host>/<head-owner>/<head-repo>` and
+   `gh qwt path <head-host>/<head-owner>/<head-repo>/<head-branch>`. Require
+   `git -C <primary-checkout> config --get qwt.managed` to print exactly
+   `true`, then run the workspace identity guard against the freshly resolved
+   head before reading the target, fetching, or performing cleanup. Stop on an
+   unverifiable or mismatched `origin` or `qwt.identity`, and on a repository
+   path that is occupied but is not a `qwt.managed` repository.
 3. Run
-   `gh qwt list <head-owner>/<head-repo>/<head-branch> --exact --full-path`
-   without output filtering and require it to succeed. At least one stdout
+   `gh qwt list --all <head-host>/<head-owner>/<head-repo>/<head-branch> --exact --full-path`
+   without output filtering and require it to succeed. Pass `--all` because an
+   unqualified `gh qwt list` is scoped to the repository containing the current
+   directory and fails with
+   `gh-qwt: repository is outside configured ghq roots` when that directory is
+   a Git repository outside the configured ghq roots. At least one stdout
    line must equal the calculated target path byte-for-byte; ignore other
-   lines. Stop before reading, fetching, merging, or cleanup if the target is
-   not exactly registered, even when a directory occupies that path.
+   lines, because `--exact` also matches a bare `<branch>`, `<repo>/<branch>`,
+   and `<owner>/<repo>/<branch>` in every listed repository. Stop before
+   reading, fetching, merging, or cleanup if the target is not exactly
+   registered, even when a directory occupies that path.
 4. Verify all of the following:
    - The path exists and its current branch is the PR head branch.
    - `git -C <target> status --porcelain` is empty.
@@ -243,26 +268,31 @@ Before the first iteration:
 7. Remove the clean worktree and its local branch:
 
    ```bash
-   (
-     cd "$(gh qwt root)" &&
-     gh qwt remove <head-owner>/<head-repo>/<head-branch> --delete-branch
-   )
+   gh qwt remove --repo <head-host>/<head-owner>/<head-repo> \
+     <head-branch> --delete-branch
    ```
 
-   The command must run outside every qwt repository. Inside a qwt worktree,
-   `gh qwt remove` treats its argument as a branch name rather than an
-   explicit `owner/repo/branch` spec. Do not pass `--force`. If the worktree
-   cannot be removed, the PR is already merged; report a cleanup warning with
-   the remaining path instead of reporting a failed merge.
-8. Resolve the remaining qwt bare `origin` through GitHub again after local
-   cleanup and require its canonical URL and full host/owner/repo identity to
+   `--repo` names the managed repository explicitly and resolves it through the
+   configured ghq roots, so the command needs no particular current directory
+   and `<SPEC>` is unambiguously the branch name. Always pass it: without
+   `--repo`, `gh qwt remove` interprets its spec relative to the current
+   directory, where inside a managed repository it is a branch name, and
+   outside every repository a three-segment `<host>/<owner>/<repo>` spec
+   removes the **whole repository**. Run the command from a directory outside
+   the worktree being removed, because removal deletes that directory tree. Do
+   not pass `--force`. If the worktree cannot be removed, the PR is already
+   merged; report a cleanup warning with the remaining path instead of
+   reporting a failed merge.
+8. Resolve the remaining primary checkout's `origin` through GitHub again after
+   local cleanup and require its canonical URL and full host/owner/repo
+   identity, plus `git -C <primary-checkout> config --get qwt.identity`, to
    still equal the verified head. If the repository is missing or fails this
    guard, do not contact `origin`; report a cleanup warning while retaining the
    successful merge result. Otherwise, delete the head branch from its own
    repository, including for fork PRs:
 
    ```bash
-   qwt_repo="$(gh qwt path <head-owner>/<head-repo>)"
+   qwt_repo="$(gh qwt path <head-host>/<head-owner>/<head-repo>)"
    if remote_ref="$(git -C "$qwt_repo" ls-remote origin \
      "refs/heads/<head-branch>")"; then
      if [ -n "$remote_ref" ]; then

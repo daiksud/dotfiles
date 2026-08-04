@@ -23,7 +23,8 @@ Run this once before the selected mode. It is required even when the invoking
 directory is a different worktree.
 
 1. Confirm that `gh qwt --help` succeeds. Do not use `git switch`,
-   `git checkout`, `git worktree`, or a normal-clone fallback.
+   `git checkout`, `git worktree`, or a branch-checkout fallback in the primary
+   checkout or any other clone.
 2. Resolve the selected base remote's expanded fetch URL through GitHub. Record
    its canonical repository URL, lowercase host, canonical `nameWithOwner`,
    and default branch. Define `<base-repository>` as the host-qualified
@@ -45,51 +46,84 @@ directory is a different worktree.
    `nameWithOwner`; stop if any part cannot be verified. Set the target branch
    to `headRefName`. Use this head identity for all qwt and Git operations, and
    keep `<base-repository>` separately for PR API commands.
-6. Calculate the qwt repository and target paths with
-   `gh qwt path <head-owner>/<head-repo>` and
-   `gh qwt path <head-owner>/<head-repo>/<head-branch>`. Treat the qwt
-   repository as existing only when `<qwt-repository>/.bare` is a directory.
-   If the calculated repository path is occupied but `.bare` is absent, stop
-   and report a repository-path collision; do not run `get` inside it.
-7. If the qwt repository exists, guard its identity before listing, fetching,
-   adding to, inspecting, or reusing it:
-   - Read the expanded fetch URL for `origin` directly from
-     `<qwt-repository>/.bare` and resolve that URL through GitHub.
+6. Calculate the primary checkout and target paths with
+   `gh qwt path <head-host>/<head-owner>/<head-repo>` and
+   `gh qwt path <head-host>/<head-owner>/<head-repo>/<head-branch>`. Every
+   `gh qwt path` spec must be host-qualified
+   (`github.com/<owner>/<repo>[/<branch>]` for GitHub.com), because a
+   three-segment spec is read as `<host>/<owner>/<repo>`. `gh qwt` keeps the
+   primary checkout as an ordinary clone at
+   `<ghq-root>/<host>/<owner>/<repo>` and every non-default branch as an
+   external linked worktree at
+   `<qwt.worktreeroot>/<host>/<owner>/<repo>/<branch>`, which defaults to
+   `<ghq-root>-worktrees`; the default branch has no linked worktree because it
+   is the primary checkout. Treat the managed repository as existing only when
+   `git -C <primary-checkout> config --get qwt.managed` prints exactly `true`,
+   since `gh qwt path` also prints deterministic planned paths for repositories
+   and worktrees that do not exist yet. If the calculated repository path is
+   occupied but is not a `qwt.managed` repository, stop and report a
+   repository-path collision; do not run `get` inside it.
+7. If the managed repository exists, guard its identity before listing,
+   fetching, adding to, inspecting, or reusing it. Its paths are
+   host-qualified, but the same `<owner>/<repo>` can still exist on several
+   hosts and `path`, `list --exact`, `add --repo`, and `remove --repo` all
+   accept short `<owner>/<repo>` specs that silently mean `github.com`:
+   - Read the expanded fetch URL for `origin` from its primary checkout with
+     `git -C "$(gh qwt path <head-host>/<head-owner>/<head-repo>)" remote get-url origin`
+     and resolve that URL through GitHub.
    - Require both its canonical repository URL and its full
      `<lowercase-host>/<canonical-owner>/<canonical-repo>` identity to equal
-     the recorded head repository identity.
+     the recorded head repository identity, and require
+     `git -C <primary-checkout> config --get qwt.identity` to equal that same
+     identity.
    - Stop if either side cannot be verified or differs. Do not fetch, rewrite
      `origin`, add a worktree, or reuse the repository. Report the host
-     collision and require a separately selected qwt root or manual
-     resolution.
+     collision and require a separately configured ghq root (`GHQ_ROOT` or
+     `ghq.root`) or manual resolution.
 8. Provision or reuse the target only after the identity guard permits it:
-   - When the qwt repository exists, run
-     `gh qwt list <head-owner>/<head-repo>/<head-branch> --exact --full-path`
-     without output filtering and require it to succeed. Treat the target as
+   - When the managed repository exists, run
+     `gh qwt list --all <head-host>/<head-owner>/<head-repo>/<head-branch> --exact --full-path`
+     without output filtering and require it to succeed. Pass `--all` because
+     an unqualified `gh qwt list` is scoped to the repository containing the
+     current directory and fails with
+     `gh-qwt: repository is outside configured ghq roots` when that directory
+     is a Git repository outside the configured ghq roots. Treat the target as
      registered only when at least one stdout line equals the calculated target
-     path byte-for-byte; ignore every other line. If no exact line exists but
-     the path is occupied by a file, directory, or link, stop and report a path
-     collision. When the qwt repository is missing, likewise stop before
-     `get` if its calculated target path is already occupied.
+     path byte-for-byte; ignore every other line, because `--exact` also
+     matches a bare `<branch>`, `<repo>/<branch>`, and
+     `<owner>/<repo>/<branch>` in every listed repository. If no exact line
+     exists but the path is occupied by a file, directory, or link, stop and
+     report a path collision. When the managed repository is missing, likewise
+     stop before `get` if its calculated target path is already occupied. When
+     the PR head branch is the head repository's default branch, the registered
+     path is the primary checkout itself.
    - If that worktree is exactly registered, verify that
      `git -C <target> branch --show-current` equals the PR head branch.
      Inspect `git -C <target> status --porcelain`; if it is not empty, stop
      and ask the user how to handle the existing changes.
-   - If the qwt repository exists but the worktree does not, first refresh
+   - If the managed repository exists but the worktree does not, first refresh
      its cached branch refs with
-     `git -C "$(gh qwt path <head-owner>/<head-repo>)" fetch origin --prune`,
+     `git -C "$(gh qwt path <head-host>/<head-owner>/<head-repo>)" fetch origin --prune`,
      then create the worktree with
-     `gh qwt add --repo <head-owner>/<head-repo> <head-branch>`.
-   - If the qwt repository does not exist, clone it directly into the PR head
-     branch with
+     `gh qwt add --repo <head-host>/<head-owner>/<head-repo> <head-branch>`.
+     The PR head branch already exists on the remote, so `add` attaches it;
+     never pass `--new`, which fails when a local or remote branch exists, and
+     never pass `--from`, which applies only on the path where `add` creates
+     the branch itself. `add` cannot create a worktree for the default branch,
+     which is the primary checkout: if the PR head branch is the head
+     repository's default branch and the primary checkout is not exactly
+     registered, stop and report the qwt error instead of working around it.
+   - If the managed repository does not exist, clone it directly into the PR
+     head branch with
      `gh qwt get --host <head-host> --branch <head-branch> <head-owner>/<head-repo>`.
-     Immediately run the identity guard against the new bare `origin`; stop
-     before inspecting or reusing the target if verification fails.
+     Immediately run the identity guard against the new primary checkout's
+     `origin` and `qwt.identity`; stop before inspecting or reusing the target
+     if verification fails.
    - After every `get` or `add`, resolve the path again and repeat the exact
-     unfiltered `gh qwt list` check. Require the calculated target path to
-     appear byte-for-byte, then verify both the directory and its checked-out
-     branch. Stop if registration is missing; never substitute an occupied
-     unregistered path.
+     unfiltered `gh qwt list --all` check. Require the calculated target path
+     to appear byte-for-byte, then verify both the directory and its
+     checked-out branch. Stop if registration is missing; never substitute an
+     occupied unregistered path.
 9. Fetch `origin --prune` from the resolved target and confirm that
    `origin/<head-branch>` exists. Compare it with local `HEAD` before
    editing:
@@ -263,7 +297,7 @@ Conflicts must be resolved first for CI to run correctly.
   `pr-fix` or `pr-merge` can reuse it.
 - Make one commit per logical fix and use a clear message.
 - Do not force-push unless explicitly instructed.
-- Do not use a branch checkout, a normal-clone `git worktree`, or a qwt force
+- Do not use a branch checkout, a raw `git worktree`, or a qwt force
   removal to work around a workspace error.
 
 ## Output

@@ -52,7 +52,7 @@ Bypass RTK filtering whenever command output or exit status will be parsed, comp
 
 ```bash
 RTK_DISABLED=1 git status --porcelain=v1 -z
-rtk proxy gh qwt list owner/repo/branch --exact --full-path
+rtk proxy gh qwt list --all github.com/owner/repo/branch --exact --full-path
 ```
 
 This exception applies to the status, diff, ref, path, and list probes used by the interactive `gh-qwt` safety workflow.

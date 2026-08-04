@@ -6,6 +6,10 @@ Adopt the `gh-qwt` GitHub CLI extension, which unifies repository cloning and pe
 
 Accepted
 
+The choice of gh-qwt still stands. Its directory layout changed in v0.16.0; see
+[ADR 0019](./0019-gh-qwt-ghq-layout.md) for the layout this repository follows
+now.
+
 ## Context
 
 This repository previously adopted two separate GitHub CLI extensions for related but distinct jobs:

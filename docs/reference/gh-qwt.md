@@ -185,10 +185,11 @@ only when its current ref still matches the verified PR head SHA, using a
 lease-protected push. This supports fork PR cleanup without risking deletion
 of a branch that changed after the merge check.
 
-The self-approval request used by `pr-merge` is also persistent across its
-review/CI retry loop. The label is applied at most once, the three-minute
-deadline is measured from that one request, and an approval that remains valid
-is reused after a retry instead of requiring a newer review.
+When GitHub reports that review is required, the self-approval request used by
+`pr-merge` is persistent across its review/CI retry loop. The label is applied
+at most once, the three-minute deadline is measured from that one request, and
+an approval is reused while `reviewDecision` remains `APPROVED`. A null or
+empty `reviewDecision` skips the label and approval wait entirely.
 
 > [!IMPORTANT]
 > PR skills never use `git switch`, `git checkout`, ordinary `git worktree`,

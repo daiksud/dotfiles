@@ -157,31 +157,35 @@ The three PR skills use [`gh-qwt`](./gh-qwt.md) as their only
 branch-workspace mechanism. A branch is represented by its own worktree, not
 by changing the branch of the invoking checkout.
 
-- Because qwt paths omit the GitHub host, every skill resolves the remote
-  through GitHub and records its canonical URL plus the full lowercase
-  `<host>/<owner>/<repo>` identity. Before it lists, fetches, reuses, pushes,
-  or removes an existing qwt repository, that identity must match the bare
-  repository's expanded `origin` URL. A mismatch stops the skill instead of
-  rewriting `origin`; repositories with colliding paths require a separate
-  `QWT_ROOT`.
-- The skills resolve a target with `gh qwt path` and run repository commands
-  against that absolute path.
-- Before reusing a calculated target, and after each `get` or `add`, the skills
-  require an unfiltered `gh qwt list --exact --full-path` result to contain the
-  worktree created by that command byte-for-byte. A default-branch bootstrap
-  `get` is checked at the default path before a feature-branch `add`; the
-  feature target is checked after `add`. An occupied path without exact qwt
-  registration is a collision, not a worktree. An occupied repository path
-  without its qwt `.bare` database is likewise a collision, not a missing
-  repository to initialize in place.
-- A missing qwt repository is provisioned with `gh qwt get`. A missing branch
-  worktree in an existing qwt repository is created with `gh qwt add`.
+- Every skill resolves the remote through GitHub and records its canonical URL
+  plus the full lowercase `<host>/<owner>/<repo>` identity. A managed
+  repository stores the same value as its repository-local `qwt.identity`, so
+  before the skill lists, fetches, reuses, pushes, or removes an existing
+  checkout, the recorded identity must match both `qwt.identity` and the
+  expanded `origin` URL. A mismatch stops the skill instead of rewriting
+  `origin`; repositories that must stay apart are separated with distinct ghq
+  roots.
+- The skills resolve a target with `gh qwt path`, using a host-qualified
+  `<host>/<owner>/<repo>/<branch>` spec for a branch, and run repository
+  commands against that absolute path.
+- A resolved path is never treated as proof of existence, because `gh qwt path`
+  also prints the planned path of a worktree that has not been created yet.
+  Before reusing a target, and after each `get` or `add`, the skills require an
+  unfiltered `gh qwt list --all <spec> --exact --full-path` result to contain
+  the worktree created by that command byte-for-byte, and they require
+  `qwt.managed` in the resolved checkout. A primary-checkout bootstrap `get` is
+  checked before a feature-branch `add`; the feature target is checked after
+  `add`. An occupied path without exact registration is a collision, not a
+  worktree. An occupied repository path without managed metadata is likewise a
+  collision, not a repository to adopt in place.
+- A missing repository is provisioned with `gh qwt get`. A missing branch
+  worktree in an existing repository is created with `gh qwt add`.
   `get --branch` is used only for an existing remote branch; creating a new
   branch first requires `get` for the default branch, followed by `add`.
   Provisioning passes the verified host explicitly with `get --host`, then
-  verifies the new bare repository before it is used.
-- Before `add` runs in an existing qwt repository, the skills refresh
-  `origin --prune` from the qwt repository root so cached refs cannot turn a
+  verifies the new checkout's managed metadata before it is used.
+- Before `add` runs in an existing repository, the skills refresh
+  `origin --prune` from the primary checkout so cached refs cannot turn a
   just-pushed branch into a mistakenly new branch.
 - Before a PR skill edits a reused target, it requires a clean worktree and
   either fast-forwards it to its remote head or stops on an ahead/diverged
@@ -195,11 +199,12 @@ by changing the branch of the invoking checkout.
   remain unchanged.
 
 `pr-create` preserves uncommitted source changes through a named stash and
-verification before it clears the source. When the source is a normal clone,
-the stash is transferred as a temporary Git bundle so staged, unstaged, and
-non-ignored untracked changes retain their state in the qwt target. A default
-branch with local commits is intentionally not reset, rebased, or pushed by
-the skill; it stops and asks for explicit direction instead.
+verification before it clears the source. When the source is a checkout that
+gh-qwt does not manage, the stash is transferred as a temporary Git bundle so
+staged, unstaged, and non-ignored untracked changes retain their state in the
+qwt target. A default branch with local commits is intentionally not reset,
+rebased, or pushed by the skill; it stops and asks for explicit direction
+instead.
 
 ## Detailed specification for `pr-create`
 
@@ -289,8 +294,9 @@ After the qwt cleanup, `pr-merge` deletes the head remote branch directly from
 its repository only when it still equals the verified PR head SHA. The
 lease-protected deletion works for both same-repository and fork PRs, while
 avoiding the branch checkout that GitHub CLI can otherwise perform during
-local branch deletion. The explicit `gh qwt remove owner/repo/branch` command
-runs from qwt root so its argument cannot be mistaken for a branch name.
+local branch deletion. The explicit
+`gh qwt remove <host>/<owner>/<repo>/<branch>` command runs from outside the
+repository so its argument cannot be mistaken for a branch name.
 
 Multiple PR numbers are processed one at a time; a PR that fails or times out is skipped (recorded) so the rest of the batch still runs.
 

@@ -49,9 +49,12 @@ This creates a visually consistent environment without color discontinuities bet
 
 It is designed on the assumption that you use multiple GitHub accounts.
 
-- Separate `GH_CONFIG_DIR` per repository
+- One account per repository, recorded in a central mapping file
 - Do not set `user.name` / `user.email` / `user.signingkey` globally
 - Automatically switch to the appropriate account just by using `cd`
+
+See [Automatic Git ID switching](./04-git-identity.md) for how the account is
+selected and applied.
 
 ## Minimal external dependencies
 

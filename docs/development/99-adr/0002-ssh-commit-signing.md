@@ -25,7 +25,7 @@ Configured in the global gitconfig:
 - `gpg.format = ssh` — use SSH format instead of GPG
 - `gpg.ssh.allowedSignersFile = ~/.ssh/allowed_signers` — for local signature verification
 
-The repository-specific `user.signingkey` is automatically set by `gh-config-dir.zsh` according to the active GitHub account (`~/.ssh/<login>.pub`).
+The repository-specific `user.signingkey` is automatically set by `gh-account.zsh` according to the account selected for the repository (`~/.ssh/<login>.pub`). See [ADR 0020](./0020-central-gh-account-mapping.md) for how that account is selected and injected.
 
 ## Alternatives Considered
 
@@ -40,6 +40,6 @@ Not adopted — in a multi-account workflow, the "Verified" badge is an importan
 ## Consequences
 
 - Zero additional setup for developers who already have SSH keys
-- Multi-account signing works automatically via `gh-config-dir.zsh`
+- Multi-account signing works automatically via `gh-account.zsh`
 - `~/.ssh/<login>.pub` for each account must be registered in GitHub Signing Keys
 - `allowed_signers` is managed automatically, enabling local signature verification

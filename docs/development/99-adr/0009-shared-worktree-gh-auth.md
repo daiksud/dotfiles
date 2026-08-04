@@ -4,7 +4,10 @@ Use one GitHub CLI authentication directory for every worktree of a repository, 
 
 ## Status
 
-Accepted
+Superseded
+
+Superseded by [ADR 0020](./0020-central-gh-account-mapping.md), which replaces
+`GH_CONFIG_DIR` with a central account mapping file.
 
 ## Context
 

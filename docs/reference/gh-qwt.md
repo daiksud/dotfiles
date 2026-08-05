@@ -55,7 +55,19 @@ Canonical paths always include the host segment:
 
 With the default roots, this repository's primary checkout is `~/ghq/github.com/daiksud/dotfiles`, and a `fix/parser` worktree of it is `~/ghq-worktrees/github.com/daiksud/dotfiles/fix/parser`.
 
-The primary checkout stays attached to the pinned default branch and provides the git common directory for every linked worktree. Branch names containing `/` create nested directories, so a branch named `feat` cannot coexist with a branch named `feat/x` — they need the same path for different purposes.
+gh-qwt requires the primary checkout to stay attached to the pinned default
+branch and uses it as the git common directory for every linked worktree.
+Branch names containing `/` create nested directories, so a branch named
+`feat` cannot coexist with a branch named `feat/x` — they need the same path
+for different purposes.
+
+> [!WARNING]
+> Git itself allows a primary checkout to use another branch, but gh-qwt
+> validates the pinned default branch before it manages the repository. If a PR
+> skill creates a feature branch in the primary checkout, gh-qwt management
+> commands reject the repository until you safely restore `qwt.defaultbranch`.
+> Use a linked worktree when gh-qwt management commands must remain available
+> during task work.
 
 ### Managed metadata
 
@@ -147,10 +159,11 @@ linked to the paths loaded by GitHub Copilot, Codex, and Claude Code (see
 [Using skills](../guides/06-skills.md)). They route Pull Request requests to
 the matching shared skill.
 
-The shared PR skills do not require `gh-qwt`. They operate only in an ordinary
-clone where the user invokes them; their definitions under `dotfiles/skills/`
-remain the authoritative procedure. This page documents explicit `gh-qwt` use
-for interactive repository and worktree management.
+The shared PR skills do not require `gh-qwt`. They operate in the Git checkout
+where the user invokes them, including a gh-qwt primary checkout or linked
+worktree; their definitions under `dotfiles/skills/` remain the authoritative
+procedure. This page documents explicit `gh-qwt` use for interactive repository
+and worktree management.
 
 ## Pull Request skill relationship
 
@@ -160,15 +173,17 @@ skill:
 
 | PR phase | Checkout behavior |
 | --- | --- |
-| Create | Create a feature branch in an ordinary clone only from an exactly synchronized default branch, or use a non-default branch that has no existing PR. |
-| Fix | Require a clean ordinary clone of the exact PR head repository and branch, including the fork for a fork PR. |
-| Merge | Require that same ordinary clone, merge one PR, leave the local branch checked out, and delete only an unchanged remote head branch. |
+| Create | Create a feature branch in the invoking checkout only from an exactly synchronized default branch, or use a non-default branch that has no existing PR. |
+| Fix | Require a clean invoking checkout of the exact PR head repository and branch, including the fork for a fork PR. |
+| Merge | Require that same checkout, merge one PR, leave the local branch checked out, and delete only an unchanged remote head branch. |
 
 The skills still resolve canonical GitHub identities and re-check branch,
 working-state, remote-head, review, and CI conditions before mutating a PR.
-Concurrent PR work requires separate ordinary clones. See
+Concurrent PR work requires separate checkouts, such as linked worktrees or
+ordinary clones. See
 [Using skills](../guides/06-skills.md) and
-[ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md) for the
+[ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md) and
+[ADR 0023](../development/99-adr/0023-pr-skills-gh-qwt-checkouts.md) for the
 complete workflow.
 
 ## Shell shortcuts

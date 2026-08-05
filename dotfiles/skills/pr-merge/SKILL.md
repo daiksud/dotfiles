@@ -8,7 +8,7 @@ description: Take one GitHub Pull Request through final review, conditional appr
 ## Overview
 
 Take one Pull Request from "ready for final review" to "merged". For the
-selected PR, use `pr-fix` from the invoking ordinary clone, request a Copilot Code
+selected PR, use `pr-fix` from the invoking checkout, request a Copilot Code
 Review when the base branch requires it, wait for approval and CI, then squash
 merge the verified head SHA.
 
@@ -22,9 +22,9 @@ the local checkout.
 
 - Require exactly one PR URL, or a PR number paired with its canonical
   host-qualified base repository. Do not infer the base from a fork checkout.
-- Invoke this skill from a clean ordinary clone of that PR's head repository
-  and head branch. For a fork PR, the clone must point to the fork, not the
-  base repository.
+- Invoke this skill from a clean checkout of that PR's head repository and head
+  branch. For a fork PR, the checkout must point to the fork, not the base
+  repository.
 
 ## Checkout rules
 
@@ -32,9 +32,6 @@ the local checkout.
   the invoking checkout's `origin` must resolve to the PR head repository, its
   current branch must equal the PR head branch, and it must be clean before
   changes begin.
-- Require a real `.git` directory at the clone root and stop if
-  `git config --get qwt.managed` returns `true` or the caller is in a linked
-  worktree.
 - Resolve the base repository through GitHub for every PR. Record its canonical
   URL, lowercase host, canonical `nameWithOwner`, and default branch. Define
   `<base-repository>` as the host-qualified
@@ -46,7 +43,8 @@ the local checkout.
   working state, remote head, and expected PR head SHA. Stop rather than
   merging, committing, or pushing if another actor changed the checkout.
 - A single checkout cannot safely process several PR branches. Run one PR per
-  invocation and use separate clones for parallel PR work.
+  invocation and use separate checkouts, such as linked worktrees or ordinary
+  clones, for parallel PR work.
 
 ## Procedure
 
@@ -73,8 +71,8 @@ Before the first iteration:
 ### Step 1: Resolve Copilot Code Review feedback
 
 1. Use `pr-fix` in `all` mode for this PR, passing the same PR URL or
-   number-and-base-repository input. It must operate in the invoking ordinary
-   clone and resolve conflicts, CI failures, and review feedback there.
+   number-and-base-repository input. It must operate in the invoking
+   checkout and resolve conflicts, CI failures, and review feedback there.
 2. If the effective rules do not include `copilot_code_review`, record that
    review is disabled and continue to Step 2.
 3. If review is enabled, retrieve the PR node ID:

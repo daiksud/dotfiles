@@ -1,12 +1,8 @@
 [tools]
-bun = "latest"
 bats = "latest"
 shellcheck = "latest"
 python = "latest"
 rumdl = "0.2.44"
-
-[hooks]
-postinstall = "bun install --frozen-lockfile"
 
 [tasks."markdown:format"]
 description = "Format Markdown files with rumdl"

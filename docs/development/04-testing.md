@@ -19,11 +19,15 @@ real-install run).
 
 ## Running checks locally
 
-All lint/test tools are managed by [mise](../reference/mise.md), the same way
-`bun` is. Install them once with:
+Lint and test tools are managed by [mise](../reference/mise.md). Node.js, Bun,
+and JavaScript dependencies are managed by
+[Vite+](../reference/vite-plus.md). Install both tool groups with:
 
 ```bash
 mise install
+bash scripts/003-vite-plus.sh
+. "$HOME/.vite-plus/env"
+vp run docs:install
 ```
 
 Then, from the repository root:
@@ -42,15 +46,15 @@ shellcheck install.sh scripts/*.sh dotfiles/ghostty/herdr-launch.sh
 for f in dotfiles/zsh/*.zsh; do zsh -n "$f"; done
 
 # Config file syntax
-jq empty install_map.json
-python3 -c "import tomllib; tomllib.load(open('dotfiles/starship.toml', 'rb'))"
+jq empty install_map.json package.json .docusaurus/package.json
+python3 -c "import tomllib; [tomllib.load(open(f, 'rb')) for f in ['.rumdl.toml', 'mise.toml', 'dotfiles/starship.toml']]"
 
 # bats test suite
 bats tests
 
 # Documentation build
-bun install --cwd .docusaurus
-bun run --cwd .docusaurus build
+vp run docs:install
+vp run docs:build
 ```
 
 > [!NOTE]

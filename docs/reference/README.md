@@ -15,6 +15,7 @@ a detailed reference for the dotfiles configuration files, tool list, and struct
 - [Neovim](./nvim.md) — Editor (LazyVim)
 - [Sheldon](./sheldon.md) — Zsh plugin manager
 - [Starship](./starship.md) — Prompt
+- [Vite+](./vite-plus.md) — Node.js and Bun toolchain management
 - [Zsh](./zsh/README.md) — Shell configuration
   - [Custom plugins](./zsh/plugins.md) — Functions under `zsh/`
 

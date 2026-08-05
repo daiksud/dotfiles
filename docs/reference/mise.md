@@ -26,13 +26,13 @@ Defines the development environment for the dotfiles repository itself.
 
 | Tool | Version | Description |
 | ------------ | -------- | ----------------------------------------------------- |
-| `bun` | `latest` | Bun runtime (for building documentation) |
 | `bats` | `latest` | bats-core test runner (for `tests/*.bats`) |
 | `shellcheck` | `latest` | Shell script linter (for `install.sh`, `scripts/*.sh`) |
 | `python` | `latest` | Provides a `tomllib`-capable `python3` for CI's TOML checks and `install.sh`'s JSON parsing |
 | `rumdl` | `0.2.44` | Markdown formatter and linter |
 
-The `[hooks]` section sets `postinstall = "bun install --frozen-lockfile"`, so dependencies are installed automatically after `mise install`.
+Node.js, Bun, and JavaScript dependency installation are handled separately by
+[Vite+](./vite-plus.md). mise has no dependency-install postinstall hook.
 
 The repository also exposes `markdown:format` and `markdown:lint` tasks so
 contributors and CI use the same rumdl commands. For how the tools are used in

@@ -34,6 +34,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0023](./0023-pr-skills-gh-qwt-checkouts.md) | Allow Pull Request skills in gh-qwt checkouts | Accepted |
 | [0024](./0024-herdr-subagent-fanout.md) | Fan out subagents into Herdr panes | Accepted |
 | [0025](./0025-copilot-token-parent-context.md) | Keep Copilot tokens in the parent context | Accepted |
+| [0026](./0026-vite-plus-toolchain.md) | Manage Node.js and Bun with Vite+ | Accepted |
 
 ## How to Write a New ADR
 

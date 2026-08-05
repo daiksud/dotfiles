@@ -71,7 +71,8 @@ It runs the scripts under `scripts/` in filename order.
 | `000-codespace.sh` | Ubuntu-specific initial setup (time zone, default shell) |
 | `001-homebrew.sh` | Installs Homebrew and updates gcc |
 | `002-brewfile.sh` | Installs the packages defined in `Brewfile` |
-| `100-*.sh` | Per-tool setup (Ghostty, LazyVim, sheldon, mise, herdr, gh extension) |
+| `003-vite-plus.sh` | Installs Vite+, managed Node.js LTS, and global Bun |
+| `100-*.sh` | Per-tool setup (Ghostty, LazyVim, sheldon, mise, Vite+ project dependencies, herdr, gh extension) |
 
 When `install.sh` runs these setup scripts, it sets `HOMEBREW_NO_ASK=1` for
 their child processes. Homebrew updates and installations therefore continue

@@ -50,7 +50,7 @@ export default function SearchBar(): JSX.Element {
           containerRef.current.innerHTML =
             '<p class="' +
             styles.notAvailable +
-            '">Search index not found.<br/><code>bun run docs:build</code> to generate it.</p>';
+            '">Search index not found.<br/><code>vp run docs:build</code> to generate it.</p>';
         }
         return;
       }
@@ -85,7 +85,7 @@ export default function SearchBar(): JSX.Element {
           containerRef.current.innerHTML =
             '<p class="' +
             styles.notAvailable +
-            '">Search index not found.<br/><code>bun run docs:build</code> to generate it.</p>';
+            '">Search index not found.<br/><code>vp run docs:build</code> to generate it.</p>';
         }
       };
       document.head.appendChild(script);

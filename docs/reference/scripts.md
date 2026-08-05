@@ -27,6 +27,7 @@ Scripts are grouped by the numeric prefix in the file name.
 | `000-*` | Sequential | OS-specific initial setup |
 | `001-*` | Sequential | Homebrew installation |
 | `002-*` | Sequential | Brewfile package installation |
+| `003-*` | Sequential | Vite+ runtime and global Bun installation |
 | `100-*` (Brew-dependent) | Sequential | Configuration that depends on Homebrew packages |
 | `100-*` (others) | Parallel | Independent tool configuration |
 
@@ -56,6 +57,15 @@ without asking for confirmation. The Homebrew installer itself also receives
 ### 002-brewfile.sh
 
 Installs the packages defined in `Brewfile` with `brew bundle`.
+
+### 003-vite-plus.sh
+
+Installs the latest Vite+ through its official installer, enables managed
+Node.js mode, sets Node.js LTS as the global default, and installs the latest
+global Bun through Vite+.
+
+This script runs before every `100-*` script, so later setup can use `vp`,
+`node`, and `bun`.
 
 ### 100-gh-extensions.sh
 
@@ -87,6 +97,12 @@ Sets up dependencies for LazyVim (the Neovim configuration framework).
 
 Installs the tools managed by mise (`mise install`).
 
+### 100-vite-plus-project.sh
+
+Runs a frozen Vite+ dependency install from the repository root. It resolves
+the root from its own location, so it does not depend on the caller's working
+directory.
+
 ### 100-sheldon.sh
 
 Installs sheldon and starship with Homebrew, then sets up plugins according to the lockfile.
@@ -106,7 +122,8 @@ The following scripts depend on Homebrew packages, so they are run sequentially 
 
 When adding a new script:
 
-1. Create `100-<name>.sh` in `scripts/`
+1. Use the next sequential prefix when the script is a prerequisite for all
+   per-tool setup; otherwise create `100-<name>.sh` in `scripts/`
 2. If it depends on Homebrew, add it to `is_brew_dependent_100_script()` in `install.sh`
 
 ```bash

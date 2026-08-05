@@ -2,12 +2,13 @@
 
 This is the list of tools managed in the Brewfile and their purposes.
 
+Node.js and Bun are managed by [Vite+](./vite-plus.md), not by `Brewfile`.
+
 ## CLI tools
 
 | Package | Purpose |
 | ---------- | --------------------------------------------- |
 | `gcc` | Homebrew build dependency |
-| `bun` | JavaScript runtime / package manager |
 | `fish` | Fish shell (for subshell use) |
 | `fzf` | Fuzzy finder (file selection, history search) |
 | `gh` | GitHub CLI |
@@ -20,7 +21,6 @@ This is the list of tools managed in the Brewfile and their purposes.
 | `luarocks` | Lua package manager |
 | `mise` | Development tool version management |
 | `neovim` | Text editor |
-| `node` | Node.js runtime |
 | `ripgrep` | Fast text search |
 | `sheldon` | Zsh plugin manager |
 | `starship` | Cross-shell prompt |

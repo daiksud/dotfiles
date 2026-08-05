@@ -33,6 +33,13 @@
     "pagefind": "^1.5.2",
     "typescript": "~6.0.3"
   },
+  "devEngines": {
+    "packageManager": {
+      "name": "bun",
+      "version": "^1.3.14",
+      "onFail": "download"
+    }
+  },
   "browserslist": {
     "production": [
       ">0.5%",

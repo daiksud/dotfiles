@@ -7,7 +7,7 @@ description: Create a draft GitHub Pull Request from current committed or uncomm
 
 ## Overview
 
-Create a draft Pull Request (PR) from the invoking ordinary clone. This skill
+Create a draft Pull Request (PR) from the invoking Git checkout. This skill
 does not create or use a `gh-qwt`, Git, or other worktree. When it starts on
 the default branch, it creates a feature branch in the same checkout after
 confirming that the checked-out commit matches the remote default branch.
@@ -16,13 +16,11 @@ when the feature branch is created.
 
 ## Checkout rules
 
-- Treat the ordinary clone in which the request originated as the only
-  workspace for this skill. Require a real `.git` directory at its root and
-  require `git config --get qwt.managed` not to return `true`. Stop when the
-  caller is in a linked worktree or a gh-qwt-managed checkout; creating a
-  feature branch there can move gh-qwt's primary checkout away from its pinned
-  default branch.
-- Run repository commands in that clone, or use `git -C <checkout>` when an
+- Treat the Git checkout in which the request originated as the only workspace
+  for this skill. It may be an ordinary clone, a gh-qwt primary checkout, or a
+  linked worktree. Do not reject it solely because `qwt.managed` is `true` or
+  its `.git` entry is a pointer file.
+- Run repository commands in that checkout, or use `git -C <checkout>` when an
   explicit path is needed.
 - Require a non-detached `HEAD`, a resolvable `origin`, and a repository
   identity resolved through GitHub before changing branches, committing, or
@@ -30,6 +28,10 @@ when the feature branch is created.
   `nameWithOwner`, and default branch.
 - Never create or use `gh qwt`, `git worktree`, or another checkout. Never
   reset, rebase, force-push, or rewrite the default branch to prepare a PR.
+- If this skill creates a feature branch from a gh-qwt primary checkout that
+  starts on `qwt.defaultbranch`, report that gh-qwt management commands will
+  reject the repository until the user restores that primary checkout's pinned
+  branch. Do not switch it back automatically.
 - Fetch `origin --prune` before selecting a branch. If the current branch is
   the default branch, require `HEAD` to equal `origin/<default-branch>`.
   Staged, unstaged, and non-ignored untracked changes may remain; creating a
@@ -42,8 +44,8 @@ when the feature branch is created.
   existing PR or ask the user for a new branch instead of reusing a branch
   whose history may already have been merged.
 - A single checkout cannot safely host concurrent PR workflows. Use separate
-  clones when a user, another agent, or an automation needs to work on another
-  branch at the same time.
+  checkouts, such as linked worktrees or ordinary clones, when a user, another
+  agent, or an automation needs to work on another branch at the same time.
 - Before staging, committing, or pushing, re-check the current branch and
   inspect the full working state. Stop if the checkout changed branch or
   contains changes outside the intended PR scope.
@@ -68,6 +70,10 @@ when the feature branch is created.
 
 1. Record the checkout's absolute root, current branch, `HEAD`, staged diff,
    unstaged diff, untracked-file list, and `git status --porcelain=v1 -z`.
+   Record whether creating a branch would move a gh-qwt primary checkout off
+   its pin: `qwt.managed` is `true`, the current branch equals
+   `qwt.defaultbranch`, and `git rev-parse --path-format=absolute --git-dir`
+   equals `git rev-parse --path-format=absolute --git-common-dir`.
 2. Resolve the selected `origin` URL through GitHub. Record the canonical
    repository URL, lowercase host, canonical `nameWithOwner`, and default
    branch. Define `<base-repository>` as the host-qualified
@@ -95,6 +101,10 @@ when the feature branch is created.
    - Require that neither a local branch nor a remote-tracking branch already
      uses the selected name. Stop instead of attaching the current changes to
      an existing branch.
+   - Run `git worktree list --porcelain`. Stop and report the registered path
+     if a worktree other than the invoking checkout reports
+     `branch refs/heads/<target-branch>`. Do not rely on `git switch -c` to
+     discover this conflict after other branch-selection checks have passed.
    - Create and select the branch with `git switch -c <target-branch>`.
      Confirm that staged, unstaged, and non-ignored untracked changes still
      match the state recorded in Step 2.
@@ -172,4 +182,7 @@ when the feature branch is created.
 
 ## Output
 
-Open the created draft PR URL in the browser and report it to the user.
+Open the created draft PR URL in the browser and report it to the user. If a
+gh-qwt primary checkout left `qwt.defaultbranch`, also report that `gh qwt`
+management commands will reject the repository until the user restores the
+pinned branch.

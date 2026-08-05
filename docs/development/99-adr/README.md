@@ -31,6 +31,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0020](./0020-central-gh-account-mapping.md) | Select the GitHub account per repository from a central mapping | Accepted |
 | [0021](./0021-pr-skills-invoking-checkout.md) | Use the invoking checkout for Pull Request skills | Accepted |
 | [0022](./0022-commit-message-decision-records.md) | Require decision records in agent commit messages | Accepted |
+| [0023](./0023-pr-skills-gh-qwt-checkouts.md) | Allow Pull Request skills in gh-qwt checkouts | Accepted |
 
 ## How to Write a New ADR
 

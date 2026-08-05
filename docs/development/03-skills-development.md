@@ -94,25 +94,28 @@ organization rules and live repository settings can also apply.
 
 ## Checkout-based Pull Request skills
 
-Shared PR skills operate in an ordinary clone where the user invokes them. Do
-not create a `gh-qwt`, Git, or other worktree for a PR workflow, and stop when
-the caller is already in a linked or qwt-managed worktree.
+Shared PR skills operate in the Git checkout where the user invokes them. The
+checkout may be an ordinary clone, a gh-qwt primary checkout, or a linked
+worktree. Do not create a `gh-qwt`, Git, or other worktree for a PR workflow.
 
 - `pr-create` can create a new feature branch in the invoking checkout only
   when its default-branch `HEAD` exactly matches the remote default branch.
   It preserves intended staged, unstaged, and non-ignored untracked changes
   while creating that branch. Stop if the default branch is ahead, behind, or
   diverged instead of pulling, rebasing, or resetting it.
-- `pr-fix` and `pr-merge` require the invoking ordinary clone to be clean, on
-  the exact PR head branch, and pointed at the head repository. For a fork,
-  require a PR URL or explicit base repository and report the canonical fork
-  URL and branch when the caller must prepare another clone.
+- When `pr-create` moves a gh-qwt primary checkout off its pinned default
+  branch, report that gh-qwt management commands will reject the repository
+  until the user restores the pin. Do not switch it back automatically.
+- `pr-fix` and `pr-merge` require the invoking checkout to be clean, on the
+  exact PR head branch, and pointed at the head repository. For a fork, require
+  a PR URL or explicit base repository and report the canonical fork URL and
+  branch when the caller must prepare another checkout.
 - Resolve and verify the canonical GitHub identity before API or Git
   operations. Re-check the current branch, working state, and remote head
   before commits, pushes, and merges, particularly after polling waits.
 - Do not automatically switch branches for a fix or merge. A direct checkout
   can host only one active PR branch, so concurrent work requires separate
-  ordinary clones.
+  checkouts, such as linked worktrees or ordinary clones.
 - Do not reuse a non-default branch that already has an open, closed, or
   merged PR. Do not silently discard changes, force-push, or use destructive
   recovery.
@@ -122,7 +125,8 @@ the caller is already in a linked or qwt-managed worktree.
 
 This restriction belongs in the skill procedure and constraints. Do not add a
 global shell wrapper that changes ordinary interactive Git behavior. See
-[ADR 0021](./99-adr/0021-pr-skills-invoking-checkout.md) for the rationale.
+[ADR 0021](./99-adr/0021-pr-skills-invoking-checkout.md) and
+[ADR 0023](./99-adr/0023-pr-skills-gh-qwt-checkouts.md) for the rationale.
 
 ## File Placement
 

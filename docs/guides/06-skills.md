@@ -55,20 +55,24 @@ explicit invocation is the most predictable choice.
 
 ## How PR skills use the current checkout
 
-The PR skills operate in an ordinary clone where you invoke the agent. They do
-not create or use a `gh-qwt`, Git, or other worktree, and they stop when the
-caller is already in a linked or qwt-managed worktree.
+The PR skills operate in the Git checkout where you invoke the agent. It may be
+an ordinary clone, a gh-qwt primary checkout, or a linked worktree. The skills
+do not create or use a `gh-qwt`, Git, or other worktree.
 
 - `pr-create` creates a feature branch in the current checkout when the
   default branch's `HEAD` exactly matches its remote. It keeps staged,
   unstaged, and non-ignored untracked changes in place. A default branch that
   is ahead, behind, or diverged stops instead of being pulled, rebased, or
   reset automatically.
+- If `pr-create` moves a gh-qwt primary checkout off `qwt.defaultbranch`, it
+  reports that gh-qwt management commands will reject the repository until you
+  restore the pinned branch. Use a linked worktree when you need gh-qwt
+  management commands to remain available while working on the PR.
 - When invoked from a non-default branch, `pr-create` stops if that branch
   already has an open, closed, or merged PR. Create a new branch rather than
   reusing a branch left checked out after a squash merge.
-- `pr-fix` and `pr-merge` require a clean ordinary clone of the exact PR head
-  branch and repository. For a fork PR, prepare a clone of the fork on its
+- `pr-fix` and `pr-merge` require a clean checkout of the exact PR head branch
+  and repository. For a fork PR, prepare a checkout of the fork on its
   head branch before invoking the skill.
 - For `pr-fix` and `pr-merge`, provide a PR URL or a PR number together with
   its host-qualified base repository. A fork checkout cannot identify the base
@@ -79,7 +83,8 @@ caller is already in a linked or qwt-managed worktree.
 - `pr-merge` handles one PR per invocation and leaves the local head branch
   checked out after a successful merge. It can delete the matching remote head
   branch only after verifying its SHA.
-- Use separate ordinary clones for concurrent PR work.
+- Use separate checkouts, such as linked worktrees or ordinary clones, for
+  concurrent PR work.
 
 ## Use `pr-create`
 
@@ -110,8 +115,8 @@ base repository, for example `github.com/owner/repo #42`. A natural-language
 request to fix or make a PR mergeable also selects this skill through the
 shared personal instructions.
 
-Before invoking it, prepare a clean ordinary clone of the PR head repository
-on the exact head branch. For a fork PR, this must be a clone of the fork.
+Before invoking it, prepare a clean checkout of the PR head repository on the
+exact head branch. For a fork PR, this must be a checkout of the fork.
 
 ### What happens
 
@@ -134,9 +139,9 @@ limit the run to CI failures, review comments, or conflicts respectively.
 ## Use `pr-merge`
 
 Explicitly invoke `pr-merge` with a PR URL, or a PR number and host-qualified
-base repository, from a clean ordinary clone of that PR's head repository and
-branch. A natural-language request to merge a review-clean PR also selects
-this skill through the shared personal instructions.
+base repository, from a clean checkout of that PR's head repository and branch.
+A natural-language request to merge a review-clean PR also selects this skill
+through the shared personal instructions.
 
 ### What happens
 

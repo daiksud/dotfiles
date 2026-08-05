@@ -1,13 +1,18 @@
 # ADR 0021: Use the invoking checkout for Pull Request skills
 
-Run shared Pull Request skills in the ordinary clone that invoked them rather
-than provisioning a `gh-qwt` worktree.
+Record the original decision to run shared Pull Request skills in the ordinary
+clone that invoked them rather than provisioning a `gh-qwt` worktree.
 
 ## Status
 
 Accepted
 
 Supersedes [ADR 0010](./0010-pr-skills-gh-qwt.md).
+
+> [!IMPORTANT]
+> [ADR 0023](./0023-pr-skills-gh-qwt-checkouts.md) amends this decision. It
+> permits PR skills in gh-qwt primary checkouts and linked worktrees. The
+> remainder of this record preserves the original decision and rationale.
 
 ## Context
 

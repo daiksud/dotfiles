@@ -5,9 +5,9 @@ description: Bring an existing GitHub Pull Request into a mergeable state from i
 
 # pr-fix
 
-Bring a Pull Request into a mergeable state from the invoking ordinary clone.
+Bring a Pull Request into a mergeable state from the invoking Git checkout.
 This skill never creates a `gh-qwt`, Git, or other worktree, and it never
-switches the invoking clone to another branch.
+switches the invoking checkout to another branch.
 
 ## Inputs
 
@@ -27,9 +27,9 @@ an optional mode:
 
 Complete these checks before the selected mode.
 
-1. Require an ordinary clone with a real `.git` directory at its root. Stop if
-   `git config --get qwt.managed` returns `true` or the caller is in a linked
-   worktree; this skill does not operate in a qwt-managed checkout.
+1. Use the invoking Git checkout. It may be an ordinary clone, a gh-qwt primary
+   checkout, or a linked worktree. Do not reject it solely because
+   `qwt.managed` is `true` or its `.git` entry is a pointer file.
 2. Resolve the base repository from the supplied PR URL or explicit base
    repository through GitHub. Record its canonical URL, lowercase host,
    canonical `nameWithOwner`, and default branch. Define `<base-repository>` as
@@ -77,8 +77,8 @@ repository when the PR head is a fork.
 - Re-fetch and re-check the remote head before a push. Stop if another actor
   changed the branch in a way that cannot be fast-forwarded safely.
 - A single checkout cannot safely host concurrent PR workflows. Use separate
-  clones when a user, another agent, or automation needs to work on another
-  branch at the same time.
+  checkouts, such as linked worktrees or ordinary clones, when a user, another
+  agent, or automation needs to work on another branch at the same time.
 
 ## Modes
 

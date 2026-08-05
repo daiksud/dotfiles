@@ -1,7 +1,8 @@
 # Automatic Git ID switching
 
 This page explains how the shell picks a GitHub account for the repository you
-are in, and how that choice is applied to `gh`, Git, and Copilot CLI.
+are in and applies that choice to `gh` and Git. Copilot authentication remains
+an explicit parent-process setting.
 
 ## How it works
 
@@ -19,14 +20,14 @@ graph TD
     A["cd triggers chpwd"] --> B{"gh and jq available?"}
     B -- No --> Z["Do nothing"]
     B -- Yes --> C{"Inside a Git worktree with a usable origin?"}
-    C -- No --> X["Clear GH_TOKEN, COPILOT_GITHUB_TOKEN and GIT_CONFIG_*"]
+    C -- No --> X["Clear GH_TOKEN and GIT_CONFIG_*"]
     C -- Yes --> D["Normalize origin into host/owner/repo"]
     D --> E{"GitHub host?"}
     E -- No --> X
     E -- Yes --> F{"Same identity as the last applied one?"}
     F -- Yes --> Y["Keep the current environment"]
     F -- No --> G{"Listed in repos.json?"}
-    G -- Yes --> H["Export GH_TOKEN and COPILOT_GITHUB_TOKEN"]
+    G -- Yes --> H["Export GH_TOKEN"]
     G -- No --> K{"Interactive shell with fzf?"}
     K -- Yes --> L["Pick an account, then save it to repos.json"]
     K -- No --> M["Leave the environment cleared"]
@@ -36,8 +37,10 @@ graph TD
 ```
 
 Nothing is written to `git config --local`, and `GH_CONFIG_DIR` is never set.
-See [ADR 0020](../development/99-adr/0020-central-gh-account-mapping.md) for why
-the design changed.
+See [ADR 0020](../development/99-adr/0020-central-gh-account-mapping.md) for
+the GitHub CLI and Git identity design, and
+[ADR 0025](../development/99-adr/0025-copilot-token-parent-context.md) for
+the separate Copilot token policy.
 
 ## Prerequisites
 
@@ -107,19 +110,33 @@ Run `ghu` at any time to pick a different account for the current repository.
 
 ## What gets applied
 
-### `GH_TOKEN` and `COPILOT_GITHUB_TOKEN`
+### `GH_TOKEN`
 
 The account's token is obtained with
-`gh auth token --hostname <host> --user <login>` and exported as `GH_TOKEN`,
-plus `COPILOT_GITHUB_TOKEN` for Copilot CLI. Both are ordinary shell variables,
-so two terminals sitting in repositories owned by different accounts never
-interfere.
+`gh auth token --hostname <host> --user <login>` and exported as `GH_TOKEN`.
+It is an ordinary shell variable, so two terminals sitting in repositories
+owned by different accounts never interfere.
 
 `GH_TOKEN` also reaches Git: the credential helper configured for
 `https://github.com` is `!gh auth git-credential`, and it returns
 `username=x-access-token` with that token as the password. `git push` and
 `git fetch` therefore act as the selected account too — the token decides the
 acting account, while `GIT_CONFIG_*` decides commit authorship.
+
+### `COPILOT_GITHUB_TOKEN`
+
+`gh-account.zsh` deliberately does not read, set, or clear
+`COPILOT_GITHUB_TOKEN`. Set it in the parent process when a Copilot user must
+be pinned. The `herdr-subagents` skill requires a nonempty parent value for
+each Copilot child and loads it from a private temporary Zsh bootstrap. Herdr
+receives only the non-secret bootstrap and original Zsh configuration paths;
+the bootstrap loads the token, sources the parent's normal `.zshenv`, and
+restores the original `ZDOTDIR`. The token never appears in command arguments.
+The temporary credential files are removed after every child shell confirms
+the token is loaded.
+
+Never echo, commit, or place the token in a prompt. Check only whether it is
+present, and configure it through your approved credential-management method.
 
 ### Git identity through `GIT_CONFIG_*`
 
@@ -151,13 +168,13 @@ therefore keeps working across accounts.
 
 ### Summary
 
-| Situation | `GH_TOKEN` / `COPILOT_GITHUB_TOKEN` | Injected `GIT_CONFIG_*` identity |
-| ---------------------------------------------- | ----------------------------------- | -------------------------------- |
-| Mapped GitHub repository | Token of the mapped account | Name, email, and signing key |
-| Unmapped GitHub repository, interactive shell | Set after you pick an account | Set after you pick an account |
-| Unmapped GitHub repository, non-interactive | unset | unset |
-| Repository whose `origin` is not GitHub | unset | unset |
-| Outside Git, or without a usable `origin` | unset | unset |
+| Situation | `GH_TOKEN` | `COPILOT_GITHUB_TOKEN` | Injected `GIT_CONFIG_*` identity |
+| --- | --- | --- | --- |
+| Mapped GitHub repository | Token of the mapped account | Unchanged | Name, email, and signing key |
+| Unmapped GitHub repository, interactive shell | Set after you pick an account | Unchanged | Set after you pick an account |
+| Unmapped GitHub repository, non-interactive | unset | Unchanged | unset |
+| Repository whose `origin` is not GitHub | unset | Unchanged | unset |
+| Outside Git, or without a usable `origin` | unset | Unchanged | unset |
 
 ## Commands
 
@@ -261,13 +278,14 @@ ls ~/.ssh/*.pub
 gh-account-map-get "$(gh-account-repo-id "$(git remote get-url origin)")" login
 ```
 
-### Copilot CLI account does not switch
+### Copilot child user is not pinned
 
-Check whether `COPILOT_GITHUB_TOKEN` is set in the current shell.
+Check only whether `COPILOT_GITHUB_TOKEN` is set in the parent shell.
 
 ```bash
-echo "${COPILOT_GITHUB_TOKEN:-unset}" | cut -c1-10
+test -n "${COPILOT_GITHUB_TOKEN:-}"
 ```
 
-If it is unset, the repository has no mapping yet (run `ghu`) or the account
-has no stored token (run `gh-account-login`).
+`gh-account.zsh` does not set this variable. Configure it using your approved
+credential-management method before starting the parent agent; the
+`herdr-subagents` skill securely loads it into each Copilot child.

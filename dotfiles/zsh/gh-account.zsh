@@ -146,7 +146,8 @@ _gh_account_clear_env() {
   done
   _GH_ACCOUNT_GIT_CONFIG_COUNT=0
 
-  unset GIT_CONFIG_COUNT GH_TOKEN COPILOT_GITHUB_TOKEN GH_CONFIG_DIR
+  # Copilot authentication belongs to the caller and must survive shell sync.
+  unset GIT_CONFIG_COUNT GH_TOKEN GH_CONFIG_DIR
   _GH_ACCOUNT_APPLIED_ID=""
 }
 
@@ -207,7 +208,6 @@ _gh_account_apply() {
   export GIT_CONFIG_COUNT=${#keys}
 
   export GH_TOKEN="$token"
-  export COPILOT_GITHUB_TOKEN="$token"
   _GH_ACCOUNT_APPLIED_ID="$id"
 }
 

@@ -129,8 +129,9 @@ run_zsh() {
   [ "${lines[1]}" = "bob" ]
 }
 
-@test "the identity is injected as environment configuration" {
+@test "the identity is injected without replacing the caller Copilot token" {
   run_zsh '
+    export COPILOT_GITHUB_TOKEN=caller-token
     gh-account-token() { print -r -- "test-token"; }
     _gh_account_apply "github.com/owner/repo" "nosuchaccount" "Alice A" "alice@example.com" 2>/dev/null
     print -r -- "count=$GIT_CONFIG_COUNT"
@@ -142,7 +143,7 @@ run_zsh() {
   [ "${lines[0]}" = "count=2" ]
   [ "${lines[1]}" = "k0=user.name v0=Alice A" ]
   [ "${lines[2]}" = "k1=user.email v1=alice@example.com" ]
-  [ "${lines[3]}" = "gh=test-token copilot=test-token" ]
+  [ "${lines[3]}" = "gh=test-token copilot=caller-token" ]
 }
 
 @test "a present signing key adds a third configuration entry" {
@@ -171,8 +172,9 @@ run_zsh() {
   [[ "$output" != *"signing key not found"* ]]
 }
 
-@test "clearing removes every variable the plugin exported" {
+@test "clearing removes only variables the plugin exported" {
   run_zsh '
+    export COPILOT_GITHUB_TOKEN=caller-token
     gh-account-token() { print -r -- "test-token"; }
     _gh_account_apply "github.com/owner/repo" "nosuchaccount" "Alice A" "alice@example.com" 2>/dev/null
     _gh_account_clear_env
@@ -185,34 +187,35 @@ run_zsh() {
   [ "${lines[0]}" = "count=unset" ]
   [ "${lines[1]}" = "k0=unset v0=unset" ]
   [ "${lines[2]}" = "k1=unset v1=unset" ]
-  [ "${lines[3]}" = "gh=unset copilot=unset config=unset" ]
+  [ "${lines[3]}" = "gh=unset copilot=caller-token config=unset" ]
 }
 
-@test "syncing outside a Git repository clears the exported variables" {
+@test "syncing outside a Git repository clears only plugin-owned variables" {
   run_zsh '
     cd "'"${TEST_TMP}"'"
     export GH_TOKEN=stale
-    export COPILOT_GITHUB_TOKEN=stale
+    export COPILOT_GITHUB_TOKEN=caller-token
     export GH_CONFIG_DIR=/stale
     gh-account-sync
     print -r -- "gh=${GH_TOKEN:-unset} copilot=${COPILOT_GITHUB_TOKEN:-unset} config=${GH_CONFIG_DIR:-unset}"
   '
   [ "$status" -eq 0 ]
-  [ "$output" = "gh=unset copilot=unset config=unset" ]
+  [ "$output" = "gh=unset copilot=caller-token config=unset" ]
 }
 
-@test "syncing a non-GitHub remote clears the exported variables" {
+@test "syncing a non-GitHub remote clears only plugin-owned variables" {
   git init -q "${TEST_TMP}/other"
   git -C "${TEST_TMP}/other" remote add origin "https://gitlab.example.com/owner/repo.git"
 
   run_zsh '
     cd "'"${TEST_TMP}"'/other"
     export GH_TOKEN=stale
+    export COPILOT_GITHUB_TOKEN=caller-token
     gh-account-sync
-    print -r -- "gh=${GH_TOKEN:-unset}"
+    print -r -- "gh=${GH_TOKEN:-unset} copilot=${COPILOT_GITHUB_TOKEN:-unset}"
   '
   [ "$status" -eq 0 ]
-  [ "$output" = "gh=unset" ]
+  [ "$output" = "gh=unset copilot=caller-token" ]
 }
 
 @test "a mapped repository on an Enterprise host is applied when gh knows that host" {

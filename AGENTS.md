@@ -13,6 +13,20 @@ These repository rules are shared by GitHub Copilot, Codex, and Claude Code.
 - Follow [Conventional Commits](https://www.conventionalcommits.org/): `<type>(<scope>): <description>`
   - Example: `feat(starship): add SSH indicator to prompt`
   - Types: `feat`, `fix`, `docs`, `refactor`, `chore`
+- Every commit requires a rationale body; a subject alone is never acceptable.
+- For a non-trivial commit, write non-empty `Context:`, `Decision:`,
+  `Considerations:`, and `Impact:` paragraphs. `Considerations:` records
+  options, trade-offs, and risks before the decision; `Impact:` records the
+  resulting constraints and follow-up work.
+- A trivial dependency bump, formatter-only change, or typo fix may use a
+  one- or two-sentence rationale instead, but it must still explain why the
+  change was made.
+- When an ADR governs the change, cite it as `ADR NNNN` rather than repeating
+  its full rationale. See `docs/development/05-commit-messages.md` for the
+  complete format and examples.
+- Include the same rationale in every Pull Request description. Squash merges
+  retain the PR body on the resulting commit, rather than the branch commits'
+  bodies.
 
 ## Documentation
 

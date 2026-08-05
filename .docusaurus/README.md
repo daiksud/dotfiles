@@ -56,10 +56,10 @@ Build-time local search is implemented with [Pagefind](https://pagefind.app/).
 Run all commands from the repository root.
 
 ```bash
-bun run docs:install   # Install dependencies
-bun run docs:start     # Start development server (hot reload enabled)
-bun run docs:build     # Generate production static site
-bun run docs:serve     # Preview the built site
+vp run docs:install   # Install dependencies
+vp run docs:start     # Start development server (hot reload enabled)
+vp run docs:build     # Generate production static site
+vp run docs:serve     # Preview the built site
 ```
 
 ## Why this is separated into `.docusaurus`

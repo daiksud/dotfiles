@@ -26,6 +26,8 @@ This page organizes the roles of the repository's main directories and files.
 │   ├── 000-codespace.sh
 │   ├── 001-homebrew.sh
 │   ├── 002-brewfile.sh
+│   ├── 003-vite-plus.sh
+│   ├── 100-vite-plus-project.sh
 │   └── 100-*.sh
 ├── tests/                  # bats-core test suite (see docs/development/04-testing.md)
 ├── docs/                   # Documentation
@@ -65,7 +67,7 @@ This page organizes the roles of the repository's main directories and files.
 | `.github/copilot-instructions.md` | Exact inline Copilot mirror of `AGENTS.md` | Whenever repository-wide guidance changes |
 | `install.sh` | Entry point for setup. Orchestrates link creation and script execution | When changing link handling or script execution logic |
 | `install_map.json` | Mapping table for ordinary links and Agent Skills targets | When adding or changing link targets |
-| `Brewfile` | List of packages managed by Homebrew | When adding or removing tools |
+| `Brewfile` | List of general packages managed by Homebrew; Node.js and Bun are owned by Vite+ | When adding or removing Homebrew-managed tools |
 | `dotfiles/` | Canonical personal configuration and agent files | When changing the settings for each tool |
 | `dotfiles/skills/` | Canonical Agent Skills shared across supported agents | When adding or changing a skill |
 | `scripts/` | Setup scripts | When changing tool installation procedures |
@@ -75,18 +77,19 @@ This page organizes the roles of the repository's main directories and files.
 | `.github/instructions/actions.instructions.md` | Copilot frontmatter plus an exact inline mirror of workflow guidance | Whenever workflow guidance changes |
 | `.claude/rules/` | Claude import adapters for path-scoped guidance | When an adapter mechanism changes |
 | `.rumdl.toml` | Markdown formatting and linting configuration | When changing Markdown style or lint rules |
-| `mise.toml` | Development tools and shared local task commands | When adding a development tool or task |
+| `mise.toml` | Non-JavaScript development tools and shared local task commands | When adding a mise-managed development tool or task |
 | `.gitignore` | Exclusion settings for files not tracked by Git | When adding generated files such as `node_modules/` |
 
 ## Which Files Should Be Changed Together
 
 ### When adding a new tool
 
-1. `Brewfile` — Add the package
-2. `dotfiles/<config>` — Place the configuration file
-3. `install_map.json` — Add the link entry
-4. `docs/reference/tools.md` — Update the tool list
-5. If needed, `scripts/100-<tool>.sh` — Add a setup script
+1. Choose one owner: Homebrew for general packages, Vite+ for Node.js/Bun, or
+   mise for repository lint and test tools
+2. Update the corresponding manifest or setup script
+3. `dotfiles/<config>` — Place a configuration file when the tool has one
+4. `install_map.json` — Add a link entry when configuration must be linked
+5. Update the matching page under `docs/reference/`
 
 ### When adding a Zsh plugin
 

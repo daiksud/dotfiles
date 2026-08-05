@@ -47,3 +47,8 @@ if [[ -d $HOME/.zsh ]]; then
     source "$file"
   done
 fi
+
+# Vite+ bin (https://viteplus.dev)
+if [[ -f "$HOME/.vite-plus/env" ]]; then
+  . "$HOME/.vite-plus/env"
+fi

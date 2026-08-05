@@ -6,6 +6,10 @@ Add `.github/workflows/ci.yml` covering static checks, a bats-core test suite, a
 
 Accepted
 
+The Bun provisioning portions are superseded by
+[ADR 0026](./0026-vite-plus-toolchain.md). The CI job split and use of mise for
+lint and test tools remain accepted.
+
 ## Context
 
 The repository previously had no CI beyond `.github/workflows/docs.yml`, which

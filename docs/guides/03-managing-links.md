@@ -144,9 +144,5 @@ This ordering and the alias checks prevent migration from deleting either the
 last working discovery path, canonical skills, or independently managed
 Copilot content.
 
-Older installations may also have
-`~/.copilot/copilot-instructions.md` linked to
-`dotfiles/copilot-instructions.md`. That source remains as a thin compatibility
-adapter, so pulling this change does not break the active Copilot instructions
-before installation. The next successful `install.sh` run relinks the
-destination directly to canonical `dotfiles/agent-instructions.md`.
+After updating an existing installation, run `bash install.sh` to recreate
+personal-instruction links from the canonical `agent-instructions.md` source.

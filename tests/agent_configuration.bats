@@ -11,16 +11,13 @@ REPO_ROOT="${BATS_TEST_DIRNAME}/.."
   grep -Fq '@../../.github/workflows/AGENTS.md' \
     "${REPO_ROOT}/.claude/rules/github-actions.md"
 
-  cmp -s \
+  run cmp -s \
     "${REPO_ROOT}/AGENTS.md" \
     "${REPO_ROOT}/.github/copilot-instructions.md"
-  cmp -s \
+  [ "$status" -eq 0 ]
+
+  run cmp -s \
     "${REPO_ROOT}/.github/workflows/AGENTS.md" \
     <(tail -n +6 "${REPO_ROOT}/.github/instructions/actions.instructions.md")
-}
-
-@test "legacy Copilot personal source forwards to canonical instructions" {
-  [ -f "${REPO_ROOT}/dotfiles/agent-instructions.md" ]
-  grep -Fq 'sibling `agent-instructions.md`' \
-    "${REPO_ROOT}/dotfiles/copilot-instructions.md"
+  [ "$status" -eq 0 ]
 }

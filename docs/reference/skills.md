@@ -7,9 +7,9 @@ Copilot, Codex, and Claude Code.
 
 | Skill | Description |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pr-create` | Create a draft PR from the current ordinary clone, with an appropriate commit message and description |
-| `pr-fix` | Use an ordinary clone of the PR head branch to fix CI errors and handle review comments |
-| `pr-merge` | Merge one PR from an ordinary clone of its checked-out head |
+| `pr-create` | Create a draft PR from the current checkout, with an appropriate commit message and description |
+| `pr-fix` | Use the checkout of the PR head branch to fix CI errors and handle review comments |
+| `pr-merge` | Merge one PR from the checkout of its checked-out head |
 
 ## Installation destination
 
@@ -153,9 +153,10 @@ name: Skill name
 
 ## PR checkout policy
 
-The three PR skills operate in an ordinary clone where the user invokes them.
-They do not create or use `gh-qwt`, `git worktree`, or another checkout, and
-they stop in a linked or qwt-managed worktree.
+The three PR skills operate in the Git checkout where the user invokes them.
+That checkout may be an ordinary clone, a gh-qwt primary checkout, or a linked
+worktree. They do not create or use `gh-qwt`, `git worktree`, or another
+checkout.
 
 - Every skill resolves the relevant remote through GitHub and records its
   canonical URL and lowercase `<host>/<owner>/<repo>` identity before GitHub
@@ -166,11 +167,16 @@ they stop in a linked or qwt-managed worktree.
   preserves intended staged, unstaged, and non-ignored untracked changes during
   that branch creation. A default branch that is ahead, behind, or diverged
   stops rather than being pulled, rebased, reset, or used as an uncertain base.
+- Before creating a branch, `pr-create` checks `git worktree list --porcelain`
+  and stops with the registered path if another checkout already has the target
+  branch. If it moves a gh-qwt primary checkout off `qwt.defaultbranch`, it
+  reports that gh-qwt management commands will reject the repository until the
+  user restores the pinned branch.
 - A non-default branch used by `pr-create` must not already correspond to an
   open, closed, or merged PR. This prevents accidental reuse of a branch left
   checked out after a squash merge.
-- `pr-fix` and `pr-merge` require a clean invoking ordinary clone of the exact
-  PR head branch and repository. A fork PR requires a clone of the fork and a
+- `pr-fix` and `pr-merge` require a clean invoking checkout of the exact PR
+  head branch and repository. A fork PR requires a checkout of the fork and a
   PR URL or explicit base repository; the skills report the canonical URL and
   branch when the caller must prepare one.
 - Before commits, pushes, and merges, especially after polling waits, the
@@ -179,11 +185,12 @@ they stop in a linked or qwt-managed worktree.
 - `pr-merge` accepts one PR per invocation. It leaves the local head branch
   checked out after a successful merge and only deletes the remote head branch
   when its ref still equals the verified PR head SHA.
-- Concurrent PR work requires separate ordinary clones. The policy does not
-  change normal interactive Git usage.
+- Concurrent PR work requires separate checkouts, such as linked worktrees or
+  ordinary clones. The policy does not change normal interactive Git usage.
 
-See [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md) for
-the rationale.
+See [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md) and
+[ADR 0023](../development/99-adr/0023-pr-skills-gh-qwt-checkouts.md) for the
+rationale.
 
 ## Detailed specification for `pr-create`
 

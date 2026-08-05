@@ -42,15 +42,21 @@ every terminal.
    injected environment when the directory is not a GitHub repository
 2. Look the identity up in the mapping file, reusing the already applied
    account when it has not changed
-3. Export `GH_TOKEN` and `COPILOT_GITHUB_TOKEN` for the stored account, and
-   inject `user.name`, `user.email`, and — when `~/.ssh/<login>.pub` exists —
-   `user.signingkey` through `GIT_CONFIG_COUNT` / `GIT_CONFIG_KEY_<n>` /
+3. Export `GH_TOKEN` for the stored account, and inject `user.name`,
+   `user.email`, and — when `~/.ssh/<login>.pub` exists — `user.signingkey`
+   through `GIT_CONFIG_COUNT` / `GIT_CONFIG_KEY_<n>` /
    `GIT_CONFIG_VALUE_<n>`, which take precedence over every configuration file
 4. Prompt for an account with fzf when the repository is unmapped
 
 The prompt appears only in an interactive shell: it is skipped inside a zle
 widget, when stdin is not a terminal, and when `TERM` is `dumb`, so a
 non-interactive shell never blocks on it.
+
+`gh-account.zsh` deliberately never reads, sets, or clears
+`COPILOT_GITHUB_TOKEN`. Copilot user selection belongs to the parent process;
+`herdr-subagents` forwards a nonempty parent token to each Copilot child
+without exposing its value. See
+[Automatic Git identity switching](../../guides/04-git-identity.md).
 
 ### Functions provided
 

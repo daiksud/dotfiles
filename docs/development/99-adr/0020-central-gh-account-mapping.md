@@ -46,8 +46,9 @@ repository-to-account association.
   atomically.
 - Apply the selected account in `dotfiles/zsh/gh-account.zsh`, registered on the
   zsh `chpwd` hook and run once at load, by exporting `GH_TOKEN` (from
-  `gh auth token`) plus `COPILOT_GITHUB_TOKEN` for Copilot CLI. Both are shell
-  variables, so two terminals in repositories owned by different accounts never
+  `gh auth token`). Copilot authentication is intentionally separate; see
+  [ADR 0025](./0025-copilot-token-parent-context.md). `GH_TOKEN` is a shell
+  variable, so two terminals in repositories owned by different accounts never
   interfere.
 - Inject the Git identity with `GIT_CONFIG_COUNT`, `GIT_CONFIG_KEY_<n>`, and
   `GIT_CONFIG_VALUE_<n>` covering `user.name`, `user.email`, and
@@ -98,6 +99,9 @@ previous values until something rewrites them.
   reports the environment token instead of the stored accounts.
 - The selection is per shell, so already-open shells keep the account they
   resolved. A new shell, or a `cd` that re-triggers `chpwd`, is required.
+- `COPILOT_GITHUB_TOKEN` is parent-owned and is never read, set, or cleared by
+  `gh-account.zsh`. Copilot child agents receive an explicitly forwarded parent
+  token under [ADR 0025](./0025-copilot-token-parent-context.md).
 - Leftover `user.name`, `user.email`, and `user.signingkey` values written by the
   previous design are harmless, because `GIT_CONFIG_*` takes precedence over
   every configuration file. `gh-account-cleanup-local` clears them when tidiness

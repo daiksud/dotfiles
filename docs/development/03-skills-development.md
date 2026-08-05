@@ -77,6 +77,30 @@ frontmatter are correct.
 - Test explicit invocation in all supported agents when a change affects
   discovery, inputs, or cross-skill delegation.
 
+## Herdr-dependent skills
+
+A skill that controls Herdr must work only from a Herdr-managed caller pane.
+
+1. Check `HERDR_ENV=1` and that `herdr` is available in `PATH` before issuing
+   a control command. If either check fails, do not inspect or control the
+   focused Herdr session; define a provider-independent fallback instead.
+2. Treat the installed `herdr` binary as the syntax authority. Check
+   `herdr --help` and the relevant command group before relying on a command
+   whose options may vary by version.
+3. Target the caller with `--current` or its explicit pane ID, use IDs returned
+   by Herdr's JSON responses, and use `--no-focus` for background work.
+   Never depend on the UI-focused pane or derive IDs from sidebar order.
+4. Close only panes and tabs created by the skill. If a deployment is blocked,
+   fails, or cannot be read, leave its created resources available for
+   inspection and report their IDs.
+5. For a Copilot child, require a nonempty parent
+   `COPILOT_GITHUB_TOKEN`. Load it through a mode-700 temporary Zsh bootstrap,
+   pass only non-secret bootstrap and original `ZDOTDIR` paths through Herdr's
+   `--env` option, explicitly source the original `.zshenv`, and remove the
+   credential files after every child shell is initialized. Never put the
+   token in command arguments, output, or prompts. If it is unavailable or the
+   shell is not Zsh, use the skill's fallback instead.
+
 ## Repository-dependent automation
 
 When a skill invokes an optional GitHub repository feature, query the live

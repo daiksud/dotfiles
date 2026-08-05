@@ -118,6 +118,12 @@ Do not copy the project's real source code or configuration files into the docum
 > [!IMPORTANT]
 > A code block that reproduces a real file under `dotfiles/` (or any other tracked source) is not allowed. Reference the file by path instead.
 
+## Documentation Quality
+
+Documentation must explain what changed, why it changed, and how to operate the
+result. Make examples and commands ready to copy and use as-is, avoid stale or
+duplicated guidance, and record the reasons behind architectural decisions.
+
 ## Writing Japanese
 
 - Use polite Japanese style consistently (`desu/masu` style)

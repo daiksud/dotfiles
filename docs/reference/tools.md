@@ -22,7 +22,6 @@ This is the list of tools managed in the Brewfile and their purposes.
 | `neovim` | Text editor |
 | `node` | Node.js runtime |
 | `ripgrep` | Fast text search |
-| `rtk` | CLI proxy for reducing LLM token usage |
 | `sheldon` | Zsh plugin manager |
 | `starship` | Cross-shell prompt |
 | `wget` | HTTP downloader |

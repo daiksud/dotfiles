@@ -71,8 +71,8 @@ If you see a loading error, check whether the `name` and `description` in the fr
   canonical procedure.
 - Describe optional helpers by capability. If a host-specific review subagent
   is unavailable, define a provider-independent fallback review pass.
-- Keep hooks, manifests, permission schemas, and product settings outside the
-  shared skill. Those files stay in vendor-specific directories.
+- Keep manifests, permission schemas, and product settings outside the shared
+  skill. Those files stay in vendor-specific directories.
 - Test explicit invocation in all supported agents when a change affects
   discovery, inputs, or cross-skill delegation.
 

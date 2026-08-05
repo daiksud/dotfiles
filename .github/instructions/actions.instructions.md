@@ -16,35 +16,17 @@ Follow these rules when authoring or maintaining GitHub Actions workflows.
 | Docker action (`docker://...`) | Pin the image by digest, such as `docker://image@sha256:<digest>` |
 
 ```yaml
-# ✅ Good — Remote repository action
+# Remote repository action or reusable workflow
 - uses: owner/action@0123456789abcdef0123456789abcdef01234567 # v1.2.3
-# ❌ Bad — Mutable remote tag
+
+# Do not use a mutable tag
 - uses: owner/action@v1
 ```
 
 ```yaml
-# ✅ Good — Remote reusable workflow
-jobs:
-  call-reusable:
-    uses: owner/repository/.github/workflows/reusable.yml@0123456789abcdef0123456789abcdef01234567 # v1.2.3
-```
+# Local action or reusable workflow
+- uses: ./.github/actions/example
 
-```yaml
-# ✅ Good — Local action
-steps:
-  - uses: ./.github/actions/example
-```
-
-```yaml
-# ✅ Good — Local reusable workflow
-jobs:
-  call-reusable:
-    uses: ./.github/workflows/reusable.yml
-```
-
-```yaml
-# ✅ Good — Docker action
+# Docker action
 - uses: docker://example/action@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
-# ❌ Bad — Mutable Docker tag
-- uses: docker://example/action:latest
 ```

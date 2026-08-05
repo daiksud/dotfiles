@@ -21,9 +21,7 @@ This page organizes the roles of the repository's main directories and files.
 │   ├── sheldon/            # -> ~/.config/sheldon
 │   ├── starship.toml       # -> ~/.config/starship.toml
 │   ├── skills/             # Canonical Agent Skills; linked per skill
-│   ├── agent-instructions.md # Canonical personal agent instructions
-│   ├── copilot-instructions.md # Legacy adapter for pre-migration links
-│   └── copilot-hooks/      # Vendor-specific Copilot hooks
+│   └── agent-instructions.md # Canonical personal agent instructions
 ├── scripts/                # Setup scripts
 │   ├── 000-codespace.sh
 │   ├── 001-homebrew.sh
@@ -70,8 +68,6 @@ This page organizes the roles of the repository's main directories and files.
 | `Brewfile` | List of packages managed by Homebrew | When adding or removing tools |
 | `dotfiles/` | Canonical personal configuration and agent files | When changing the settings for each tool |
 | `dotfiles/skills/` | Canonical Agent Skills shared across supported agents | When adding or changing a skill |
-| `dotfiles/copilot-instructions.md` | Compatibility adapter for older personal Copilot links | Only when changing or removing the migration adapter |
-| `dotfiles/copilot-hooks/` | GitHub Copilot-specific hook configuration | When changing the Copilot hook; do not treat it as shared agent configuration |
 | `scripts/` | Setup scripts | When changing tool installation procedures |
 | `tests/` | bats-core test suite | When adding logic worth testing, or changing tested behavior |
 | `.devcontainer/` | Container definitions for GitHub Codespaces | When changing the Codespaces environment |

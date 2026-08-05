@@ -136,8 +136,8 @@ name: Skill name
 - Use capability-based language for optional helpers. For example, request a
   dedicated review skill or review subagent when the host provides one, then
   define a provider-independent fallback.
-- Keep hooks, manifests, permissions, and proprietary integration settings out
-  of shared skill files. Those remain in vendor-specific configuration.
+- Keep manifests, permissions, and proprietary integration settings out of
+  shared skill files. Those remain in vendor-specific configuration.
 - Proper names for external services, such as Copilot Code Review, are allowed
   when the workflow genuinely depends on that service.
 

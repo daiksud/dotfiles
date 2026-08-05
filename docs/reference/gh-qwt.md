@@ -144,21 +144,15 @@ gh qwt migrate --dry-run /absolute/path/to/legacy/repository
 
 The canonical personal instructions at `dotfiles/agent-instructions.md` are
 linked to the paths loaded by GitHub Copilot, Codex, and Claude Code (see
-[Using skills](../guides/06-skills.md)). They apply the same `gh-qwt` safety
-workflow to general repository tasks in all three agents.
+[Using skills](../guides/06-skills.md)). They route Pull Request requests to
+the matching shared skill.
 
-At a high level, the workflow records the invoking checkout, verifies the full
-GitHub host and repository identity, checks both source and target state, and
-uses only an explicitly resolved qwt worktree. It stops for a decision instead
-of silently abandoning dirty changes or rewriting ahead, diverged, deleted, or
-otherwise ambiguous history. Machine-readable safety probes bypass RTK
-filtering so their raw output and exit status remain reliable.
-
-PR requests use the matching shared skill before the general setup. This lets
-`pr-create` capture staged, unstaged, and untracked source changes before it
-selects and prepares its target worktree. The canonical instruction file and
-the skill definitions under `dotfiles/skills/` remain the authoritative
-procedure; this page describes their integration without copying them.
+The shared PR skills are the only agent workflows that use `gh-qwt`. They
+verify repository identity and working state before selecting a worktree; for
+example, `pr-create` captures staged, unstaged, and untracked source changes
+before it prepares its target. The skill definitions under `dotfiles/skills/`
+remain the authoritative procedure; this page describes their integration
+without copying them.
 
 ## Pull Request skill integration
 

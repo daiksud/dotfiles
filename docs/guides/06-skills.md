@@ -171,10 +171,10 @@ by GitHub Copilot, Codex, and Claude Code:
 - `~/.codex/AGENTS.md`
 - `~/.claude/CLAUDE.md`
 
-The file defines the general `gh-qwt` safety workflow and maps PR creation,
-fixing, and merging requests to the corresponding shared skills. The detailed
-procedures remain in the skills, so all three agents execute the same workflow
-instead of maintaining product-specific copies.
+The file maps PR creation, fixing, and merging requests to the corresponding
+shared skills. The detailed procedures remain in the skills, so all three
+agents execute the same workflow instead of maintaining product-specific
+copies.
 
 Root `AGENTS.md` is the canonical repository instruction file. Claude imports
 it through `CLAUDE.md`. Copilot Code Review reads
@@ -187,10 +187,6 @@ imports that file from its path-scoped rule, while the body of the
 path-specific Copilot file is an inline exact mirror after its required
 frontmatter. When changing either canonical file, update its Copilot mirror
 and run `bats tests/agent_configuration.bats`.
-
-Hooks, manifests, permissions, and other product-specific configuration do not
-share a schema. They remain under their vendor-specific directories and can
-refer to the shared instructions or skills where appropriate.
 
 ## Copilot CLI aliases (optional)
 

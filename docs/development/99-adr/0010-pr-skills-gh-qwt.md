@@ -4,11 +4,7 @@ Run all Pull Request skill branch workflows in `gh-qwt` worktrees instead of swi
 
 ## Status
 
-Accepted
-
-The worktree-only policy still stands. Its mechanical details — path
-resolution, registration checks, and managed-repository detection — were
-updated by [ADR 0019](./0019-gh-qwt-ghq-layout.md).
+Superseded by [ADR 0021](./0021-pr-skills-invoking-checkout.md)
 
 ## Context
 

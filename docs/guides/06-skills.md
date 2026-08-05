@@ -7,8 +7,6 @@ Codex, and Claude Code.
 
 - dotfiles are already installed (`install.sh` has been run)
 - At least one supported coding agent is installed
-- The `gh-qwt` GitHub CLI extension is available (it is installed by the
-  dotfiles setup)
 
 ## Where skills are installed
 
@@ -53,36 +51,35 @@ explicit invocation is the most predictable choice.
 | ----------- | ----------------------------------------------------------------------------------------- |
 | `pr-create` | Automatically creates a draft PR from the current changes |
 | `pr-fix` | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR |
-| `pr-merge` | Loops enabled Copilot Code Review to zero findings, requests approval only when required, waits for CI, and squash merges one or more PRs |
+| `pr-merge` | Loops enabled Copilot Code Review to zero findings, requests approval only when required, waits for CI, and squash merges one PR |
 
-## How PR skills use worktrees
+## How PR skills use the current checkout
 
-The PR skills do not switch the branch of the checkout where you invoked the
-agent. They create or reuse a [`gh-qwt`](../reference/gh-qwt.md) worktree
-for the feature or PR head branch, then perform Git operations only in that
-path.
+The PR skills operate in an ordinary clone where you invoke the agent. They do
+not create or use a `gh-qwt`, Git, or other worktree, and they stop when the
+caller is already in a linked or qwt-managed worktree.
 
-- On a first use, the skill can provision the repository under your qwt root.
-- The skill verifies the full GitHub host and repository identity before using
-  a qwt path. Repositories with the same `owner/repo` on different GitHub hosts
-  need separate qwt roots because the on-disk path omits the host.
-- `pr-create` safely transfers staged, unstaged, and non-ignored untracked
-  changes from a default-branch worktree into the new feature worktree.
-- If the default branch has local commits, the skill stops instead of resetting,
-  rebasing, or pushing that branch automatically.
-- A branch name that collides with another qwt path, such as `feat` and
-  `feat/login`, stops with an error rather than falling back to a branch
-  switch.
-- A directory at the calculated path is used only when qwt reports that exact
-  absolute path as a registered worktree; stale or unrelated occupied paths
-  stop as collisions.
-- `pr-fix` works in the PR head worktree, including a fork's repository when
-  applicable. `pr-merge` removes the clean worktree after a successful merge.
-
-> [!IMPORTANT]
-> PR skills intentionally do not use `git switch`, `git checkout`, ordinary
-> `git worktree`, or a normal-clone fallback. This policy applies to the
-> skills; it does not change your normal interactive Git commands.
+- `pr-create` creates a feature branch in the current checkout when the
+  default branch's `HEAD` exactly matches its remote. It keeps staged,
+  unstaged, and non-ignored untracked changes in place. A default branch that
+  is ahead, behind, or diverged stops instead of being pulled, rebased, or
+  reset automatically.
+- When invoked from a non-default branch, `pr-create` stops if that branch
+  already has an open, closed, or merged PR. Create a new branch rather than
+  reusing a branch left checked out after a squash merge.
+- `pr-fix` and `pr-merge` require a clean ordinary clone of the exact PR head
+  branch and repository. For a fork PR, prepare a clone of the fork on its
+  head branch before invoking the skill.
+- For `pr-fix` and `pr-merge`, provide a PR URL or a PR number together with
+  its host-qualified base repository. A fork checkout cannot identify the base
+  repository from a number alone.
+- Before commits, pushes, and merges, the skills re-check the branch, working
+  state, remote head, and expected PR SHA. They stop if another actor changed
+  the checkout.
+- `pr-merge` handles one PR per invocation and leaves the local head branch
+  checked out after a successful merge. It can delete the matching remote head
+  branch only after verifying its SHA.
+- Use separate ordinary clones for concurrent PR work.
 
 ## Use `pr-create`
 
@@ -99,22 +96,27 @@ this skill through the shared personal instructions.
 1. Checks for a corresponding Task (Issue) and suggests creating one if it does not exist
 2. Reads the committed and uncommitted state, confirms the intended scope, and
    comes up with a commit message
-3. Creates or reuses an isolated qwt feature worktree and safely moves
-   uncommitted changes there when needed
+3. Creates a feature branch in the current checkout when needed and keeps the
+   intended uncommitted changes there
 4. Stages the intended uncommitted paths, then commits and pushes the feature
-   branch from that worktree
+   branch from that checkout
 5. Creates a draft PR
 6. Sets you as the assignee
 
 ## Use `pr-fix`
 
-Explicitly invoke `pr-fix` and include the PR number, for example `PR #42`.
-A natural-language request to fix or make a PR mergeable also selects this
-skill through the shared personal instructions.
+Explicitly invoke `pr-fix` with a PR URL, or a PR number and host-qualified
+base repository, for example `github.com/owner/repo #42`. A natural-language
+request to fix or make a PR mergeable also selects this skill through the
+shared personal instructions.
+
+Before invoking it, prepare a clean ordinary clone of the PR head repository
+on the exact head branch. For a fork PR, this must be a clone of the fork.
 
 ### What happens
 
-1. Resolves the PR head repository and creates or reuses its qwt worktree
+1. Resolves the PR head repository and verifies the invoking checkout matches
+   its head branch
 2. Detects and resolves merge conflicts
 3. Identifies CI failures from logs and fixes them (repeating until they pass)
 4. Checks review comments and applies reasonable fixes (any comment you reply "対応しない" to is left unchanged, and the reason is recorded in the PR body)
@@ -131,14 +133,12 @@ limit the run to CI failures, review comments, or conflicts respectively.
 
 ## Use `pr-merge`
 
-Explicitly invoke `pr-merge` followed by a PR number. Multiple PRs can be given
-at once, separated by spaces; they are processed one at a time. A
-natural-language request to merge a review-clean PR also selects this skill
-through the shared personal instructions.
+Explicitly invoke `pr-merge` with a PR URL, or a PR number and host-qualified
+base repository, from a clean ordinary clone of that PR's head repository and
+branch. A natural-language request to merge a review-clean PR also selects
+this skill through the shared personal instructions.
 
 ### What happens
-
-For each PR number given:
 
 1. Runs `pr-fix` and, when the base branch enables Copilot Code Review,
    requests reviews until there are no unresolved findings (up to 10 attempts)
@@ -148,12 +148,12 @@ For each PR number given:
    automation; the approval is retained across CI or conflict retries while
    GitHub continues to report it as valid
 4. Waits for CI to go green, going back to step 1 if a merge conflict or a CI failure shows up
-5. Squash merges the PR once everything is green, then removes its qwt
-   worktree and branch workspace
+5. Squash merges the PR once everything is green, leaves the local branch
+   checked out, and safely deletes only an unchanged matching remote head
+   branch
 
-If a PR cannot be brought to a mergeable state, it is skipped (with the reason recorded) so the rest of the batch keeps going, and a summary is reported at the end.
-An unavailable base-branch rules query is also reported as a failure for that
-PR; it is not treated as a disabled feature.
+An unavailable base-branch rules query is reported as a failure; it is not
+treated as a disabled feature.
 
 > [!IMPORTANT]
 > When review is required, `pr-merge` waits for an existing automation that
@@ -202,6 +202,6 @@ Usage:
 
 ```bash
 pr-create
-pr-fix PR #42
-pr-merge 42
+pr-fix github.com/owner/repo 42
+pr-merge github.com/owner/repo 42
 ```

@@ -51,12 +51,13 @@ Run `bash install.sh` to create the per-skill links, then explicitly invoke the
 skill in each agent you support: `/skill-name` in GitHub Copilot,
 `$skill-name` in Codex, and `/skill-name` in Claude Code.
 
-If you see a loading error, check whether the `name` and `description` in the frontmatter are correct.
+If you see a loading error, check whether the `name` and `description` in the
+frontmatter are correct.
 
 ## Writing Rules
 
 | Rule | Reason |
-| ------------------------- | ----------------------------------------------------------- |
+| --- | --- |
 | Write in English | To keep both the body text and `description` in English |
 | Write concrete steps | Ambiguity makes the agent hesitate when deciding what to do |
 | State constraints clearly | Prevents infinite loops and destructive operations |
@@ -66,8 +67,8 @@ If you see a loading error, check whether the `name` and `description` in the fr
 
 - Put trigger conditions in the frontmatter `description` instead of relying
   on one product's command syntax.
-- Refer to another skill by name, for example “use the `pr-fix` skill”. Do not
-  encode `/pr-fix`, `$pr-fix`, or another host-specific invocation in the
+- Refer to another skill by its name, for example “use the `pr-fix` skill”. Do
+  not encode `/pr-fix`, `$pr-fix`, or another host-specific invocation in the
   canonical procedure.
 - Describe optional helpers by capability. If a host-specific review subagent
   is unavailable, define a provider-independent fallback review pass.
@@ -87,44 +88,41 @@ organization rules and live repository settings can also apply.
   permission, or network failure. Skip the feature only in the first case and
   stop with a clear error in the second.
 - Prefer GitHub's computed PR state, such as `reviewDecision`, when deciding
-  whether a workflow requirement has already been satisfied or does not
-  apply.
+  whether a workflow requirement has already been satisfied or does not apply.
 - Include optional-feature decisions in the skill output so the user can tell
   whether an action ran or was deliberately skipped.
 
-## Branch-workspace skills
+## Checkout-based Pull Request skills
 
-When a PR skill needs a branch workspace, use the repository's
-[`gh-qwt`](../reference/gh-qwt.md) workflow instead of changing the branch of
-the invoking checkout.
+Shared PR skills operate in an ordinary clone where the user invokes them. Do
+not create a `gh-qwt`, Git, or other worktree for a PR workflow, and stop when
+the caller is already in a linked or qwt-managed worktree.
 
-- Resolve the target worktree with `gh qwt path` and name that path explicitly
-  in subsequent Git commands.
-- Require raw `gh qwt list --exact --full-path` output to contain each
-  calculated worktree path byte-for-byte before reuse and after the `get` or
-  `add` that creates it. For a new feature branch, verify the default worktree
-  after bootstrap `get` and the feature target after `add`. Treat an occupied
-  unregistered path as a collision.
-- Treat the GitHub host as part of repository identity even though qwt omits it
-  from the path. Resolve the canonical remote identity, compare it with the
-  existing bare `origin` before any operation, pass `--host` when provisioning,
-  and verify the new repository before use. Stop on a collision instead of
-  changing `origin`.
-- Provision a missing repository with `gh qwt get`; provision a missing branch
-  worktree with `gh qwt add`. Refresh `origin` in an existing qwt repository
-  before `add`, because `add` uses cached remote refs. Before editing a reused
-  target, require it to be clean and fast-forward it only when safe.
-- State that `git switch`, `git checkout`, ordinary `git worktree`, and
-  normal-clone fallbacks are prohibited for the skill.
-- Define safe behavior for a dirty source, missing remote branch, path
-  collision, deleted fork, and a worktree that cannot be removed. Preserve
-  recoverable state and stop rather than using destructive recovery commands.
-- If cleanup needs an explicit `owner/repo/branch` argument, run
-  `gh qwt remove` outside a qwt repository, such as from `gh qwt root`.
+- `pr-create` can create a new feature branch in the invoking checkout only
+  when its default-branch `HEAD` exactly matches the remote default branch.
+  It preserves intended staged, unstaged, and non-ignored untracked changes
+  while creating that branch. Stop if the default branch is ahead, behind, or
+  diverged instead of pulling, rebasing, or resetting it.
+- `pr-fix` and `pr-merge` require the invoking ordinary clone to be clean, on
+  the exact PR head branch, and pointed at the head repository. For a fork,
+  require a PR URL or explicit base repository and report the canonical fork
+  URL and branch when the caller must prepare another clone.
+- Resolve and verify the canonical GitHub identity before API or Git
+  operations. Re-check the current branch, working state, and remote head
+  before commits, pushes, and merges, particularly after polling waits.
+- Do not automatically switch branches for a fix or merge. A direct checkout
+  can host only one active PR branch, so concurrent work requires separate
+  ordinary clones.
+- Do not reuse a non-default branch that already has an open, closed, or
+  merged PR. Do not silently discard changes, force-push, or use destructive
+  recovery.
+- After a merge, leave the checked-out local branch in place. A
+  lease-protected remote head deletion is allowed only after verifying that the
+  remote ref still equals the merged PR head SHA.
 
-The restriction belongs in the skill procedure and constraints. Do not add a
-global shell wrapper that blocks ordinary interactive branch operations unless
-that broader behavior is explicitly required.
+This restriction belongs in the skill procedure and constraints. Do not add a
+global shell wrapper that changes ordinary interactive Git behavior. See
+[ADR 0021](./99-adr/0021-pr-skills-invoking-checkout.md) for the rationale.
 
 ## File Placement
 
@@ -147,6 +145,9 @@ being exercised.
 
 ## Testing Tips
 
-- After writing a skill, explicitly invoke it in GitHub Copilot, Codex, and Claude Code to confirm discovery and behavior
-- If the agent does not follow the steps as intended, make the step descriptions more specific
-- Stability improves if you define failure behavior in the `Constraints` section, such as retry counts and stop conditions
+- After writing a skill, explicitly invoke it in GitHub Copilot, Codex, and
+  Claude Code to confirm discovery and behavior.
+- If the agent does not follow the steps as intended, make the step descriptions
+  more specific.
+- Stability improves if you define failure behavior in the `Constraints`
+  section, such as retry counts and stop conditions.

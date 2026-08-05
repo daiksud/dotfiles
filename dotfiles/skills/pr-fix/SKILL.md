@@ -1,156 +1,84 @@
 ---
 name: pr-fix
-description: Bring an existing GitHub Pull Request into a mergeable state from an isolated gh-qwt worktree. Use when asked to fix a PR, resolve merge conflicts, repair failing CI checks, address unresolved review feedback, or run all of these workflows in sequence. Accept a PR number and an optional all, ci, feedback, or conflicts mode.
+description: Bring an existing GitHub Pull Request into a mergeable state from its checked-out head branch. Use when asked to fix a PR, resolve merge conflicts, repair failing CI checks, address unresolved review feedback, or run all of these workflows in sequence. Accept a PR URL, or a PR number with its base repository, and an optional all, ci, feedback, or conflicts mode.
 ---
 
 # pr-fix
 
-Bring a Pull Request into a mergeable state from its own `gh-qwt` worktree.
+Bring a Pull Request into a mergeable state from the invoking ordinary clone.
+This skill never creates a `gh-qwt`, Git, or other worktree, and it never
+switches the invoking clone to another branch.
 
 ## Inputs
 
-Accept a PR number and an optional mode:
+Accept a PR URL, or a PR number paired with its canonical base repository, and
+an optional mode:
 
+- A URL identifies both the base repository and PR number.
+- For a numeric input, require an explicit host-qualified base repository, such
+  as `github.com/owner/repo #42`. Do not infer the base from a fork checkout.
 - Omit the mode or use `all` to fix everything in this order: conflicts, CI,
   then feedback.
 - Use `ci` to fix CI failures only.
 - Use `feedback` to handle review comments only.
 - Use `conflicts` to resolve merge conflicts only.
 
-## Prepare the PR worktree
+## Checkout preconditions
 
-Run this once before the selected mode. It is required even when the invoking
-directory is a different worktree.
+Complete these checks before the selected mode.
 
-1. Confirm that `gh qwt --help` succeeds. Do not use `git switch`,
-   `git checkout`, `git worktree`, or a branch-checkout fallback in the primary
-   checkout or any other clone.
-2. Resolve the selected base remote's expanded fetch URL through GitHub. Record
-   its canonical repository URL, lowercase host, canonical `nameWithOwner`,
-   and default branch. Define `<base-repository>` as the host-qualified
-   `<base-host>/<base-owner>/<base-repo>`. Do not infer `github.com` from an
-   unqualified repository name, and stop if any part of the base identity
-   cannot be verified.
-3. Retrieve the PR explicitly from that base identity with:
+1. Require an ordinary clone with a real `.git` directory at its root. Stop if
+   `git config --get qwt.managed` returns `true` or the caller is in a linked
+   worktree; this skill does not operate in a qwt-managed checkout.
+2. Resolve the base repository from the supplied PR URL or explicit base
+   repository through GitHub. Record its canonical URL, lowercase host,
+   canonical `nameWithOwner`, and default branch. Define `<base-repository>` as
+   the host-qualified `<base-host>/<base-owner>/<base-repo>`.
+3. Retrieve the PR explicitly from that base identity:
 
    ```bash
    gh pr view <PR_NUMBER> -R <base-repository> \
-     --json headRefName,headRepository,isCrossRepository,baseRefName,url
+     --json headRefName,headRepository,baseRefName,url
    ```
 
-4. Stop and report the error if `headRepository` is null, which commonly
-   means a fork was deleted. Do not create a replacement branch in the base
-   repository.
-5. Resolve the returned head repository through GitHub on the base host. Record
-   its canonical repository URL, lowercase host, and canonical
-   `nameWithOwner`; stop if any part cannot be verified. Set the target branch
-   to `headRefName`. Use this head identity for all qwt and Git operations, and
-   keep `<base-repository>` separately for PR API commands.
-6. Calculate the primary checkout and target paths with
-   `gh qwt path <head-host>/<head-owner>/<head-repo>` and
-   `gh qwt path <head-host>/<head-owner>/<head-repo>/<head-branch>`. Every
-   `gh qwt path` spec must be host-qualified
-   (`github.com/<owner>/<repo>[/<branch>]` for GitHub.com), because a
-   three-segment spec is read as `<host>/<owner>/<repo>`. `gh qwt` keeps the
-   primary checkout as an ordinary clone at
-   `<ghq-root>/<host>/<owner>/<repo>` and every non-default branch as an
-   external linked worktree at
-   `<qwt.worktreeroot>/<host>/<owner>/<repo>/<branch>`, which defaults to
-   `<ghq-root>-worktrees`; the default branch has no linked worktree because it
-   is the primary checkout. Treat the managed repository as existing only when
-   `git -C <primary-checkout> config --get qwt.managed` prints exactly `true`,
-   since `gh qwt path` also prints deterministic planned paths for repositories
-   and worktrees that do not exist yet. If the calculated repository path is
-   occupied but is not a `qwt.managed` repository, stop and report a
-   repository-path collision; do not run `get` inside it.
-7. If the managed repository exists, guard its identity before listing,
-   fetching, adding to, inspecting, or reusing it. Its paths are
-   host-qualified, but the same `<owner>/<repo>` can still exist on several
-   hosts and `path`, `list --exact`, `add --repo`, and `remove --repo` all
-   accept short `<owner>/<repo>` specs that silently mean `github.com`:
-   - Read the expanded fetch URL for `origin` from its primary checkout with
-     `git -C "$(gh qwt path <head-host>/<head-owner>/<head-repo>)" remote get-url origin`
-     and resolve that URL through GitHub.
-   - Require both its canonical repository URL and its full
-     `<lowercase-host>/<canonical-owner>/<canonical-repo>` identity to equal
-     the recorded head repository identity, and require
-     `git -C <primary-checkout> config --get qwt.identity` to equal that same
-     identity.
-   - Stop if either side cannot be verified or differs. Do not fetch, rewrite
-     `origin`, add a worktree, or reuse the repository. Report the host
-     collision and require a separately configured ghq root (`GHQ_ROOT` or
-     `ghq.root`) or manual resolution.
-8. Provision or reuse the target only after the identity guard permits it:
-   - When the managed repository exists, run
-     `gh qwt list --all <head-host>/<head-owner>/<head-repo>/<head-branch> --exact --full-path`
-     without output filtering and require it to succeed. Pass `--all` because
-     an unqualified `gh qwt list` is scoped to the repository containing the
-     current directory and fails with
-     `gh-qwt: repository is outside configured ghq roots` when that directory
-     is a Git repository outside the configured ghq roots. Treat the target as
-     registered only when at least one stdout line equals the calculated target
-     path byte-for-byte; ignore every other line, because `--exact` also
-     matches a bare `<branch>`, `<repo>/<branch>`, and
-     `<owner>/<repo>/<branch>` in every listed repository. If no exact line
-     exists but the path is occupied by a file, directory, or link, stop and
-     report a path collision. When the managed repository is missing, likewise
-     stop before `get` if its calculated target path is already occupied. When
-     the PR head branch is the head repository's default branch, the registered
-     path is the primary checkout itself.
-   - If that worktree is exactly registered, verify that
-     `git -C <target> branch --show-current` equals the PR head branch.
-     Inspect `git -C <target> status --porcelain`; if it is not empty, stop
-     and ask the user how to handle the existing changes.
-   - If the managed repository exists but the worktree does not, first refresh
-     its cached branch refs with
-     `git -C "$(gh qwt path <head-host>/<head-owner>/<head-repo>)" fetch origin --prune`,
-     then create the worktree with
-     `gh qwt add --repo <head-host>/<head-owner>/<head-repo> <head-branch>`.
-     The PR head branch already exists on the remote, so `add` attaches it;
-     never pass `--new`, which fails when a local or remote branch exists, and
-     never pass `--from`, which applies only on the path where `add` creates
-     the branch itself. `add` cannot create a worktree for the default branch,
-     which is the primary checkout: if the PR head branch is the head
-     repository's default branch and the primary checkout is not exactly
-     registered, stop and report the qwt error instead of working around it.
-   - If the managed repository does not exist, clone it directly into the PR
-     head branch with
-     `gh qwt get --host <head-host> --branch <head-branch> <head-owner>/<head-repo>`.
-     Immediately run the identity guard against the new primary checkout's
-     `origin` and `qwt.identity`; stop before inspecting or reusing the target
-     if verification fails.
-   - After every `get` or `add`, resolve the path again and repeat the exact
-     unfiltered `gh qwt list --all` check. Require the calculated target path
-     to appear byte-for-byte, then verify both the directory and its
-     checked-out branch. Stop if registration is missing; never substitute an
-     occupied unregistered path.
-9. Fetch `origin --prune` from the resolved target and confirm that
-   `origin/<head-branch>` exists. Compare it with local `HEAD` before
-   editing:
-   - If they match, continue.
+4. Stop if `headRepository` is null, which commonly means that a fork was
+   deleted. Resolve the head repository through GitHub on the base host and
+   record its canonical URL, lowercase host, and canonical `nameWithOwner`.
+5. Require the invoking checkout's expanded `origin` fetch URL to resolve to
+   that canonical head repository. Require its current branch to equal
+   `headRefName`, and stop on detached `HEAD`.
+6. Inspect `git status --porcelain`. It must be empty before the skill makes
+   any change. Do not stash, discard, or move unrelated changes.
+7. Fetch `origin --prune` and require `origin/<head-branch>` to exist:
+   - If local `HEAD` equals the remote head, continue.
    - If the clean local branch is behind, run
-     `git -C <target> merge --ff-only origin/<head-branch>`.
-   - If local `HEAD` is ahead or diverged, stop rather than overwriting,
-     force-pushing, or working on a stale PR head.
-10. If `gh-qwt` reports a slash-prefix path collision, cannot find the remote
+     `git merge --ff-only origin/<head-branch>`.
+   - If local `HEAD` is ahead or diverged, stop rather than overwriting or
+     applying fixes to a stale branch.
+8. Verify push access with
+   `git push --dry-run origin <head-branch>`. For a fork PR, this checks access
+   to the fork instead of assuming that the base repository is writable.
+9. Never create or use `gh qwt`, `git worktree`, another checkout, or an
+   automatic branch switch. If the checkout does not meet these requirements,
+   stop and report the canonical head repository URL and head branch so the
+   user can prepare the correct checkout.
 
-    branch, or cannot create the worktree, stop and report the qwt error. Do
-    not fall back to a branch checkout.
-11. Inspect `git -C <target> status --porcelain` before changing files. If an
+Use the invoking checkout for all Git changes. Pass `-R <base-repository>` to
+every `gh pr` command so API requests continue to target the verified base
+repository when the PR head is a fork.
 
-    existing PR worktree has uncommitted changes, stop and ask the user how to
-    handle them; never use `gh qwt remove --force`.
-12. Verify push access to the head repository before making fixes, for example
+## Working safely in the current checkout
 
-    with `git -C <target> push --dry-run origin <head-branch>`. For a fork PR,
-    this checks access to the fork rather than assuming the base repository is
-    writable. Stop if it is rejected.
-
-All Git commands that inspect, modify, test, commit, or push the PR must use
-the target path. Use `git -C <target> ...` or an equivalent command whose
-working directory is exactly the target worktree. All `gh pr` calls must use
-`-R <base-repository>` so they continue to address the canonical base host and
-repository when the head is a fork.
+- Before resuming after a wait and before each commit, push, or merge-related
+  command, confirm that the current branch is still `<head-branch>`.
+- Before the first edit, require a clean checkout. Before a commit, stage only
+  the intended paths and review the full staged diff. After a commit and before
+  a push, stop if unexpected unstaged or untracked content remains.
+- Re-fetch and re-check the remote head before a push. Stop if another actor
+  changed the branch in a way that cannot be fast-forwarded safely.
+- A single checkout cannot safely host concurrent PR workflows. Use separate
+  clones when a user, another agent, or automation needs to work on another
+  branch at the same time.
 
 ## Modes
 
@@ -158,147 +86,101 @@ repository when the head is a fork.
 
 - Retrieve CI status with `gh pr checks <PR_NUMBER> -R <base-repository>`.
 - If any checks are failing, inspect their logs and identify the root cause.
-- Apply fixes in the target worktree, run the smallest relevant local
+- Apply fixes in the invoking checkout, run the smallest relevant local
   validation, and repeat until all CI checks pass.
-- Commit and push from the target worktree once CI is green.
-- If the CI failures cannot be resolved after 3 attempts, stop the work and
-  report the issue.
+- Commit and push from the invoking checkout once CI is green.
+- If the CI failures cannot be resolved after 3 attempts, stop and report the
+  issue.
 
 ### conflicts — Resolve merge conflicts
 
-- Retrieve `baseRefName` and the base repository during workspace preparation.
-- Fetch the PR base into the target worktree. For a same-repository PR, use
+- Retrieve `baseRefName` during checkout preparation.
+- Fetch the PR base into the invoking checkout. For a same-repository PR, use
   `origin/<base-ref>`. For a fork PR, configure or reuse an `upstream` remote
-  for the base repository and fetch `upstream/<base-ref>`. Before fetching a
-  newly configured or reused `upstream`, resolve its expanded fetch URL
-  through GitHub and require its canonical URL and full host/owner/repo
-  identity to equal the recorded base identity. Stop on an unverifiable or
-  mismatched remote instead of rewriting it.
-- Merge the fetched base into the target branch and resolve every conflict
-  while preserving the intent of the PR changes. Prefer a merge over a rebase
-  so the resulting branch can be pushed without force-pushing.
+  for the base repository, then fetch `upstream/<base-ref>`.
+- Before fetching a newly configured or reused `upstream`, resolve its expanded
+  fetch URL through GitHub and require its canonical URL and full
+  host/owner/repository identity to equal the recorded base identity. Stop on
+  an unverifiable or mismatched remote instead of rewriting it.
+- Merge the fetched base into the head branch and resolve every conflict while
+  preserving the intent of the PR changes. Prefer a merge over a rebase so the
+  result can be pushed without force-pushing.
 - Identify all conflicted files. Unless the base-branch change is obviously
   correct, resolve each conflict deliberately rather than accepting one side
   wholesale.
-- Commit the resolution with a clear message and push from the target
-  worktree.
+- Commit the resolution with a clear message and push from the invoking
+  checkout.
 
 ### feedback — Handle review comments
 
-- Retrieve all unresolved review comments from the base repository.
-  - Retrieve all replies to review comments as well.
-  - Run every GraphQL query against `<base-host>` explicitly.
-  - When retrieving review threads via GraphQL, use
-    `reviewThreads(first: 100, after: $cursor)` and inspect
-    `pageInfo { hasNextPage endCursor }`.
-  - If `hasNextPage` is `true`, fetch the next page with
-    `after: <endCursor>` and repeat until `hasNextPage` becomes `false`.
-- If a comment thread contains a user reply stating that it will not be
-  addressed, such as "対応しない", do not change the code for that comment and
-  skip the validity evaluation below. Append to the PR body that the comment
-  will not be addressed, together with the user's reason.
-- For each remaining comment, evaluate whether the feedback is valid.
-  - **Valid** — Apply the proposed fix or improvement in the target worktree.
-    If the feedback describes a specific case that causes an error or bug, use
-    TDD:
-    1. Write a unit test that reproduces the reported case.
-    2. Confirm the unit test fails before making code changes.
-    3. Fix the code until the unit test passes.
-  - **Not valid / not applicable** — Do not change the code; prepare a reply
-    explaining why.
-- After pushing, reply to each comment from the base repository, prefixing
-  every comment body with `:robot:`.
-  - If fixed: Explain the changes that were made.
-  - If not fixed: Explain why it was judged not applicable.
-  - If the user decided not to address it: State that it will not be addressed
-    and that the reason is recorded in the PR body.
-- After sending replies, resolve the review comment threads.
-- Once all responses are complete, determine whether Copilot Code Review is
-  enabled for the PR base branch before requesting a review:
-  - After storing `baseRefName` in `base_ref`, URL-encode it as one path
-    segment, for example:
-
-    ```bash
-    encoded_base_ref="$(python3 -c 'import sys; from urllib.parse import quote; print(quote(sys.argv[1], safe=""))' "$base_ref")"
-    ```
-
-    Retrieve the active rules that apply to it with
-    `gh api --hostname <base-host>
-    "repos/<base-owner>/<base-repo>/rules/branches/${encoded_base_ref}"`.
-  - If the request fails, stop and report that Copilot Code Review availability
-    could not be determined. Do not guess from local repository files or try
-    the review request anyway.
-  - If the response contains no rule whose `type` is
-    `copilot_code_review`, report that Copilot Code Review is not enabled for
-    the base branch and skip the review request.
-- When the effective rules include `copilot_code_review`, request a review.
-  - Get the PR node ID with
+- Retrieve all unresolved review comments and replies from the base repository.
+  Run every GraphQL query against `<base-host>` explicitly.
+- Paginate `reviewThreads(first: 100, after: $cursor)` until
+  `pageInfo { hasNextPage endCursor }` reports no next page.
+- If a thread contains a user reply stating that it will not be addressed,
+  such as "対応しない", do not change code for that comment. Record the reason
+  in the PR body.
+- Evaluate every remaining comment:
+  - **Valid** — Apply the fix in the invoking checkout. For a reported error
+    case, write a failing unit test first, then fix the code until it passes.
+  - **Not valid / not applicable** — Do not change code. Prepare a reply that
+    explains why.
+- After pushing, reply to every comment from the base repository. Prefix every
+  comment body with `:robot:`.
+  - If fixed, explain the changes.
+  - If not fixed, explain why the feedback is not applicable.
+  - If the user declined it, state that it will not be addressed and that the
+    reason is recorded in the PR body.
+- Resolve the review threads after sending their replies.
+- Determine whether Copilot Code Review is enabled for the base branch:
+  1. URL-encode `baseRefName` as one path segment.
+  2. Query
+     `repos/<base-owner>/<base-repo>/rules/branches/<encoded-base-ref>` with
+     `gh api --hostname <base-host>`.
+  3. Stop if the query fails. Do not guess from local files.
+  4. If no rule has `type` equal to `copilot_code_review`, report that review
+     is disabled and skip the request.
+- When the effective rules include `copilot_code_review`, request a review:
+  - Retrieve the PR node ID with
     `gh pr view <PR_NUMBER> -R <base-repository> --json id -q .id`.
-  - Use the retrieved node ID to request a review:
-
-    ```bash
-    gh api graphql --hostname <base-host> -f query='
-    mutation {
-      requestReviews(input: {
-        pullRequestId: "<PR_NODE_ID>",
-        botIds: ["BOT_kgDOCnlnWA"],
-        union: true
-      }) {
-        pullRequest {
-          reviewRequests(first: 5) {
-            nodes {
-              requestedReviewer {
-                __typename
-                ... on Bot { login }
-              }
-            }
-          }
-        }
-      }
-    }'
-    ```
-
-  - `BOT_kgDOCnlnWA` is the GraphQL node ID for
-    `copilot-pull-request-reviewer`.
-  - Do not use `gh pr edit --add-reviewer`: GitHub rejects bots as
+  - Use that node ID in a GraphQL `requestReviews` mutation with bot ID
+    `BOT_kgDOCnlnWA` for `copilot-pull-request-reviewer`.
+  - Do not use `gh pr edit --add-reviewer`; GitHub rejects bots as
     non-collaborators through that REST API.
 
-### (default / all) — Fix everything
+### default / all — Fix everything
 
-If no mode is specified, or if `all` is specified, run the three modes in
-order: **conflicts -> ci -> feedback**.
+If no mode is specified, or if `all` is specified, run the modes in this
+order: **conflicts -> ci -> feedback**. Resolve conflicts first so CI runs
+against the mergeable branch.
 
-Conflicts must be resolved first for CI to run correctly.
-
-## Common steps (all modes)
+## Common steps
 
 ### Perform a local review before pushing
 
-- Before committing and pushing changes, perform an independent local code
-  review. Use an available dedicated review skill or review subagent when the
-  host provides one. Otherwise, perform a distinct review pass over the full
-  diff, checking correctness, regressions, security, and test coverage
-  separately from implementation.
-- Do not commit or push until the review has no unresolved significant issues.
+- Before committing and pushing, perform an independent local code review. Use
+  an available dedicated review skill or review subagent when the host provides
+  one. Otherwise, make a separate pass over the full diff for correctness,
+  regressions, security, and test coverage.
+- Do not commit or push while unresolved significant issues remain.
 
 ### Update the PR title and description
 
 - After making fixes and pushing, update the PR title and description so they
-  accurately reflect the current state of the changes.
-- Before updating, always retrieve the current title and description with
-  `gh pr view <PR_NUMBER> -R <base-repository>` and edit based on that
-  content, since someone else may have already updated it.
+  accurately reflect the current state.
+- Retrieve the current title and description first, because another person may
+  have updated them.
 - Use `gh pr edit <PR_NUMBER> -R <base-repository> --title` and
-  `gh pr edit <PR_NUMBER> -R <base-repository> --body` to apply the updates.
+  `gh pr edit <PR_NUMBER> -R <base-repository> --body` to apply updates.
 
 ## Constraints
 
-- Keep the PR head worktree after the skill completes so a later use of
-  `pr-fix` or `pr-merge` can reuse it.
+- Keep the invoking checkout on the PR head branch. Do not create a worktree
+  or switch to another branch as a workaround.
 - Make one commit per logical fix and use a clear message.
 - Do not force-push unless explicitly instructed.
-- Do not use a branch checkout, a raw `git worktree`, or a qwt force
-  removal to work around a workspace error.
+- Preserve recoverable state and stop on an unsafe checkout, missing remote
+  branch, deleted fork, identity mismatch, or concurrent branch update.
 
 ## Output
 

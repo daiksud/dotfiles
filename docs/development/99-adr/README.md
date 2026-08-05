@@ -18,7 +18,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0007](./0007-gh-wt.md) | Manage git worktrees with gh-wt | Superseded |
 | [0008](./0008-gh-qwt.md) | Replace gh-q and gh-wt with gh-qwt | Accepted |
 | [0009](./0009-shared-worktree-gh-auth.md) | Share gh authentication across Git worktrees | Superseded |
-| [0010](./0010-pr-skills-gh-qwt.md) | Use gh-qwt worktrees for Pull Request skills | Accepted |
+| [0010](./0010-pr-skills-gh-qwt.md) | Use gh-qwt worktrees for Pull Request skills | Superseded |
 | [0011](./0011-ci-and-shell-testing.md) | Add a CI workflow with bats-core tests and mise-provisioned lint tools | Accepted |
 | [0012](./0012-github-actions-sha-pinning.md) | Require immutable SHA pins for GitHub Actions | Accepted |
 | [0013](./0013-cross-agent-skills-and-instructions.md) | Share Agent Skills and instructions across coding agents | Accepted |
@@ -29,6 +29,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0018](./0018-pr-review-requirements.md) | Evaluate repository review requirements before PR automation | Accepted |
 | [0019](./0019-gh-qwt-ghq-layout.md) | Follow gh-qwt's ghq-compatible layout | Accepted |
 | [0020](./0020-central-gh-account-mapping.md) | Select the GitHub account per repository from a central mapping | Accepted |
+| [0021](./0021-pr-skills-invoking-checkout.md) | Use the invoking checkout for Pull Request skills | Accepted |
 
 ## How to Write a New ADR
 

@@ -172,9 +172,10 @@ by GitHub Copilot, Codex, and Claude Code:
 - `~/.claude/CLAUDE.md`
 
 The file maps PR creation, fixing, and merging requests to the corresponding
-shared skills. The detailed procedures remain in the skills, so all three
-agents execute the same workflow instead of maintaining product-specific
-copies.
+shared skills. It also requires a rationale in every agent-created commit:
+non-trivial commits record their context, decision, considerations, and
+impact. The detailed procedures remain in the skills, so all three agents
+execute the same workflow instead of maintaining product-specific copies.
 
 Root `AGENTS.md` is the canonical repository instruction file. Claude imports
 it through `CLAUDE.md`. Copilot Code Review reads

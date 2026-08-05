@@ -13,7 +13,6 @@ a detailed reference for the dotfiles configuration files, tool list, and struct
 - [herdr](./herdr.md) — Terminal multiplexer
 - [mise](./mise.md) — Development tool version management
 - [Neovim](./nvim.md) — Editor (LazyVim)
-- [RTK](./rtk.md) — CLI proxy for reducing LLM token usage
 - [Sheldon](./sheldon.md) — Zsh plugin manager
 - [Starship](./starship.md) — Prompt
 - [Zsh](./zsh/README.md) — Shell configuration

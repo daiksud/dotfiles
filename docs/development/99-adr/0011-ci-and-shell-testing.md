@@ -41,8 +41,7 @@ Several constraints shaped the design:
     `shellcheck` over the Bash/sh scripts (`install.sh`, `scripts/*.sh`,
     `dotfiles/zsh/starship-qwt-worktree.sh`), `zsh -n` over every
     `dotfiles/zsh/*.zsh` file, JSON syntax checks (`jq empty`) over
-    `install_map.json`, `package.json`, and
-    `dotfiles/copilot-hooks/rtk-rewrite.json`, and TOML syntax checks (Python's
+    `install_map.json` and `package.json`, and TOML syntax checks (Python's
     `tomllib`) over `mise.toml` and `dotfiles/starship.toml`.
   - `test` (matrix of `ubuntu-latest` and `macos-latest`): runs the new
     `bats-core` suite under `tests/`.

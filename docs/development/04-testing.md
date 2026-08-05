@@ -70,8 +70,7 @@ Current coverage:
 
 - `tests/agent_configuration.bats` — the root and GitHub Actions canonical
   `AGENTS.md` files, exact synchronization of their inline Copilot mirrors,
-  the Claude import adapters, and the legacy personal Copilot adapter's
-  forward reference to canonical personal instructions.
+  and the Claude import adapters.
 - `tests/gh_account.bats` — `dotfiles/zsh/gh-account.zsh` behavior, loaded in a
   non-interactive `zsh -c` subshell with a scratch mapping file
   (`GH_ACCOUNT_MAP_FILE`) so no real `gh` account or credential is touched:

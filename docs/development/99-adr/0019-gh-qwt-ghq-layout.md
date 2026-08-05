@@ -133,6 +133,6 @@ the user actually types against off the visible width.
 - The real `ghq` binary is available again, and `ghq` no longer runs `gh qwt`.
 - Existing `~/qwt` repositories keep working only after an explicit
   `gh qwt migrate`; they are never picked up implicitly.
-- [ADR 0010](./0010-pr-skills-gh-qwt.md) keeps its worktree-only policy, but its
-  mechanical details (path resolution, registration checks, and repository
-  detection) follow this layout.
+- [ADR 0021](./0021-pr-skills-invoking-checkout.md) removes the PR skills'
+  dependency on this layout. The `gh-qwt` command and its interactive shell
+  integrations continue to use it.

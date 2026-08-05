@@ -7,9 +7,9 @@ Copilot, Codex, and Claude Code.
 
 | Skill | Description |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pr-create` | Create a draft PR from an isolated `gh-qwt` feature worktree, with an appropriate commit message and description |
-| `pr-fix` | Use the PR head's `gh-qwt` worktree to fix CI errors and handle review comments |
-| `pr-merge` | Loop enabled Copilot Code Review until there are no findings, request approval only when required, then merge and clean up the qwt branch workspace |
+| `pr-create` | Create a draft PR from the current ordinary clone, with an appropriate commit message and description |
+| `pr-fix` | Use an ordinary clone of the PR head branch to fix CI errors and handle review comments |
+| `pr-merge` | Merge one PR from an ordinary clone of its checked-out head |
 
 ## Installation destination
 
@@ -151,60 +151,39 @@ name: Skill name
 | Output | Recommended | What is shown to the user when the skill finishes |
 | Hints for developers | Optional | Example alias configuration, etc. |
 
-## PR workspace policy
+## PR checkout policy
 
-The three PR skills use [`gh-qwt`](./gh-qwt.md) as their only
-branch-workspace mechanism. A branch is represented by its own worktree, not
-by changing the branch of the invoking checkout.
+The three PR skills operate in an ordinary clone where the user invokes them.
+They do not create or use `gh-qwt`, `git worktree`, or another checkout, and
+they stop in a linked or qwt-managed worktree.
 
-- Every skill resolves the remote through GitHub and records its canonical URL
-  plus the full lowercase `<host>/<owner>/<repo>` identity. A managed
-  repository stores the same value as its repository-local `qwt.identity`, so
-  before the skill lists, fetches, reuses, pushes, or removes an existing
-  checkout, the recorded identity must match both `qwt.identity` and the
-  expanded `origin` URL. A mismatch stops the skill instead of rewriting
-  `origin`; repositories that must stay apart are separated with distinct ghq
-  roots.
-- The skills resolve a target with `gh qwt path`, using a host-qualified
-  `<host>/<owner>/<repo>/<branch>` spec for a branch, and run repository
-  commands against that absolute path.
-- A resolved path is never treated as proof of existence, because `gh qwt path`
-  also prints the planned path of a worktree that has not been created yet.
-  Before reusing a target, and after each `get` or `add`, the skills require an
-  unfiltered `gh qwt list --all <spec> --exact --full-path` result to contain
-  the worktree created by that command byte-for-byte, and they require
-  `qwt.managed` in the resolved checkout. A primary-checkout bootstrap `get` is
-  checked before a feature-branch `add`; the feature target is checked after
-  `add`. An occupied path without exact registration is a collision, not a
-  worktree. An occupied repository path without managed metadata is likewise a
-  collision, not a repository to adopt in place.
-- A missing repository is provisioned with `gh qwt get`. A missing branch
-  worktree in an existing repository is created with `gh qwt add`.
-  `get --branch` is used only for an existing remote branch; creating a new
-  branch first requires `get` for the default branch, followed by `add`.
-  Provisioning passes the verified host explicitly with `get --host`, then
-  verifies the new checkout's managed metadata before it is used.
-- Before `add` runs in an existing repository, the skills refresh
-  `origin --prune` from the primary checkout so cached refs cannot turn a
-  just-pushed branch into a mistakenly new branch.
-- Before a PR skill edits a reused target, it requires a clean worktree and
-  either fast-forwards it to its remote head or stops on an ahead/diverged
-  branch. It never silently overwrites an existing worktree.
-- The skill procedures must not use `git switch`, `git checkout`, ordinary
-  `git worktree`, or a normal-clone fallback.
-- If qwt cannot safely create a worktree, such as a slash-prefix path
-  collision, the skill reports the error and stops. It does not change the
-  branch of another checkout as a workaround.
-- This restriction applies to PR skills only. Interactive shell Git commands
-  remain unchanged.
+- Every skill resolves the relevant remote through GitHub and records its
+  canonical URL and lowercase `<host>/<owner>/<repo>` identity before GitHub
+  API calls, pushes, or merges. An identity mismatch stops the workflow rather
+  than rewriting `origin`.
+- `pr-create` may create a feature branch in the invoking checkout only when
+  its default-branch `HEAD` exactly matches the remote default branch. It
+  preserves intended staged, unstaged, and non-ignored untracked changes during
+  that branch creation. A default branch that is ahead, behind, or diverged
+  stops rather than being pulled, rebased, reset, or used as an uncertain base.
+- A non-default branch used by `pr-create` must not already correspond to an
+  open, closed, or merged PR. This prevents accidental reuse of a branch left
+  checked out after a squash merge.
+- `pr-fix` and `pr-merge` require a clean invoking ordinary clone of the exact
+  PR head branch and repository. A fork PR requires a clone of the fork and a
+  PR URL or explicit base repository; the skills report the canonical URL and
+  branch when the caller must prepare one.
+- Before commits, pushes, and merges, especially after polling waits, the
+  skills re-check the current branch, working state, remote head, and expected
+  PR SHA. They stop on an unsafe or concurrent change.
+- `pr-merge` accepts one PR per invocation. It leaves the local head branch
+  checked out after a successful merge and only deletes the remote head branch
+  when its ref still equals the verified PR head SHA.
+- Concurrent PR work requires separate ordinary clones. The policy does not
+  change normal interactive Git usage.
 
-`pr-create` preserves uncommitted source changes through a named stash and
-verification before it clears the source. When the source is a checkout that
-gh-qwt does not manage, the stash is transferred as a temporary Git bundle so
-staged, unstaged, and non-ignored untracked changes retain their state in the
-qwt target. A default branch with local commits is intentionally not reset,
-rebased, or pushed by the skill; it stops and asks for explicit direction
-instead.
+See [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md) for
+the rationale.
 
 ## Detailed specification for `pr-create`
 
@@ -212,11 +191,15 @@ instead.
 
 1. Check the corresponding Task (Issue) (if it cannot be inferred, ask the user to confirm; if there is none, encourage them to create one)
 2. Understand the source changes with `git diff` and the Issue description and comments
-3. Resolve or create the feature branch's qwt worktree, migrating uncommitted changes only through the verified preservation procedure
-4. Stage the intended uncommitted paths and commit from the target worktree
+3. Create a feature branch in the current checkout only when its default
+   branch exactly matches its remote; otherwise use a non-default branch that
+   has no existing PR
+4. Stage the intended uncommitted paths and commit from the current checkout
    using the Conventional Commits format
-5. Push the target branch
-6. Create the PR description (write a readable, visually clear body that fully leverages GFM features such as tables, alerts, Mermaid, and emoji), then create a draft PR with `gh pr create --draft`
+5. Push the current branch
+6. Create the PR description (write a readable, visually clear body that fully
+   leverages GFM features such as tables, alerts, Mermaid, and emoji), then
+   create a draft PR with explicit verified `-R`, `--base`, and `--head` values
 7. Set the invoking user as the Assignee
 8. Finally, update the corresponding Task description to match the final changes (move the original plan to a comment)
 
@@ -234,7 +217,8 @@ instead.
 
 ### Workflow
 
-1. Resolve the base repository and the PR head repository / branch, then create or reuse the head qwt worktree
+1. Resolve the base repository and PR head, then require a clean current
+   checkout of the exact head repository and branch
 2. Check the CI status of the specified PR
 3. If there are CI failures, analyze the logs and repeat fixes (up to 3 times)
 4. Retrieve all review comments and judge the validity of each one
@@ -245,13 +229,13 @@ instead.
    Review only when an effective `copilot_code_review` rule exists
 
 The PR API remains scoped to the base repository. Git changes and pushes occur
-only in the head worktree. For a fork PR, the head repository is used as the
-qwt target; a deleted fork or missing push access stops the skill instead of
-creating a substitute branch in the base repository.
+only in the invoking checkout. For a fork PR, it must be a checkout of the
+head repository; a deleted fork or missing push access stops the skill instead
+of creating a substitute branch in the base repository.
 
 ### Input
 
-- PR number (required)
+- PR URL, or PR number with host-qualified base repository (required)
 
 ### Output
 
@@ -263,7 +247,7 @@ creating a substitute branch in the base repository.
 
 ### Workflow
 
-`pr-merge` runs a single retry loop (up to 10 iterations) per PR:
+`pr-merge` runs a single retry loop (up to 10 iterations) for one PR:
 
 1. Query the active rules for the PR base branch. If they include
    `copilot_code_review`, use the `pr-fix` skill in `all` mode, request a
@@ -281,24 +265,18 @@ creating a substitute branch in the base repository.
    from the one persistent request). Re-check the decision after retries and
    reuse an approval only while GitHub continues to report it as valid
 5. Wait for CI to go green and re-check mergeability; a merge conflict or a CI failure sends control back to step 1 because the `pr-fix` skill can fix both
-6. Once CI is green and there are no conflicts, verify that the qwt worktree
-   is clean and still matches the PR head, squash merge with the checked head
-   SHA, then remove the qwt worktree and local branch with `gh qwt remove
-   --delete-branch`
+6. Once CI is green and there are no conflicts, verify that the current
+   checkout is clean and still matches the PR head, then squash merge with the
+   checked head SHA
 
 The active-rules query is evaluated per PR against its canonical base host and
 base branch. A failed query stops that PR rather than being interpreted as an
 absent `copilot_code_review` rule.
 
-After the qwt cleanup, `pr-merge` deletes the head remote branch directly from
-its repository only when it still equals the verified PR head SHA. The
-lease-protected deletion works for both same-repository and fork PRs, while
-avoiding the branch checkout that GitHub CLI can otherwise perform during
-local branch deletion. The explicit
-`gh qwt remove <host>/<owner>/<repo>/<branch>` command runs from outside the
-repository so its argument cannot be mistaken for a branch name.
-
-Multiple PR numbers are processed one at a time; a PR that fails or times out is skipped (recorded) so the rest of the batch still runs.
+After the merge, `pr-merge` leaves the local head branch checked out. It deletes
+the head remote branch directly only when its ref still equals the verified PR
+head SHA. The lease-protected deletion works for both same-repository and fork
+PRs without switching or deleting the local branch.
 
 > [!NOTE]
 > When GitHub reports that review is required, `pr-merge` assumes an automation
@@ -308,11 +286,10 @@ Multiple PR numbers are processed one at a time; a PR that fails or times out is
 
 ### Input
 
-- One or more PR numbers (required)
+- One PR URL, or PR number with host-qualified base repository (required)
 
 ### Output
 
-- The merged PR's URL for each successfully merged PR
-- The failure reason (which step, and why) for any PR that could not be merged
+- The merged PR URL
+- The failure reason and step when it could not be merged
 - Whether Copilot Code Review or self approval was skipped as unnecessary
-- A final summary across all given PR numbers

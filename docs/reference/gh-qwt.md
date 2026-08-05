@@ -147,79 +147,29 @@ linked to the paths loaded by GitHub Copilot, Codex, and Claude Code (see
 [Using skills](../guides/06-skills.md)). They route Pull Request requests to
 the matching shared skill.
 
-The shared PR skills are the only agent workflows that use `gh-qwt`. They
-verify repository identity and working state before selecting a worktree; for
-example, `pr-create` captures staged, unstaged, and untracked source changes
-before it prepares its target. The skill definitions under `dotfiles/skills/`
-remain the authoritative procedure; this page describes their integration
-without copying them.
+The shared PR skills do not require `gh-qwt`. They operate only in an ordinary
+clone where the user invokes them; their definitions under `dotfiles/skills/`
+remain the authoritative procedure. This page documents explicit `gh-qwt` use
+for interactive repository and worktree management.
 
-## Pull Request skill integration
+## Pull Request skill relationship
 
-The shared `pr-create`, `pr-fix`, and `pr-merge` Agent Skills use `gh-qwt` as
-their only branch-workspace mechanism in GitHub Copilot, Codex, and Claude
-Code. They do not change the branch of the checkout that started the skill.
+The shared `pr-create`, `pr-fix`, and `pr-merge` Agent Skills do not provision
+or reuse a `gh-qwt` worktree. They use the checkout where the user invoked the
+skill:
 
-| PR phase | qwt behavior |
+| PR phase | Checkout behavior |
 | --- | --- |
-| Create | Resolve the repository and create a feature worktree. A missing primary checkout is provisioned with `get`; a new feature branch is then created with `add`. |
-| Fix | Resolve the PR head repository and branch, including a fork head, then create or reuse that branch's worktree. |
-| Merge | Keep the head worktree through final CI, then remove the clean worktree and local branch after GitHub confirms the squash merge. |
+| Create | Create a feature branch in an ordinary clone only from an exactly synchronized default branch, or use a non-default branch that has no existing PR. |
+| Fix | Require a clean ordinary clone of the exact PR head repository and branch, including the fork for a fork PR. |
+| Merge | Require that same ordinary clone, merge one PR, leave the local branch checked out, and delete only an unchanged remote head branch. |
 
-Every PR skill resolves the remote through GitHub and records its canonical URL
-and full lowercase `<host>/<owner>/<repo>` identity. Because managed
-repositories store that identity as `qwt.identity`, a resolved checkout can be
-verified against the recorded value before it is listed, fetched, reused,
-pushed, or removed, and provisioning still passes the verified host explicitly
-with `get --host`. An identity mismatch stops the workflow and is resolved with
-separate ghq roots; the skills never repoint an existing `origin`.
-
-A calculated path is not sufficient evidence that a branch is a qwt worktree,
-because `gh qwt path` also prints planned paths. Before reuse and after each
-`get` or `add`, the skills require the raw
-`gh qwt list --all <spec> --exact --full-path` output to contain that worktree
-byte-for-byte, and they treat `qwt.managed` in the resolved checkout as the
-signal that the repository is managed. A primary-checkout bootstrap is verified
-before the feature target is created and verified again after `add`. An
-unregistered occupied path is reported as a collision and is never inspected,
-edited, pushed, or removed as the PR target. An occupied repository path
-without managed metadata likewise stops before `get` instead of being adopted
-in place.
-
-Before `add` is used in an existing repository, the skills fetch
-`origin --prune` from the primary checkout. `add` relies on cached remote refs,
-so this refresh prevents a newly pushed PR branch from being mistaken for a new
-branch and taking the `--new` path. A missing local repository for an existing
-remote PR branch is created with `get --branch`; a new feature branch requires a
-default-branch `get` followed by `add`. A reused PR worktree must be clean and
-either fast-forward to its remote head or stop on an ahead/diverged branch.
-
-When `pr-create` starts from a dirty default branch, it transfers staged,
-unstaged, and non-ignored untracked changes through a named stash and validates
-the target before clearing the source. For a checkout that gh-qwt does not
-manage, the stash is temporarily bundled into the managed repository so the
-index state is preserved. If the default branch has local commits or the target
-path is unsafe, the skill stops rather than resetting a branch or falling back
-to a normal checkout.
-
-After a confirmed merge, `pr-merge` removes the worktree and local branch with
-`gh qwt remove --delete-branch`, passing the host-qualified
-`<host>/<owner>/<repo>/<branch>` spec from outside the repository so the
-argument cannot be mistaken for a branch name. It then deletes the head remote
-branch only when its current ref still matches the verified PR head SHA, using a
-lease-protected push. This supports fork PR cleanup without risking deletion of
-a branch that changed after the merge check.
-
-When GitHub reports that review is required, the self-approval request used by
-`pr-merge` is persistent across its review/CI retry loop. The label is applied
-at most once, the three-minute deadline is measured from that one request, and
-an approval is reused while `reviewDecision` remains `APPROVED`. A null or
-empty `reviewDecision` skips the label and approval wait entirely.
-
-> [!IMPORTANT]
-> PR skills never use `git switch`, `git checkout`, ordinary `git worktree`,
-> or a normal-clone fallback. This constraint applies only to the skills; it
-> does not change interactive Git usage.
+The skills still resolve canonical GitHub identities and re-check branch,
+working-state, remote-head, review, and CI conditions before mutating a PR.
+Concurrent PR work requires separate ordinary clones. See
+[Using skills](../guides/06-skills.md) and
+[ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md) for the
+complete workflow.
 
 ## Shell shortcuts
 

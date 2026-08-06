@@ -237,7 +237,9 @@ the skill; it stops and asks for explicit direction instead.
 6. Before committing and pushing, perform an independent local review. Use a dedicated review skill or review subagent when the host provides one; otherwise make a separate review pass over the full diff
 7. After pushing, reply to each review comment with how it was addressed
 8. Query the active rules for the PR base branch and request Copilot Code
-   Review only when an effective `copilot_code_review` rule exists
+   Review only when an effective `copilot_code_review` rule exists. When
+   `pr-merge` invokes this workflow, it passes `--skip-copilot-review` and
+   owns the request instead.
 
 The PR API remains scoped to the base repository. Git changes and pushes occur
 only in the head worktree. For a fork PR, the head repository is used as the
@@ -261,9 +263,10 @@ creating a substitute branch in the base repository.
 `pr-merge` runs a single retry loop (up to 10 iterations) per PR:
 
 1. Query the active rules for the PR base branch. If they include
-   `copilot_code_review`, use the `pr-fix` skill in `all` mode, request a
-   Copilot Code Review, and wait for it to complete. Otherwise, run `pr-fix`
-   but skip the review request and wait
+   `copilot_code_review`, use the `pr-fix` skill in `all` mode with
+   `--skip-copilot-review`, then let `pr-merge` request exactly one Copilot
+   Code Review and wait for it to complete. Otherwise, run `pr-fix` with the
+   same flag and skip the review request and wait
 2. When Copilot Code Review is enabled, count its unresolved findings
    (paginated `reviewThreads`, filtered to
    `copilot-pull-request-reviewer`); if any remain, go back to step 1

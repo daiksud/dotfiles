@@ -82,10 +82,12 @@ Before the first iteration:
 
 ### Step 1: Resolve Copilot Code Review feedback
 
-1. Use the `pr-fix` skill in `all` mode for the PR number. Let it provision or
-   reuse the PR head qwt worktree and resolve merge conflicts, CI failures,
-   and review feedback there. Retain the canonical head URL and full
-   host/owner/repo identity that its guard verifies during the final pass.
+1. Use the `pr-fix` skill in `all` mode with `--skip-copilot-review` for the PR
+   number. Let it provision or reuse the PR head qwt worktree and resolve merge
+   conflicts, CI failures, and review feedback there. `pr-merge` owns the
+   single Copilot request and wait for this iteration. Retain the canonical
+   head URL and full host/owner/repo identity that its guard verifies during the
+   final pass.
 2. If the effective rules do not include `copilot_code_review`, record that
    Copilot Code Review is disabled and proceed directly to Step 2. Do not
    request a review, wait for one, or count Copilot findings.

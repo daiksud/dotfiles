@@ -119,17 +119,14 @@ organization rules and live repository settings can also apply.
 ## Checkout-based Pull Request skills
 
 Shared PR skills operate in the Git checkout where the user invokes them. The
-checkout may be an ordinary clone, a gh-qwt primary checkout, or a linked
-worktree. Do not create a `gh-qwt`, Git, or other worktree for a PR workflow.
+checkout may be an ordinary clone, a gh-qw main worktree, or a linked
+worktree. Do not create a `gh-qw`, Git, or other worktree for a PR workflow.
 
 - `pr-create` can create a new feature branch in the invoking checkout only
   when its default-branch `HEAD` exactly matches the remote default branch.
   It preserves intended staged, unstaged, and non-ignored untracked changes
   while creating that branch. Stop if the default branch is ahead, behind, or
   diverged instead of pulling, rebasing, or resetting it.
-- When `pr-create` moves a gh-qwt primary checkout off its pinned default
-  branch, report that gh-qwt management commands will reject the repository
-  until the user restores the pin. Do not switch it back automatically.
 - `pr-fix` and `pr-merge` require the invoking checkout to be clean, on the
   exact PR head branch, and pointed at the head repository. For a fork, require
   a PR URL or explicit base repository and report the canonical fork URL and
@@ -150,7 +147,7 @@ worktree. Do not create a `gh-qwt`, Git, or other worktree for a PR workflow.
 This restriction belongs in the skill procedure and constraints. Do not add a
 global shell wrapper that changes ordinary interactive Git behavior. See
 [ADR 0021](./99-adr/0021-pr-skills-invoking-checkout.md) and
-[ADR 0023](./99-adr/0023-pr-skills-gh-qwt-checkouts.md) for the rationale.
+[ADR 0027](./99-adr/0027-gh-qw.md) for the rationale.
 
 ## File Placement
 

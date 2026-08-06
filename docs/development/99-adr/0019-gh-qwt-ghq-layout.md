@@ -6,7 +6,7 @@ repository layout.
 
 ## Status
 
-Accepted
+Superseded by [ADR 0027](./0027-gh-qw.md)
 
 ## Context
 

@@ -156,8 +156,8 @@ name: Skill name
 ## PR checkout policy
 
 The three PR skills operate in the Git checkout where the user invokes them.
-That checkout may be an ordinary clone, a gh-qwt primary checkout, or a linked
-worktree. They do not create or use `gh-qwt`, `git worktree`, or another
+That checkout may be an ordinary clone, a gh-qw main worktree, or a linked
+worktree. They do not create or use `gh-qw`, `git worktree`, or another
 checkout.
 
 - Every skill resolves the relevant remote through GitHub and records its
@@ -171,9 +171,7 @@ checkout.
   stops rather than being pulled, rebased, reset, or used as an uncertain base.
 - Before creating a branch, `pr-create` checks `git worktree list --porcelain`
   and stops with the registered path if another checkout already has the target
-  branch. If it moves a gh-qwt primary checkout off `qwt.defaultbranch`, it
-  reports that gh-qwt management commands will reject the repository until the
-  user restores the pinned branch.
+  branch.
 - A non-default branch used by `pr-create` must not already correspond to an
   open, closed, or merged PR. This prevents accidental reuse of a branch left
   checked out after a squash merge.
@@ -191,7 +189,7 @@ checkout.
   ordinary clones. The policy does not change normal interactive Git usage.
 
 See [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md) and
-[ADR 0023](../development/99-adr/0023-pr-skills-gh-qwt-checkouts.md) for the
+[ADR 0027](../development/99-adr/0027-gh-qw.md) for the
 rationale.
 
 ## Detailed specification for `pr-create`

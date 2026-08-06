@@ -12,7 +12,7 @@ selected PR, use `pr-fix` from the invoking checkout, request a Copilot Code
 Review when the base branch requires it, wait for approval and CI, then squash
 merge the verified head SHA.
 
-This skill never creates a `gh-qwt`, Git, or other worktree and never switches
+This skill never creates a `gh-qw`, Git, or other worktree and never switches
 the invoking checkout to another branch. It leaves the merged local branch
 checked out. It can delete the matching remote head branch with a
 lease-protected ref deletion, because that operation does not require changing
@@ -36,7 +36,7 @@ the local checkout.
   URL, lowercase host, canonical `nameWithOwner`, and default branch. Define
   `<base-repository>` as the host-qualified
   `<base-host>/<base-owner>/<base-repo>` and pass it to every `gh pr` command.
-- Never create or use `gh qwt`, `git worktree`, another checkout, or an
+- Never create or use `gh qw`, `git worktree`, another checkout, or an
   automatic branch switch. If the current checkout is not the PR head, stop
   and report the canonical head repository URL and branch.
 - Before each mutating command after a wait, re-check the current branch,

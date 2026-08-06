@@ -4,11 +4,11 @@ Adopt the `gh-qwt` GitHub CLI extension, which unifies repository cloning and pe
 
 ## Status
 
-Accepted
+Superseded by [ADR 0027](./0027-gh-qw.md)
 
-The choice of gh-qwt still stands. Its directory layout changed in v0.16.0; see
-[ADR 0019](./0019-gh-qwt-ghq-layout.md) for the layout this repository follows
-now.
+The choice of gh-qwt stood until then. Its directory layout changed in
+v0.16.0; see [ADR 0019](./0019-gh-qwt-ghq-layout.md) for the layout this
+repository followed afterward, until gh-qwt itself was replaced.
 
 ## Context
 
@@ -27,7 +27,7 @@ Replace both `gh-q` and `gh-wt` with `gh-qwt`.
 - Consolidate the zsh shortcuts: rewrite `go-to-ghq-repository.zsh` (`ggr`) as `go-to-qwt-repository.zsh`, absorbing the former `go-to-worktree.zsh` (`gwt`)'s role, since `gh qwt list` already returns a single flat `owner/repo/branch` list covering both repositories and worktrees; rewrite `edit-ghq-repository.zsh` as `edit-qwt-repository.zsh` to fzf-select from `gh qwt list --full-path` directly instead of delegating to `gh-q`'s built-in fzf dispatch
 - Remove the `go-to-worktree.zsh` file and the `gwt` alias, now that `ggr` covers the same ground
 - Remove the `dotfiles/skills/gh-wt/` Copilot CLI skill (vendored from upstream via `gh skill install HikaruEgashira/gh-wt gh-wt`) without a replacement, since `daiksud/gh-qwt` does not currently ship a skill to vendor
-- Document the new tool in [reference/gh-qwt.md](../../reference/gh-qwt.md), replacing `reference/gh-wt.md`
+- Document the new tool in `reference/gh-qwt.md`, replacing `reference/gh-wt.md`
 
 ## Alternatives Considered
 

@@ -6,7 +6,7 @@ description: Bring an existing GitHub Pull Request into a mergeable state from i
 # pr-fix
 
 Bring a Pull Request into a mergeable state from the invoking Git checkout.
-This skill never creates a `gh-qwt`, Git, or other worktree, and it never
+This skill never creates a `gh-qw`, Git, or other worktree, and it never
 switches the invoking checkout to another branch.
 
 ## Inputs
@@ -27,9 +27,9 @@ an optional mode:
 
 Complete these checks before the selected mode.
 
-1. Use the invoking Git checkout. It may be an ordinary clone, a gh-qwt primary
-   checkout, or a linked worktree. Do not reject it solely because
-   `qwt.managed` is `true` or its `.git` entry is a pointer file.
+1. Use the invoking Git checkout. It may be an ordinary clone, a gh-qw main
+   worktree, or a linked worktree. Do not reject it solely because its `.git`
+   entry is a pointer file.
 2. Resolve the base repository from the supplied PR URL or explicit base
    repository through GitHub. Record its canonical URL, lowercase host,
    canonical `nameWithOwner`, and default branch. Define `<base-repository>` as
@@ -58,7 +58,7 @@ Complete these checks before the selected mode.
 8. Verify push access with
    `git push --dry-run origin <head-branch>`. For a fork PR, this checks access
    to the fork instead of assuming that the base repository is writable.
-9. Never create or use `gh qwt`, `git worktree`, another checkout, or an
+9. Never create or use `gh qw`, `git worktree`, another checkout, or an
    automatic branch switch. If the checkout does not meet these requirements,
    stop and report the canonical head repository URL and head branch so the
    user can prepare the correct checkout.

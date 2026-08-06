@@ -7,9 +7,9 @@ This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 | File | Alias | Keybinding | Description |
 | --------------------------------- | ----- | ---------- | -------------------------------------------------------- |
 | `gh-account.zsh` | `ghu` | — | Select the GitHub account and Git identity per repository |
-| `qwt-select.zsh` | — | — | Shared fzf selector for gh-qwt managed checkouts |
-| `go-to-qwt-repository.zsh` | `ggr` | `C-]` | Select a gh-qwt checkout and `cd` into it |
-| `edit-qwt-repository.zsh` | `egr` | — | Select a gh-qwt checkout and open it in `nvim` |
+| `repository-select.zsh` | — | — | Shared fzf selector for gh-qw managed checkouts |
+| `go-to-repository.zsh` | `ggr` | `C-]` | Select a gh-qw checkout and `cd` into it |
+| `edit-repository.zsh` | `egr` | — | Select a gh-qw checkout and open it in `nvim` |
 | `edit-selected-file.zsh` | `esf` | — | Select a file and open it in `nvim` |
 | `fzf-select-history.zsh` | — | `C-r` | Search history with fzf |
 | `browse-github-notifications.zsh` | `bgn` | — | Browse GitHub notifications |
@@ -84,21 +84,28 @@ For details, see [Automatic Git identity switching](../../guides/04-git-identity
 
 ---
 
-## qwt-select.zsh
+## repository-select.zsh
 
-A shared fzf selector for [gh-qwt](../gh-qwt.md) managed checkouts, used by
-both `go-to-qwt-repository.zsh` and `edit-qwt-repository.zsh`.
+A shared fzf selector for [gh-qw](../gh-qw.md) managed checkouts, used by
+both `go-to-repository.zsh` and `edit-repository.zsh`.
 
 ### Behavior
 
-1. List every managed checkout with `gh qwt list --all`, because `gh qwt list`
-   alone is scoped to the current repository and fails outside the ghq roots
+1. List every managed checkout with `gh qw list --worktree`, which reports
+   every configured root's main worktrees and, with `--worktree`, their
+   linked worktrees as `<host>/<owner>/<repo>@<branch>`
 2. Hide the `github.com/` prefix in the fzf display while keeping the canonical
    host-qualified spec in a hidden field, so other hosts stay unambiguous
-3. Resolve the selected spec with `gh qwt path`
-4. Verify that the resolved directory exists, since `gh qwt path` also prints
-   the planned path of a worktree that has not been created yet
-5. Print the absolute path on stdout
+3. Resolve the selected spec to an absolute path. `gh-qw` has no `path`
+   command, so this is `gh qw list --worktree --exact --full-path` for a spec
+   with an `@<branch>` suffix, or plain `gh qw list --exact --full-path`
+   otherwise — omitting `--worktree` for a bare identity matters, because
+   `--worktree --exact` without a suffix matches a repository's main worktree
+   **and** every one of its linked worktrees
+4. Treat empty output as "not found", since `list` exits `0` with nothing
+   printed when no entry matches
+5. Verify that the resolved directory exists
+6. Print the absolute path on stdout
 
 It writes a message to stderr and returns non-zero when `gh` is missing, the
 listing is empty, the selection cannot be resolved, or the resolved path does
@@ -107,18 +114,19 @@ not exist.
 ### Interface
 
 ```zsh
-qwt-select-path "initial query" [extra fzf options...]
+repository-select-path "initial query" [extra fzf options...]
 ```
 
 ---
 
-## go-to-qwt-repository.zsh
+## go-to-repository.zsh
 
-Select a [gh-qwt](../gh-qwt.md) managed checkout with fzf and `cd` into it.
+Select a [gh-qw](../gh-qw.md) managed checkout with fzf and `cd` into it.
 
 ### Behavior
 
-1. Call `qwt-select-path` with the current command line as the initial query
+1. Call `repository-select-path` with the current command line as the initial
+   query
 2. `cd` into the returned absolute path
 3. Redraw the prompt when it was invoked as a ZLE widget
 
@@ -132,13 +140,13 @@ Select a [gh-qwt](../gh-qwt.md) managed checkout with fzf and `cd` into it.
 
 ---
 
-## edit-qwt-repository.zsh
+## edit-repository.zsh
 
-Select a [gh-qwt](../gh-qwt.md) managed checkout with fzf and open it in Neovim.
+Select a [gh-qw](../gh-qw.md) managed checkout with fzf and open it in Neovim.
 
 ### Behavior
 
-1. Call `qwt-select-path` to get the absolute path of a checkout
+1. Call `repository-select-path` to get the absolute path of a checkout
 2. Run `nvim <path>` via `run-selected-command`
 
 ### Alias

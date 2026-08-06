@@ -78,18 +78,14 @@ Copilot user without exposing the token in command arguments.
 ## How PR skills use the current checkout
 
 The PR skills operate in the Git checkout where you invoke the agent. It may be
-an ordinary clone, a gh-qwt primary checkout, or a linked worktree. The skills
-do not create or use a `gh-qwt`, Git, or other worktree.
+an ordinary clone, a gh-qw main worktree, or a linked worktree. The skills
+do not create or use a `gh-qw`, Git, or other worktree.
 
 - `pr-create` creates a feature branch in the current checkout when the
   default branch's `HEAD` exactly matches its remote. It keeps staged,
   unstaged, and non-ignored untracked changes in place. A default branch that
   is ahead, behind, or diverged stops instead of being pulled, rebased, or
   reset automatically.
-- If `pr-create` moves a gh-qwt primary checkout off `qwt.defaultbranch`, it
-  reports that gh-qwt management commands will reject the repository until you
-  restore the pinned branch. Use a linked worktree when you need gh-qwt
-  management commands to remain available while working on the PR.
 - When invoked from a non-default branch, `pr-create` stops if that branch
   already has an open, closed, or merged PR. Create a new branch rather than
   reusing a branch left checked out after a squash merge.

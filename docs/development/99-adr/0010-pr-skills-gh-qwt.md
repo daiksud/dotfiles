@@ -11,7 +11,7 @@ Superseded by [ADR 0021](./0021-pr-skills-invoking-checkout.md)
 The `pr-create` skill previously instructed agents to create and check out a
 feature branch from `main`, while `pr-fix` instructed them to check out the
 Pull Request branch. Those instructions conflict with the repository's
-[`gh-qwt`](../../reference/gh-qwt.md) model: each branch has a separate
+`gh-qwt` model: each branch has a separate
 worktree below one shared bare repository.
 
 Using a single checkout for PR work also makes a dirty default branch,

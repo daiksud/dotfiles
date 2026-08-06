@@ -38,7 +38,7 @@ A read-only directory adds Starship's read-only indicator in the same colors.
 
 The built-in `git_branch` module displays the Git icon followed by the branch
 name of the current working tree, including a linked worktree created by
-[gh-qwt](./gh-qwt.md). A detached HEAD displays `HEAD`. The neighboring
+[gh-qw](./gh-qw.md). A detached HEAD displays `HEAD`. The neighboring
 `git_status` module renders the working-tree status and the ahead/behind
 counters in the same segment.
 

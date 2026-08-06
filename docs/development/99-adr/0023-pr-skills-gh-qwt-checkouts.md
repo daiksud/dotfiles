@@ -5,9 +5,9 @@ linked worktree without provisioning another checkout.
 
 ## Status
 
-Accepted
+Superseded by [ADR 0027](./0027-gh-qw.md)
 
-Amends [ADR 0021](./0021-pr-skills-invoking-checkout.md).
+Amended [ADR 0021](./0021-pr-skills-invoking-checkout.md).
 
 ## Context
 

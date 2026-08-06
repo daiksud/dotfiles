@@ -12,7 +12,6 @@ Node.js and Bun are managed by [Vite+](./vite-plus.md), not by `Brewfile`.
 | `fish` | Fish shell (for subshell use) |
 | `fzf` | Fuzzy finder (file selection, history search) |
 | `gh` | GitHub CLI |
-| `ghq` | Repository clone manager; shares its `GHQ_ROOT` / `ghq.root` roots with `gh qwt` (see [gh-qwt](./gh-qwt.md)) |
 | `git` | Version control |
 | `herdr` | Terminal multiplexer |
 | `jq` | JSON processor |

@@ -71,7 +71,7 @@ This script runs before every `100-*` script, so later setup can use `vp`,
 
 Installs GitHub CLI extensions and adds related tools.
 
-- Install the `gh-qwt` (`daiksud/gh-qwt`) extension (used for combined repository cloning and per-branch worktree management; see [gh-qwt](./gh-qwt.md) for details)
+- Install the `gh-qw` (`daiksud/gh-qw`) extension (used for combined repository cloning and per-branch worktree management; see [gh-qw](./gh-qw.md) for details)
 - Install the `gh-infra` (`babarot/gh-infra`) extension (used for declarative repository settings with `.github/settings.yml`; see [gh-infra](./gh-infra.md) for details)
 - Install `fd` (a fast file search tool) with Homebrew
 

@@ -114,6 +114,9 @@ Current coverage:
   `dotfiles/`, destination values have the supported string or string-array
   shape, the shared personal instruction destinations are present, and skill
   targets include the common and Claude discovery roots using valid paths.
+- `tests/repository_select.bats` — `dotfiles/zsh/repository-select.zsh`
+  behavior: the plugin parses as valid Zsh, and a missing `fzf` produces a
+  clear, immediate error instead of a bare `command not found`.
 
 ### Adding a new test
 

@@ -12,12 +12,20 @@ if ! command -v gh >/dev/null 2>&1; then
 fi
 
 extensions=(
-  "daiksud/gh-qwt"
+  "daiksud/gh-qw"
   "babarot/gh-infra"
 )
 
 for extension in "${extensions[@]}"; do
-  if gh extension list | awk '{print $1}' | grep -qx "${extension}"; then
+  # `gh extension list` reports the local command name (for example "gh qw"),
+  # not the "<owner>/<repo>" spec, in its first tab-separated column. Compare
+  # against that derived name so both a repo-installed and a locally
+  # symlinked extension are detected; a plain awk/grep match on "${extension}"
+  # never matched anything.
+  repo_name="${extension#*/}"
+  command_name="gh ${repo_name#gh-}"
+
+  if gh extension list | cut -f1 | grep -qx "${command_name}"; then
     continue
   fi
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env bats
 
-# Behavior coverage for dotfiles/zsh/qwt-select.zsh.
+# Behavior coverage for dotfiles/zsh/repository-select.zsh.
 
-PLUGIN="${BATS_TEST_DIRNAME}/../dotfiles/zsh/qwt-select.zsh"
+PLUGIN="${BATS_TEST_DIRNAME}/../dotfiles/zsh/repository-select.zsh"
 
 setup() {
   TEST_TMP="$(mktemp -d)"
@@ -19,8 +19,8 @@ teardown() {
 }
 
 @test "a missing fzf produces a clear, immediate error" {
-  # Regression test: qwt-select-path used to fall straight through to `| fzf`
-  # without checking for it first, surfacing only a generic
+  # Regression test: repository-select-path used to fall straight through to
+  # `| fzf` without checking for it first, surfacing only a generic
   # "command not found: fzf" instead of a message consistent with the
   # existing "gh is not installed" check.
   local real_gh real_zsh
@@ -31,8 +31,8 @@ teardown() {
 
   run env PATH="${TEST_TMP}/bin" "$real_zsh" -c '
     source '"$PLUGIN"'
-    qwt-select-path
+    repository-select-path
   '
   [ "$status" -eq 1 ]
-  [[ "$output" == *"qwt-select-path: fzf is not installed"* ]]
+  [[ "$output" == *"repository-select-path: fzf is not installed"* ]]
 }

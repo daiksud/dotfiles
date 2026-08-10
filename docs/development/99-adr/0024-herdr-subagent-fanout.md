@@ -5,7 +5,7 @@ agent already runs in a Herdr-managed pane.
 
 ## Status
 
-Accepted
+Superseded by [ADR 0028](./0028-native-subagent-deployment.md)
 
 ## Context
 

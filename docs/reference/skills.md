@@ -7,7 +7,6 @@ Copilot, Codex, and Claude Code.
 
 | Skill | Description |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `herdr-subagents` | Run one or more coding subagents in Herdr panes or tabs, preserving focus and collecting results |
 | `pr-create` | Create a draft PR from the current checkout, with an appropriate commit message and description |
 | `pr-fix` | Use the checkout of the PR head branch to fix CI errors and handle review comments |
 | `pr-merge` | Merge one PR from the checkout of its checked-out head |
@@ -23,10 +22,14 @@ directory is linked separately into every configured discovery root.
 | `~/.claude/skills/` | Claude Code |
 
 Missing discovery roots are created as real directories, and existing roots
-are not replaced. Only their entries for `herdr-subagents`, `pr-create`,
-`pr-fix`, and `pr-merge` are managed as links, so unrelated built-in and
-independently installed skills remain untouched. The destinations are declared
-through `skill_targets`; see [`install_map.json`](./install-map.md).
+are not replaced. Only their entries for `pr-create`, `pr-fix`, and `pr-merge`
+are managed as links, so unrelated built-in and independently installed skills
+remain untouched. The destinations are declared through `skill_targets`; see
+[`install_map.json`](./install-map.md).
+
+When `install.sh` is re-run, it removes stale symbolic links to canonical skill
+directories whose `SKILL.md` no longer exists. Real directories and links to
+other sources are preserved.
 
 GitHub Copilot loads a same-named skill from `~/.copilot/skills/` before the
 shared copy under `~/.agents/skills/`. The installer removes
@@ -34,9 +37,8 @@ shared copy under `~/.agents/skills/`. The installer removes
 repository and no configured replacement root is a whole-directory alias to
 the canonical skills. It preserves real directories, links to other sources,
 and the legacy link when deleting it could dangle a replacement alias. Remove
-or rename a conflicting `herdr-subagents`, `pr-create`, `pr-fix`, or
-`pr-merge` entry in that higher-priority root to select the canonical shared
-version. See GitHub's
+or rename a conflicting `pr-create`, `pr-fix`, or `pr-merge` entry in that
+higher-priority root to select the canonical shared version. See GitHub's
 [skill location priority](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-command-reference#skills-reference).
 
 ## Canonical source layout

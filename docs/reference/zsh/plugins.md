@@ -53,9 +53,8 @@ widget, when stdin is not a terminal, and when `TERM` is `dumb`, so a
 non-interactive shell never blocks on it.
 
 `gh-account.zsh` deliberately never reads, sets, or clears
-`COPILOT_GITHUB_TOKEN`. Copilot user selection belongs to the parent process;
-`herdr-subagents` forwards a nonempty parent token to each Copilot child
-without exposing its value. See
+`COPILOT_GITHUB_TOKEN`. Copilot user selection belongs to the parent process.
+See
 [Automatic Git identity switching](../../guides/04-git-identity.md).
 
 ### Functions provided

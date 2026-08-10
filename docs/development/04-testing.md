@@ -103,7 +103,9 @@ Current coverage:
   resolving relative parent links, converting valid symlinked parents while
   migrating their contents, preserving valid Copilot, Codex, and Claude
   configuration-root links, and preserving dangling or non-directory parent
-  links on failure. Failure cases cover invalid JSON, invalid skill-target
+  links on failure. It also removes stale links to deleted canonical skills
+  while preserving unrelated entries and canonical sources behind aliased
+  roots. Failure cases cover invalid JSON, invalid skill-target
   schema, and path-resolution helper errors before cleanup. Migration tests
   also verify that the legacy Copilot skill link remains available until every
   replacement link succeeds, throughout those failures, and whenever a

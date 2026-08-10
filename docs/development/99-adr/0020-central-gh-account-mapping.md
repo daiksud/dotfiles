@@ -100,8 +100,8 @@ previous values until something rewrites them.
 - The selection is per shell, so already-open shells keep the account they
   resolved. A new shell, or a `cd` that re-triggers `chpwd`, is required.
 - `COPILOT_GITHUB_TOKEN` is parent-owned and is never read, set, or cleared by
-  `gh-account.zsh`. Copilot child agents receive an explicitly forwarded parent
-  token under [ADR 0025](./0025-copilot-token-parent-context.md).
+  `gh-account.zsh`. Native subagent authentication remains outside this
+  repository under [ADR 0028](./0028-native-subagent-deployment.md).
 - Leftover `user.name`, `user.email`, and `user.signingkey` values written by the
   previous design are harmless, because `GIT_CONFIG_*` takes precedence over
   every configuration file. `gh-account-cleanup-local` clears them when tidiness

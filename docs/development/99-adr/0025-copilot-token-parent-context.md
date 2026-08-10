@@ -6,7 +6,7 @@ selection.
 
 ## Status
 
-Accepted
+Superseded by [ADR 0028](./0028-native-subagent-deployment.md)
 
 ## Context
 

@@ -68,6 +68,11 @@ Behavior when `install.sh` processes `install_map.json`:
      target root, including a symbolic-link root
    - Replace only `<skill-target>/<skill-name>` if it already exists
    - Link that path to the canonical skill directory
+   - Remove a symbolic-link entry when it resolves strictly under the
+     canonical skills directory but the resolved directory no longer contains
+     `SKILL.md`
+   - Preserve real directories and links to other sources; skip a target root
+     that itself resolves to the canonical skills directory
 
 When at least one skill target is configured, the installer checks the legacy
 `~/.copilot/skills` path after every ordinary link and replacement skill link

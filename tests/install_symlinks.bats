@@ -399,6 +399,58 @@ run_install() {
   [ ! -e "${FAKE_HOME}/.agents/skills/managed/stale.txt" ]
 }
 
+@test "removes stale links to removed canonical skills" {
+  mkdir -p \
+    "${SANDBOX}/dotfiles/skills/managed" \
+    "${FAKE_HOME}/.agents/skills"
+  printf '%s\n' '---' 'name: managed' '---' >"${SANDBOX}/dotfiles/skills/managed/SKILL.md"
+  ln -s "${SANDBOX}/dotfiles/skills/removed" \
+    "${FAKE_HOME}/.agents/skills/herdr-subagents"
+  write_install_map '{}' '["~/.agents/skills"]'
+
+  run run_install
+
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Removing stale skill link ${FAKE_HOME}/.agents/skills/herdr-subagents"* ]]
+  [ ! -e "${FAKE_HOME}/.agents/skills/herdr-subagents" ]
+  [ ! -L "${FAKE_HOME}/.agents/skills/herdr-subagents" ]
+  [ -L "${FAKE_HOME}/.agents/skills/managed" ]
+}
+
+@test "keeps links to existing canonical skills" {
+  mkdir -p \
+    "${SANDBOX}/dotfiles/skills/managed" \
+    "${FAKE_HOME}/.agents/skills"
+  printf '%s\n' '---' 'name: managed' '---' >"${SANDBOX}/dotfiles/skills/managed/SKILL.md"
+  ln -s "${SANDBOX}/dotfiles/skills/managed" \
+    "${FAKE_HOME}/.agents/skills/managed"
+  write_install_map '{}' '["~/.agents/skills"]'
+
+  run run_install
+
+  [ "$status" -eq 0 ]
+  [ -L "${FAKE_HOME}/.agents/skills/managed" ]
+  [ "$(readlink "${FAKE_HOME}/.agents/skills/managed")" = "${SANDBOX}/dotfiles/skills/managed" ]
+}
+
+@test "preserves unrelated directories and links outside canonical skills" {
+  mkdir -p \
+    "${SANDBOX}/dotfiles/skills/managed" \
+    "${SANDBOX}/external-skill" \
+    "${FAKE_HOME}/.agents/skills/unrelated"
+  printf '%s\n' '---' 'name: managed' '---' >"${SANDBOX}/dotfiles/skills/managed/SKILL.md"
+  printf 'keep-directory\n' >"${FAKE_HOME}/.agents/skills/unrelated/keep.txt"
+  ln -s "${SANDBOX}/external-skill" "${FAKE_HOME}/.agents/skills/external"
+  write_install_map '{}' '["~/.agents/skills"]'
+
+  run run_install
+
+  [ "$status" -eq 0 ]
+  [ -f "${FAKE_HOME}/.agents/skills/unrelated/keep.txt" ]
+  [ -L "${FAKE_HOME}/.agents/skills/external" ]
+  [ "$(readlink "${FAKE_HOME}/.agents/skills/external")" = "${SANDBOX}/external-skill" ]
+}
+
 @test "skill installation is idempotent" {
   mkdir -p "${SANDBOX}/dotfiles/skills/managed"
   printf '%s\n' '---' 'name: managed' '---' >"${SANDBOX}/dotfiles/skills/managed/SKILL.md"
@@ -421,6 +473,7 @@ run_install() {
     "${FAKE_HOME}/.agents"
   printf '%s\n' '---' 'name: managed' '---' >"${SANDBOX}/dotfiles/skills/managed/SKILL.md"
   ln -s "${SANDBOX}/dotfiles/skills" "${FAKE_HOME}/.agents/skills"
+  ln -s "${SANDBOX}/dotfiles/skills/removed" "${SANDBOX}/dotfiles/skills/stale"
   write_install_map '{}' '["~/.agents/skills"]'
 
   run run_install
@@ -428,6 +481,7 @@ run_install() {
   [ "$status" -eq 0 ]
   [ -L "${FAKE_HOME}/.agents/skills" ]
   [ -f "${SANDBOX}/dotfiles/skills/managed/SKILL.md" ]
+  [ -L "${SANDBOX}/dotfiles/skills/stale" ]
 }
 
 @test "keeps the legacy link when a replacement root aliases it" {

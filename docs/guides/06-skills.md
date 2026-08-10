@@ -26,7 +26,7 @@ root preserves unrelated built-in and independently installed skills. See
 > GitHub Copilot gives `~/.copilot/skills/` higher priority than
 > `~/.agents/skills/` when duplicate skill names exist. The installer preserves
 > a real `~/.copilot/skills/` directory or a link to another source, so a stale
-> `herdr-subagents`, `pr-create`, `pr-fix`, or `pr-merge` entry there overrides
+> `pr-create`, `pr-fix`, or `pr-merge` entry there overrides
 > the shared version. Remove or rename that conflicting entry when you want
 > Copilot to use the canonical skill installed under `~/.agents/skills/`. See
 > GitHub's
@@ -50,30 +50,13 @@ invocation is the most predictable choice.
 
 | Skill | What it does |
 | ----------- | ----------------------------------------------------------------------------------------- |
-| `herdr-subagents` | Runs coding subagents in Herdr panes or tabs and collects their results |
 | `pr-create` | Automatically creates a draft PR from the current changes |
 | `pr-fix` | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR |
 | `pr-merge` | Loops enabled Copilot Code Review to zero findings, requests approval only when required, waits for CI, and squash merges one PR |
 
-## Use `herdr-subagents`
-
-Explicitly invoke `herdr-subagents` when you are inside a Herdr-managed pane
-and want to deploy one or more coding subagents. The shared personal
-instructions select it automatically for subagent deployments from such a
-pane.
-
-The skill requires `HERDR_ENV=1` and an available `herdr` CLI. It keeps your
-focus in the invoking pane, uses the current tab for one or two agents, and
-uses 2x2 new tabs for larger groups. It only closes the resources it created
-after every result is captured successfully. If Herdr is unavailable, it
-falls back to your agent's native subagent facility and reports why.
-
-When a subagent uses Copilot, the skill requires a nonempty parent
-`COPILOT_GITHUB_TOKEN`. It loads the token through a private temporary Zsh
-bootstrap, preserves and sources the parent's original Zsh environment, and
-passes only non-secret directory paths to Herdr. It removes the bootstrap
-after each child shell is initialized. This pins the child to the parent's
-Copilot user without exposing the token in command arguments.
+When `install.sh` is re-run, it removes stale symbolic links to canonical skill
+directories whose `SKILL.md` no longer exists. Real directories and links to
+other sources are preserved.
 
 ## How PR skills use the current checkout
 
@@ -195,8 +178,7 @@ by GitHub Copilot, Codex, and Claude Code:
 - `~/.claude/CLAUDE.md`
 
 The file maps PR creation, fixing, and merging requests to the corresponding
-shared skills. It also routes subagent deployments in Herdr-managed panes to
-`herdr-subagents`. The file requires a rationale in every agent-created
+shared skills. The file requires a rationale in every agent-created
 commit: non-trivial commits record their context, decision, considerations,
 and impact. The detailed procedures remain in the skills, so all three agents
 execute the same workflow instead of maintaining product-specific copies.

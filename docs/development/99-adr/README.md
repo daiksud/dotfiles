@@ -32,10 +32,11 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0021](./0021-pr-skills-invoking-checkout.md) | Use the invoking checkout for Pull Request skills | Accepted |
 | [0022](./0022-commit-message-decision-records.md) | Require decision records in agent commit messages | Accepted |
 | [0023](./0023-pr-skills-gh-qwt-checkouts.md) | Allow Pull Request skills in gh-qwt checkouts | Superseded |
-| [0024](./0024-herdr-subagent-fanout.md) | Fan out subagents into Herdr panes | Accepted |
-| [0025](./0025-copilot-token-parent-context.md) | Keep Copilot tokens in the parent context | Accepted |
+| [0024](./0024-herdr-subagent-fanout.md) | Fan out subagents into Herdr panes | Superseded |
+| [0025](./0025-copilot-token-parent-context.md) | Keep Copilot tokens in the parent context | Superseded |
 | [0026](./0026-vite-plus-toolchain.md) | Manage Node.js and Bun with Vite+ | Accepted |
 | [0027](./0027-gh-qw.md) | Replace gh-qwt with gh-qw | Accepted |
+| [0028](./0028-native-subagent-deployment.md) | Use the host's native subagent deployment | Accepted |
 
 ## How to Write a New ADR
 

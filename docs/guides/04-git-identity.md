@@ -127,13 +127,8 @@ acting account, while `GIT_CONFIG_*` decides commit authorship.
 
 `gh-account.zsh` deliberately does not read, set, or clear
 `COPILOT_GITHUB_TOKEN`. Set it in the parent process when a Copilot user must
-be pinned. The `herdr-subagents` skill requires a nonempty parent value for
-each Copilot child and loads it from a private temporary Zsh bootstrap. Herdr
-receives only the non-secret bootstrap and original Zsh configuration paths;
-the bootstrap loads the token, sources the parent's normal `.zshenv`, and
-restores the original `ZDOTDIR`. The token never appears in command arguments.
-The temporary credential files are removed after every child shell confirms
-the token is loaded.
+be pinned. This repository does not rewrite or forward the variable; child
+authentication is provided by the host's native subagent mechanism.
 
 Never echo, commit, or place the token in a prompt. Check only whether it is
 present, and configure it through your approved credential-management method.
@@ -277,15 +272,3 @@ Make sure the SSH key filename matches the GitHub login.
 ls ~/.ssh/*.pub
 gh-account-map-get "$(gh-account-repo-id "$(git remote get-url origin)")" login
 ```
-
-### Copilot child user is not pinned
-
-Check only whether `COPILOT_GITHUB_TOKEN` is set in the parent shell.
-
-```bash
-test -n "${COPILOT_GITHUB_TOKEN:-}"
-```
-
-`gh-account.zsh` does not set this variable. Configure it using your approved
-credential-management method before starting the parent agent; the
-`herdr-subagents` skill securely loads it into each Copilot child.

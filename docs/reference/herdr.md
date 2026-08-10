@@ -95,28 +95,6 @@ itself to block nested launches; `dotfiles/ghostty/herdr-launch.sh` checks it
 for the same reason). Panes also expose `HERDR_PANE_ID`, `HERDR_TAB_ID`, and
 `HERDR_WORKSPACE_ID` to identify the current pane, tab, and workspace.
 
-## Agent orchestration
-
-When a coding agent deploys subagents from a Herdr-managed pane, the shared
-personal instructions route the work to the `herdr-subagents` skill. It keeps
-the caller focused, uses the current tab for one or two agents, and creates
-2x2 tabs for larger groups. The skill collects every result before closing only
-the panes or tabs it created.
-
-The skill verifies `HERDR_ENV=1` and the `herdr` CLI before issuing any control
-command. It falls back to the host's native subagent facility when Herdr is
-unavailable, rather than attempting to control a session from outside Herdr.
-See [Agent Skills](./skills.md) and
-[Using skills](../guides/06-skills.md) for installation and invocation.
-
-For Copilot subagents, the skill requires a nonempty parent
-`COPILOT_GITHUB_TOKEN`. It passes only a private bootstrap directory through
-Herdr's `ZDOTDIR` environment option together with the non-secret original
-Zsh configuration path. The bootstrap sources the parent's normal `.zshenv`,
-restores that path, and removes the credential files after each child loads
-the token. This pins every child to the parent's user without exposing the
-token in process arguments.
-
 ## Constraints
 
 | Item | Description |

@@ -161,6 +161,46 @@ cleanup_legacy_copilot_skills() {
   fi
 }
 
+# Remove links for skills that no longer exist in the canonical source. Never
+# scan a target root that is itself an alias to the canonical directory.
+prune_stale_skill_links() {
+  local target_root="$1"
+  local canonical_skills="${DIR}/dotfiles/skills"
+  local resolved_root
+  local resolved_canonical
+  local skill_link
+  local resolved_link
+
+  if ! resolved_canonical="$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "${canonical_skills}")"; then
+    echo "Cannot resolve canonical skills directory ${canonical_skills}" >&2
+    return 1
+  fi
+  if ! resolved_root="$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "${target_root}")"; then
+    echo "Cannot resolve skill target root ${target_root}" >&2
+    return 1
+  fi
+  if [[ "${resolved_root}" == "${resolved_canonical}" ]]; then
+    return 0
+  fi
+
+  for skill_link in \
+    "${target_root}"/* \
+    "${target_root}"/.[!.]* \
+    "${target_root}"/..?*; do
+    [[ -L "${skill_link}" ]] || continue
+
+    if ! resolved_link="$(python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "${skill_link}")"; then
+      echo "Cannot resolve skill link ${skill_link}" >&2
+      return 1
+    fi
+    [[ "${resolved_link}" == "${resolved_canonical}"/* ]] || continue
+    [[ -f "${resolved_link}/SKILL.md" ]] && continue
+
+    echo "Removing stale skill link ${skill_link}"
+    rm "${skill_link}" || return 1
+  done
+}
+
 link_skills_into() {
   local target_root="$1"
   local canonical_skills="${DIR}/dotfiles/skills"
@@ -245,6 +285,9 @@ fi
 if [[ -n "${PARSED_SKILL_TARGETS}" ]]; then
   while IFS= read -r target_root; do
     if ! link_skills_into "${target_root}"; then
+      exit 1
+    fi
+    if ! prune_stale_skill_links "${target_root}"; then
       exit 1
     fi
   done <<<"${PARSED_SKILL_TARGETS}"

@@ -1,4 +1,4 @@
-# Per-repository GitHub account selection backed by a central mapping file.
+# Owner-default GitHub account selection backed by a central mapping file.
 #
 # Every account lives in gh's single user-level configuration. This plugin only
 # decides which of those accounts the current directory should use, and applies
@@ -6,14 +6,18 @@
 # switch` is deliberately avoided: it moves the globally active account, so two
 # terminals sitting in repositories owned by different accounts would fight.
 #
-# The mapping lives next to gh's own configuration and is keyed by the
-# canonical `<host>/<owner>/<repo>` identity of `origin`:
+# The mapping lives next to gh's own configuration. Owner defaults are keyed
+# by the canonical `<host>/<owner>` identity of `origin`; an optional
+# `<host>/<owner>/<repo>` entry overrides that default for one repository:
 #
-#   {"github.com/owner/repo": {"login": "...", "name": "...", "email": "..."}}
+#   {
+#     "github.com/owner": {"login": "...", "name": "...", "email": "..."},
+#     "github.com/owner/repo": {"login": "...", "name": "...", "email": "..."}
+#   }
 
 : ${GH_ACCOUNT_MAP_FILE:="${XDG_CONFIG_HOME:-$HOME/.config}/gh/repos.json"}
 
-typeset -g _GH_ACCOUNT_APPLIED_ID=""
+typeset -g _GH_ACCOUNT_APPLIED_REPO_ID=""
 typeset -g _GH_ACCOUNT_GIT_CONFIG_COUNT=0
 
 # Normalize a remote URL into a lowercase `<host>/<owner>/<repo>` identity.
@@ -62,6 +66,20 @@ gh-account-repo-id() {
   printf '%s/%s/%s\n' "${host:l}" "${owner:l}" "${repo:l}"
 }
 
+# Derive the canonical `<host>/<owner>` identity from a repository identity.
+_gh_account_owner_id() {
+  local repo_id="${1:-}"
+  [[ "$repo_id" == */*/* ]] || return 1
+
+  local host="${repo_id%%/*}"
+  local path="${repo_id#*/}"
+  local owner="${path%%/*}"
+  local repo="${path#*/}"
+  [[ -n "$host" && -n "$owner" && -n "$repo" && "$repo" != */* ]] || return 1
+
+  printf '%s/%s\n' "$host" "$owner"
+}
+
 gh-account-map-get() {
   local id="${1:-}" field="${2:-}"
   [[ -n "$id" && -n "$field" ]] || return 1
@@ -102,6 +120,26 @@ gh-account-map-unset() {
     rm -f "$tmp"
     return 1
   fi
+}
+
+# Resolve the mapping key for a repository. A repository-specific entry wins
+# over its owner's default entry.
+_gh_account_mapping_id() {
+  local repo_id="${1:-}" owner_id
+  [[ -n "$repo_id" ]] || return 1
+
+  if gh-account-map-get "$repo_id" login >/dev/null; then
+    print -r -- "$repo_id"
+    return 0
+  fi
+
+  owner_id="$(_gh_account_owner_id "$repo_id")" || return 1
+  if gh-account-map-get "$owner_id" login >/dev/null; then
+    print -r -- "$owner_id"
+    return 0
+  fi
+
+  return 1
 }
 
 # List the logins stored in gh's own configuration. GH_TOKEN has to be removed
@@ -148,7 +186,7 @@ _gh_account_clear_env() {
 
   # Copilot authentication belongs to the caller and must survive shell sync.
   unset GIT_CONFIG_COUNT GH_TOKEN GH_CONFIG_DIR
-  _GH_ACCOUNT_APPLIED_ID=""
+  _GH_ACCOUNT_APPLIED_REPO_ID=""
 }
 
 # Keep other accounts in allowed_signers and only upsert the current email.
@@ -208,7 +246,7 @@ _gh_account_apply() {
   export GIT_CONFIG_COUNT=${#keys}
 
   export GH_TOKEN="$token"
-  _GH_ACCOUNT_APPLIED_ID="$id"
+  _GH_ACCOUNT_APPLIED_REPO_ID="$id"
 }
 
 # Resolve the display name and commit email of a stored account.
@@ -256,20 +294,72 @@ _gh_account_is_interactive() {
   command -v fzf >/dev/null 2>&1
 }
 
-# Choose (or re-choose) the account for the current repository.
-gh-account-select() {
-  local id host login identity name email
+# Apply the mapping selected for a repository identity.
+_gh_account_apply_mapping() {
+  local repo_id="${1:-}" mapping_id="${2:-}" login name email
+  [[ -n "$repo_id" && -n "$mapping_id" ]] || return 1
 
-  if ! id="$(_gh_account_current_id)"; then
+  login="$(gh-account-map-get "$mapping_id" login)" || return 1
+  name="$(gh-account-map-get "$mapping_id" name 2>/dev/null)" || name=""
+  email="$(gh-account-map-get "$mapping_id" email 2>/dev/null)" || email=""
+
+  _gh_account_apply "$repo_id" "$login" "$name" "$email"
+}
+
+_gh_account_select_usage() {
+  print -u2 -- "usage: gh-account-select [--owner | --repo] [--forget]"
+}
+
+# Choose (or re-choose) the account for the current owner or repository.
+gh-account-select() {
+  local repo_id owner_id target_id mapping_id host login identity name email
+  local scope="owner" requested_scope=""
+  local -i scope_specified=0 forget=0
+
+  while (($#)); do
+    case "$1" in
+      --owner|--repo)
+        requested_scope="${1#--}"
+        if ((scope_specified)) && [[ "$scope" != "$requested_scope" ]]; then
+          print -u2 -- "gh-account: choose either --owner or --repo."
+          _gh_account_select_usage
+          return 2
+        fi
+        scope="$requested_scope"
+        scope_specified=1
+        ;;
+      --forget)
+        forget=1
+        ;;
+      *)
+        print -u2 -- "gh-account: unknown option '${1}'."
+        _gh_account_select_usage
+        return 2
+        ;;
+    esac
+    shift
+  done
+
+  if ! repo_id="$(_gh_account_current_id)"; then
     print -u2 -- "gh-account: not inside a Git repository with a usable 'origin'."
     return 1
   fi
-  host="${id%%/*}"
+  owner_id="$(_gh_account_owner_id "$repo_id")" || return 1
+  if [[ "$scope" == "repo" ]]; then
+    target_id="$repo_id"
+  else
+    target_id="$owner_id"
+  fi
+  host="${repo_id%%/*}"
 
-  if [[ "${1:-}" == "--forget" ]]; then
-    gh-account-map-unset "$id" || return 1
-    _gh_account_clear_env
-    print -r -- "gh-account: removed the mapping for ${id}."
+  if ((forget)); then
+    gh-account-map-unset "$target_id" || return 1
+    if mapping_id="$(_gh_account_mapping_id "$repo_id")"; then
+      _gh_account_apply_mapping "$repo_id" "$mapping_id" || return 1
+    else
+      _gh_account_clear_env
+    fi
+    print -r -- "gh-account: removed the ${scope} mapping for ${target_id}."
     return 0
   fi
 
@@ -279,7 +369,7 @@ gh-account-select() {
   fi
 
   login="$(gh-account-logins "$host" | fzf --reverse --height=20 \
-    --prompt="account for ${id} > ")" || return 1
+    --prompt="account for ${target_id} > ")" || return 1
   [[ -n "$login" ]] || return 1
 
   if ! identity="$(_gh_account_identity "$login" "$host")"; then
@@ -293,8 +383,9 @@ gh-account-select() {
     print -u2 -- "gh-account: could not resolve an email for '${login}'. It may be private, or the token may lack the 'user:email' scope (gh auth refresh -h ${host} -s user:email)."
   fi
 
-  gh-account-map-set "$id" "$login" "$name" "$email" || return 1
-  _gh_account_apply "$id" "$login" "$name" "$email"
+  gh-account-map-set "$target_id" "$login" "$name" "$email" || return 1
+  mapping_id="$(_gh_account_mapping_id "$repo_id")" || return 1
+  _gh_account_apply_mapping "$repo_id" "$mapping_id"
 }
 
 # Drop the local identity written by the previous per-repository design. The
@@ -313,32 +404,30 @@ gh-account-sync() {
   command -v gh >/dev/null 2>&1 || return 0
   command -v jq >/dev/null 2>&1 || return 0
 
-  local id host login name email
+  local repo_id mapping_id host
 
-  if ! id="$(_gh_account_current_id)"; then
+  if ! repo_id="$(_gh_account_current_id)"; then
     _gh_account_clear_env
     return 0
   fi
 
-  host="${id%%/*}"
+  host="${repo_id%%/*}"
   if ! _gh_account_host_is_known "$host"; then
     _gh_account_clear_env
     return 0
   fi
 
-  [[ "$id" == "$_GH_ACCOUNT_APPLIED_ID" ]] && return 0
+  [[ "$repo_id" == "$_GH_ACCOUNT_APPLIED_REPO_ID" ]] && return 0
 
-  if ! login="$(gh-account-map-get "$id" login)"; then
+  if ! mapping_id="$(_gh_account_mapping_id "$repo_id")"; then
     _gh_account_clear_env
     if _gh_account_is_interactive; then
-      gh-account-select
+      gh-account-select --owner
     fi
     return 0
   fi
 
-  name="$(gh-account-map-get "$id" name)"
-  email="$(gh-account-map-get "$id" email)"
-  _gh_account_apply "$id" "$login" "$name" "$email"
+  _gh_account_apply_mapping "$repo_id" "$mapping_id"
 }
 
 alias ghu='gh-account-select'

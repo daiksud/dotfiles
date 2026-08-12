@@ -18,7 +18,7 @@ bash install.sh
 | Editor | Neovim (LazyVim) |
 | Terminal | Ghostty + herdr |
 | Tool management | Homebrew + mise + Vite+ |
-| Git | Automatic multi-account switching (gh-account) + SSH signing |
+| Git | Automatic owner-default account switching (gh-account) + SSH signing |
 | CLI | gh, gh-qw, fzf, ripgrep, lazygit, jq |
 
 ## How it works

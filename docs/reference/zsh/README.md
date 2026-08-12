@@ -36,7 +36,7 @@ currently provides:
 | `edit-repository.zsh` | Select a gh-qw checkout and open it in `nvim` |
 | `edit-selected-file.zsh` | Select a file and open it in `nvim` |
 | `fzf-select-history.zsh` | Search history with fzf |
-| `gh-account.zsh` | Select the GitHub account and Git identity per repository |
+| `gh-account.zsh` | Select the GitHub account and Git identity with owner defaults |
 | `go-to-repository.zsh` | Select a gh-qw checkout and `cd` into it |
 | `history-substring-search.zsh` | Substring history search keybindings |
 | `open-lazygit.zsh` | Launch lazygit and follow its directory changes |

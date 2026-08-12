@@ -79,6 +79,27 @@ run_zsh() {
   [ "$output" = "done" ]
 }
 
+@test "repository identities derive a host-qualified owner identity" {
+  run_zsh '
+    _gh_account_owner_id "github.com/owner/repo"
+    _gh_account_owner_id "ghe.example.com/Owner/Repo"
+  '
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "github.com/owner" ]
+  [ "${lines[1]}" = "ghe.example.com/Owner" ]
+}
+
+@test "invalid repository identities do not derive an owner identity" {
+  run_zsh '
+    for id in "" "github.com" "github.com/owner" "github.com/owner/repo/extra"; do
+      _gh_account_owner_id "$id" && print "ACCEPTED: $id"
+    done
+    print done
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "done" ]
+}
+
 @test "the mapping file is created and read back" {
   [ ! -f "$MAP_FILE" ]
 
@@ -127,6 +148,32 @@ run_zsh() {
   [ "$status" -eq 0 ]
   [ "${lines[0]}" = "one: removed" ]
   [ "${lines[1]}" = "bob" ]
+}
+
+@test "repository mappings override owner defaults" {
+  run_zsh '
+    gh-account-map-set "github.com/owner" "alice" "Alice A" "alice@example.com"
+    _gh_account_mapping_id "github.com/owner/repo"
+    gh-account-map-set "github.com/owner/repo" "bob" "Bob B" "bob@example.com"
+    _gh_account_mapping_id "github.com/owner/repo"
+    _gh_account_mapping_id "github.com/other/repo" || print "other: missing"
+  '
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "github.com/owner" ]
+  [ "${lines[1]}" = "github.com/owner/repo" ]
+  [ "${lines[2]}" = "other: missing" ]
+}
+
+@test "owner defaults stay separate by host" {
+  run_zsh '
+    gh-account-map-set "github.com/owner" "alice" "Alice A" "alice@example.com"
+    gh-account-map-set "ghe.example.com/owner" "bob" "Bob B" "bob@example.com"
+    _gh_account_mapping_id "github.com/owner/repo"
+    _gh_account_mapping_id "ghe.example.com/owner/repo"
+  '
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "github.com/owner" ]
+  [ "${lines[1]}" = "ghe.example.com/owner" ]
 }
 
 @test "the identity is injected without replacing the caller Copilot token" {
@@ -265,6 +312,128 @@ run_zsh() {
   [ "$status" -eq 0 ]
   [ "${lines[0]}" = "gh=test-token" ]
   [ "${lines[1]}" = "name=Alice A email=alice@example.com" ]
+}
+
+@test "an owner default applies to every repository for that owner" {
+  git init -q "${TEST_TMP}/one"
+  git init -q "${TEST_TMP}/two"
+  git -C "${TEST_TMP}/one" remote add origin "https://github.com/owner/one.git"
+  git -C "${TEST_TMP}/two" remote add origin "https://github.com/owner/two.git"
+
+  run_zsh '
+    gh-account-map-set "github.com/owner" "alice" "Alice A" "alice@example.com" >/dev/null
+    gh-account-token() { print -r -- "test-token"; }
+    cd "'"${TEST_TMP}"'/one" 2>/dev/null
+    print -r -- "one=$GH_TOKEN applied=$_GH_ACCOUNT_APPLIED_REPO_ID"
+    cd "'"${TEST_TMP}"'/two" 2>/dev/null
+    print -r -- "two=$GH_TOKEN applied=$_GH_ACCOUNT_APPLIED_REPO_ID"
+  '
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "one=test-token applied=github.com/owner/one" ]
+  [ "${lines[1]}" = "two=test-token applied=github.com/owner/two" ]
+}
+
+@test "selection defaults to owner and accepts an explicit owner scope" {
+  git init -q "${TEST_TMP}/repo"
+  git -C "${TEST_TMP}/repo" remote add origin "https://github.com/owner/repo.git"
+
+  run_zsh '
+    gh-account-logins() { print -r -- "alice"; }
+    fzf() { print -r -- "alice"; }
+    _gh_account_identity() { printf "Alice A\talice@example.com\n"; }
+    gh-account-token() { print -r -- "token-$1"; }
+    cd "'"${TEST_TMP}"'/repo" 2>/dev/null
+    gh-account-select
+    print -r -- "default=$(gh-account-map-get "github.com/owner" login)"
+    gh-account-map-unset "github.com/owner"
+    gh-account-select --owner
+    print -r -- "explicit=$(gh-account-map-get "github.com/owner" login)"
+    gh-account-map-get "github.com/owner/repo" login || print -r -- "repo=unset"
+  '
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "default=alice" ]
+  [ "${lines[1]}" = "explicit=alice" ]
+  [ "${lines[2]}" = "repo=unset" ]
+}
+
+@test "repository selection creates an override over the owner default" {
+  git init -q "${TEST_TMP}/repo"
+  git -C "${TEST_TMP}/repo" remote add origin "https://github.com/owner/repo.git"
+
+  run_zsh '
+    gh-account-map-set "github.com/owner" "alice" "Alice A" "alice@example.com" >/dev/null
+    gh-account-logins() { print -r -- "bob"; }
+    fzf() { print -r -- "bob"; }
+    _gh_account_identity() { printf "Bob B\tbob@example.com\n"; }
+    gh-account-token() { print -r -- "token-$1"; }
+    cd "'"${TEST_TMP}"'/repo" 2>/dev/null
+    gh-account-select --repo
+    print -r -- "owner=$(gh-account-map-get "github.com/owner" login)"
+    print -r -- "repo=$(gh-account-map-get "github.com/owner/repo" login)"
+    print -r -- "gh=$GH_TOKEN"
+  '
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "owner=alice" ]
+  [ "${lines[1]}" = "repo=bob" ]
+  [ "${lines[2]}" = "gh=token-bob" ]
+}
+
+@test "owner selection keeps a repository override active" {
+  git init -q "${TEST_TMP}/repo"
+  git -C "${TEST_TMP}/repo" remote add origin "https://github.com/owner/repo.git"
+
+  run_zsh '
+    gh-account-map-set "github.com/owner" "alice" "Alice A" "alice@example.com" >/dev/null
+    gh-account-map-set "github.com/owner/repo" "bob" "Bob B" "bob@example.com" >/dev/null
+    gh-account-logins() { print -r -- "carol"; }
+    fzf() { print -r -- "carol"; }
+    _gh_account_identity() { printf "Carol C\tcarol@example.com\n"; }
+    gh-account-token() { print -r -- "token-$1"; }
+    cd "'"${TEST_TMP}"'/repo" 2>/dev/null
+    gh-account-select --owner
+    print -r -- "owner=$(gh-account-map-get "github.com/owner" login)"
+    print -r -- "repo=$(gh-account-map-get "github.com/owner/repo" login)"
+    print -r -- "gh=$GH_TOKEN"
+  '
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "owner=carol" ]
+  [ "${lines[1]}" = "repo=bob" ]
+  [ "${lines[2]}" = "gh=token-bob" ]
+}
+
+@test "forgetting each scope preserves its valid fallback" {
+  git init -q "${TEST_TMP}/repo"
+  git -C "${TEST_TMP}/repo" remote add origin "https://github.com/owner/repo.git"
+
+  run_zsh '
+    gh-account-map-set "github.com/owner" "alice" "Alice A" "alice@example.com" >/dev/null
+    gh-account-map-set "github.com/owner/repo" "bob" "Bob B" "bob@example.com" >/dev/null
+    gh-account-token() { print -r -- "token-$1"; }
+    cd "'"${TEST_TMP}"'/repo" 2>/dev/null
+    gh-account-select --repo --forget >/dev/null
+    print -r -- "after-repo=$GH_TOKEN"
+    gh-account-map-set "github.com/owner/repo" "bob" "Bob B" "bob@example.com" >/dev/null
+    gh-account-select --forget >/dev/null
+    print -r -- "after-owner=$GH_TOKEN"
+    gh-account-select --repo --forget >/dev/null
+    print -r -- "after-both=${GH_TOKEN:-unset}"
+  '
+  [ "$status" -eq 0 ]
+  [ "${lines[0]}" = "after-repo=token-alice" ]
+  [ "${lines[1]}" = "after-owner=token-bob" ]
+  [ "${lines[2]}" = "after-both=unset" ]
+}
+
+@test "selection rejects conflicting and unknown options" {
+  run_zsh 'gh-account-select --owner --repo'
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"choose either --owner or --repo"* ]]
+  [[ "$output" == *"usage: gh-account-select [--owner | --repo] [--forget]"* ]]
+
+  run_zsh 'gh-account-select --invalid'
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"unknown option '--invalid'"* ]]
+  [[ "$output" == *"usage: gh-account-select [--owner | --repo] [--forget]"* ]]
 }
 
 @test "environment configuration overrides leftover local identity" {

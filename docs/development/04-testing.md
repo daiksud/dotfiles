@@ -79,15 +79,18 @@ Current coverage:
   non-interactive `zsh -c` subshell with a scratch mapping file
   (`GH_ACCOUNT_MAP_FILE`) so no real `gh` account or credential is touched:
   remote-URL normalization into a lowercase `<host>/<owner>/<repo>` identity
-  (and rejection of unusable URLs), creating, reading, updating, and forgetting
-  mapping entries without disturbing the others, the `GIT_CONFIG_*` and token
-  variables exported when an identity is applied, the extra `user.signingkey`
-  entry plus `allowed_signers` upsert when the key file exists, clearing every
-  exported variable outside Git or for a non-GitHub remote, and that an
-  unmapped repository never prompts in a non-interactive shell. Two cases build
-  a real temporary repository to confirm that the `chpwd` hook function applies
-  a mapped account and that the injected environment configuration overrides
-  leftover `git config --local` identity values.
+  (and rejection of unusable URLs), host-qualified owner derivation, creating,
+  reading, updating, and forgetting mapping entries without disturbing the
+  others, owner defaults, repository overrides and their precedence, scoped
+  selection and fallback behavior, the `GIT_CONFIG_*` and token variables
+  exported when an identity is applied, the extra `user.signingkey` entry plus
+  `allowed_signers` upsert when the key file exists, clearing every exported
+  variable outside Git or for a non-GitHub remote, and that an unmapped
+  repository never prompts in a non-interactive shell. Cases build real
+  temporary repositories to confirm that the `chpwd` hook applies an owner
+  default across repositories, applies a repository override, and makes the
+  injected environment configuration override leftover `git config --local`
+  identity values.
 - `tests/herdr_launch.bats` — `dotfiles/ghostty/herdr-launch.sh` behavior,
   with `herdr` and the login shell stubbed under a temp directory (via
   `HERDR_LAUNCH_BREW_BINS` and `SHELL`, so no real Homebrew install or herdr

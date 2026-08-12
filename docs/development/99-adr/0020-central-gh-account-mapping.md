@@ -6,7 +6,7 @@ per-repository GitHub CLI configuration directories.
 
 ## Status
 
-Accepted
+Superseded by [ADR 0029](./0029-owner-default-gh-account-mapping.md)
 
 ## Context
 

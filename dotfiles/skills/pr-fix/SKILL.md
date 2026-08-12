@@ -117,6 +117,10 @@ repository when the PR head is a fork.
   Run every GraphQL query against `<base-host>` explicitly.
 - Paginate `reviewThreads(first: 100, after: $cursor)` until
   `pageInfo { hasNextPage endCursor }` reports no next page.
+- Before replying, list the acting user's reviews with GraphQL
+  `reviews(first: 100) { nodes { id state } }` and submit or discard any
+  leftover `PENDING` review from an earlier interrupted run. A stale pending
+  review silently absorbs new reply comments instead of posting them.
 - If a thread contains a user reply stating that it will not be addressed,
   such as "対応しない", do not change code for that comment. Record the reason
   in the PR body.
@@ -131,7 +135,13 @@ repository when the PR head is a fork.
   - If not fixed, explain why the feedback is not applicable.
   - If the user declined it, state that it will not be addressed and that the
     reason is recorded in the PR body.
-- Resolve the review threads after sending their replies.
+  - A GraphQL `addPullRequestReviewComment` reply attaches to a review that
+    stays in the `PENDING` state and stays invisible to the PR author until
+    submitted. After adding every reply comment for this pass, submit that
+    review with a `submitPullRequestReview` mutation using `event: COMMENT`.
+  - Re-query the review's `state` after submitting and confirm it is no
+    longer `PENDING` before moving on. Do not leave any reply unsubmitted.
+- Resolve the review threads only after their replies are confirmed submitted.
 - Determine whether Copilot Code Review is enabled for the base branch:
   1. URL-encode `baseRefName` as one path segment.
   2. Query

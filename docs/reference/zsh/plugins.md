@@ -6,7 +6,7 @@ This is the detailed reference for the custom plugins placed in `dotfiles/zsh/`.
 
 | File | Alias | Keybinding | Description |
 | --------------------------------- | ----- | ---------- | -------------------------------------------------------- |
-| `gh-account.zsh` | `ghu` | — | Select the GitHub account and Git identity per repository |
+| `gh-account.zsh` | `ghu` | — | Select the GitHub account and Git identity with owner defaults |
 | `repository-select.zsh` | — | — | Shared fzf selector for gh-qw managed checkouts |
 | `go-to-repository.zsh` | `ggr` | `C-]` | Select a gh-qw checkout and `cd` into it |
 | `edit-repository.zsh` | `egr` | — | Select a gh-qw checkout and open it in `nvim` |
@@ -27,8 +27,8 @@ SSH signing key to use in each repository.
 
 Every account stays in `gh`'s single user-level configuration. The central
 mapping file `~/.config/gh/repos.json` (override with `GH_ACCOUNT_MAP_FILE`)
-records which of those accounts each repository uses, keyed by the canonical
-lowercase `<host>/<owner>/<repo>` identity of `origin`. The choice is applied
+stores owner defaults at lowercase `<host>/<owner>` keys and optional
+repository overrides at `<host>/<owner>/<repo>` keys. The choice is applied
 through `GH_TOKEN` and `GIT_CONFIG_*` environment variables so it never leaves
 the current shell. `GH_CONFIG_DIR` is not used at all, and `gh auth switch` is
 deliberately avoided because it would move the globally active account for
@@ -40,13 +40,14 @@ every terminal.
 
 1. Resolve the `<host>/<owner>/<repo>` identity of `origin`, and clear the
    injected environment when the directory is not a GitHub repository
-2. Look the identity up in the mapping file, reusing the already applied
-   account when it has not changed
+2. Look for a repository override, then an owner default, reusing the already
+   applied account when the repository has not changed
 3. Export `GH_TOKEN` for the stored account, and inject `user.name`,
    `user.email`, and — when `~/.ssh/<login>.pub` exists — `user.signingkey`
    through `GIT_CONFIG_COUNT` / `GIT_CONFIG_KEY_<n>` /
    `GIT_CONFIG_VALUE_<n>`, which take precedence over every configuration file
-4. Prompt for an account with fzf when the repository is unmapped
+4. Prompt for an account with fzf when neither mapping exists, then save the
+   selected account as the owner's default
 
 The prompt appears only in an interactive shell: it is skipped inside a zle
 widget, when stdin is not a terminal, and when `TERM` is `dumb`, so a
@@ -68,13 +69,13 @@ See
 | `gh-account-logins` | List the logins stored in `gh`'s configuration for a host |
 | `gh-account-token` | Print the stored token of a login |
 | `gh-account-login` | Run `gh auth login` with a clean environment to add an account |
-| `gh-account-select` | Choose (or re-choose) the account for the current repository; `--forget` removes the mapping |
+| `gh-account-select` | Choose the current owner by default or with `--owner`; use `--repo` for an override and `--forget` to remove the selected scope |
 | `gh-account-cleanup-local` | Remove the local identity settings written by the previous design |
-| `gh-account-sync` | `chpwd` hook that applies the mapped account to the shell |
+| `gh-account-sync` | `chpwd` hook that applies the effective owner or repository mapping to the shell |
 
 ### Alias
 
-- `ghu` — `gh-account-select`
+- `ghu` — `gh-account-select`; `ghu --repo` selects a repository override
 
 This plugin's behavior is covered by the bats suite in `tests/` — see
 [Testing](../../development/04-testing.md).

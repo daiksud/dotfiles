@@ -28,7 +28,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0017](./0017-herdr-prefix-ctrl-t.md) | Change herdr's prefix key to `ctrl+t` | Accepted |
 | [0018](./0018-pr-review-requirements.md) | Evaluate repository review requirements before PR automation | Accepted |
 | [0019](./0019-gh-qwt-ghq-layout.md) | Follow gh-qwt's ghq-compatible layout | Superseded |
-| [0020](./0020-central-gh-account-mapping.md) | Select the GitHub account per repository from a central mapping | Accepted |
+| [0020](./0020-central-gh-account-mapping.md) | Select the GitHub account per repository from a central mapping | Superseded |
 | [0021](./0021-pr-skills-invoking-checkout.md) | Use the invoking checkout for Pull Request skills | Accepted |
 | [0022](./0022-commit-message-decision-records.md) | Require decision records in agent commit messages | Accepted |
 | [0023](./0023-pr-skills-gh-qwt-checkouts.md) | Allow Pull Request skills in gh-qwt checkouts | Superseded |
@@ -37,6 +37,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0026](./0026-vite-plus-toolchain.md) | Manage Node.js and Bun with Vite+ | Accepted |
 | [0027](./0027-gh-qw.md) | Replace gh-qwt with gh-qw | Accepted |
 | [0028](./0028-native-subagent-deployment.md) | Use the host's native subagent deployment | Accepted |
+| [0029](./0029-owner-default-gh-account-mapping.md) | Use owner defaults with repository overrides for GitHub accounts | Accepted |
 
 ## How to Write a New ADR
 

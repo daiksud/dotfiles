@@ -41,6 +41,16 @@ keybind = super+ctrl+left=unbind
 keybind = super+ctrl+right=unbind
 keybind = super+shift+enter=unbind
 
+# Remap ctrl+e to the End key
+#
+# Plan モード終盤の Plan Ready for Review ダイアログは ctrl+e を summary と full plan
+# の切り替えに使うため、入力欄で end-of-line として使えない。End キー (CSI F) は
+# このハンドラに横取りされず、TextInput の行末移動として処理される。
+#
+# 代償として Copilot CLI などの生の Ctrl+E (0x05) は ctrl+alt+e へ退避する。
+keybind = ctrl+e=csi:F
+keybind = ctrl+alt+e=text:\x05
+
 # Remap ctrl+d to the Delete key
 #
 # Copilot CLI の ask_user / elicitation フォームは ctrl+d を無条件に "decline"

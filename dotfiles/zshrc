@@ -12,6 +12,10 @@ compinit
 # Emacs keybindings
 bindkey -e
 
+# Ghostty で ctrl+e を End キー (CSI F) に変換しているため、zsh 側で
+# 受け取れるようにする。素の zsh では ^[[F は undefined-key で無反応。
+bindkey '^[[F' end-of-line
+
 # Ghostty で ctrl+d を Delete キー (CSI 3~) に変換しているため、zsh 側で
 # 受け取れるようにする。素の zsh では ^[[3~ は undefined-key で無反応。
 bindkey '^[[3~' delete-char

@@ -40,3 +40,17 @@ keybind = super+ctrl+down=unbind
 keybind = super+ctrl+left=unbind
 keybind = super+ctrl+right=unbind
 keybind = super+shift+enter=unbind
+
+# Remap ctrl+d to the Delete key
+#
+# Copilot CLI の ask_user / elicitation フォームは ctrl+d を無条件に "decline"
+# にバインドしており、入力済みテキストごとダイアログを破棄する。テキストの有無を
+# ガードしていないため、Emacs の delete-char のつもりで押すと回答が失われる。
+# 一方 Delete キー (CSI 3~) は横取りされず前方削除として処理される。
+# ctrl+b の衝突を herdr のプレフィックス移動で解決したのと同じ方針で、
+# ここでは端末層で ctrl+d を Delete に変換して delete-char 相当を取り戻す。
+#
+# 代償として ctrl+d が EOF (0x04) を送らなくなるので、EOF は ctrl+alt+d へ退避する。
+# copilot の終了は /exit、$ シェルからの復帰は exit を使う。
+keybind = ctrl+d=csi:3~
+keybind = ctrl+alt+d=text:\x04

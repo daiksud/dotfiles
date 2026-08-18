@@ -75,6 +75,24 @@ To manage tabs and panes with herdr, all built-in Ghostty keybindings related to
 - `⌘⌃↑↓←→` (move pane)
 - `⌘⇧Enter` (add pane)
 
+### Emacs key remappings
+
+The following terminal-level translations preserve the Emacs editing actions
+used by zsh and Copilot CLI while avoiding conflicting application shortcuts.
+
+| Chord | Ghostty output | zsh binding | Alternate |
+| ---------------- | ---------------- | ---------------- | ------------------------------ |
+| `ctrl+d` | `CSI 3~` (Delete) | `delete-char` | `ctrl+alt+d` sends EOF |
+| `ctrl+e` | `CSI F` (End) | `end-of-line` | `ctrl+alt+e` sends raw `Ctrl+E` |
+
+The `ctrl+d` mapping prevents Copilot CLI elicitation forms from treating
+forward-delete as a destructive decline action (see
+[ADR 0030](../development/99-adr/0030-ghostty-ctrl-d-delete-key.md)). The
+`ctrl+e` mapping prevents the Plan Ready for Review dialog from treating
+end-of-line as a summary/full-plan toggle (see
+[ADR 0031](../development/99-adr/0031-ghostty-ctrl-e-end-key.md)). Both
+mappings apply to every program running in Ghostty.
+
 ## Reloading after configuration changes
 
 Ghostty reads its configuration into the running application process. The

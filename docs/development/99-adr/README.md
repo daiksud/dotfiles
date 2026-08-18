@@ -38,6 +38,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0027](./0027-gh-qw.md) | Replace gh-qwt with gh-qw | Accepted |
 | [0028](./0028-native-subagent-deployment.md) | Use the host's native subagent deployment | Accepted |
 | [0029](./0029-owner-default-gh-account-mapping.md) | Use owner defaults with repository overrides for GitHub accounts | Accepted |
+| [0030](./0030-ghostty-ctrl-d-delete-key.md) | Remap `ctrl+d` to the Delete key in Ghostty | Accepted |
 
 ## How to Write a New ADR
 

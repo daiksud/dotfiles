@@ -12,6 +12,14 @@ compinit
 # Emacs keybindings
 bindkey -e
 
+# Ghostty で ctrl+d を Delete キー (CSI 3~) に変換しているため、zsh 側で
+# 受け取れるようにする。素の zsh では ^[[3~ は undefined-key で無反応。
+bindkey '^[[3~' delete-char
+
+# 多重の安全弁。Ghostty 設定が効かない環境 (SSH 先、他ターミナル) で ctrl+d が
+# 0x04 のまま届いた場合でも、シェルが即終了しないようにする。
+setopt IGNORE_EOF
+
 # Sheldon plugin manager
 eval "$(sheldon source)"
 
@@ -34,6 +42,11 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 
 # Editor
 export EDITOR='nvim'
+
+# Copilot CLI の ctrl+y は補完確定と「plan/リサーチレポートを $EDITOR で開く」の
+# 二役を持つ。Emacs の yank のつもりで押すとエディタが開いてしまうため、
+# 即座に終了するコマンドを指定して誤爆を no-op 化する。
+export COPILOT_EDITOR=/usr/bin/true
 
 # Starship prompt
 eval "$(starship init zsh)"

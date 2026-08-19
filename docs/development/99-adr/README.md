@@ -40,6 +40,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0029](./0029-owner-default-gh-account-mapping.md) | Use owner defaults with repository overrides for GitHub accounts | Accepted |
 | [0030](./0030-ghostty-ctrl-d-delete-key.md) | Remap `ctrl+d` to the Delete key in Ghostty | Accepted |
 | [0031](./0031-ghostty-ctrl-e-end-key.md) | Remap `ctrl+e` to the End key in Ghostty | Accepted |
+| [0032](./0032-single-copilot-review-request.md) | Let pr-merge own the single Copilot review request | Accepted |
 
 ## How to Write a New ADR
 

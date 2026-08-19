@@ -1,6 +1,6 @@
 ---
 name: pr-fix
-description: Bring an existing GitHub Pull Request into a mergeable state from its checked-out head branch. Use when asked to fix a PR, resolve merge conflicts, repair failing CI checks, address unresolved review feedback, or run all of these workflows in sequence. Accept a PR URL, or a PR number with its base repository, and an optional all, ci, feedback, or conflicts mode.
+description: Bring an existing GitHub Pull Request into a mergeable state from its checked-out head branch. Use when asked to fix a PR, resolve merge conflicts, repair failing CI checks, address unresolved review feedback, or run all of these workflows in sequence. Accept a PR URL, or a PR number with its base repository, an optional all, ci, feedback, or conflicts mode, and an optional flag for callers that own Copilot review requests.
 ---
 
 # pr-fix
@@ -22,6 +22,9 @@ an optional mode:
 - Use `ci` to fix CI failures only.
 - Use `feedback` to handle review comments only.
 - Use `conflicts` to resolve merge conflicts only.
+- When `pr-merge` invokes this skill, it passes `--skip-copilot-review` so
+  `pr-merge` can own the single review request and wait. This flag skips only
+  the post-feedback Copilot request; review comments are still handled.
 
 ## Checkout preconditions
 
@@ -142,6 +145,9 @@ repository when the PR head is a fork.
   - Re-query the review's `state` after submitting and confirm it is no
     longer `PENDING` before moving on. Do not leave any reply unsubmitted.
 - Resolve the review threads only after their replies are confirmed submitted.
+- If `--skip-copilot-review` was supplied by `pr-merge`, report that the caller
+  owns the Copilot request and stop the feedback mode here. Do not query the
+  rules or request another review.
 - Determine whether Copilot Code Review is enabled for the base branch:
   1. URL-encode `baseRefName` as one path segment.
   2. Query

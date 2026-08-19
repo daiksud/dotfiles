@@ -70,9 +70,11 @@ Before the first iteration:
 
 ### Step 1: Resolve Copilot Code Review feedback
 
-1. Use `pr-fix` in `all` mode for this PR, passing the same PR URL or
-   number-and-base-repository input. It must operate in the invoking
-   checkout and resolve conflicts, CI failures, and review feedback there.
+1. Use `pr-fix` in `all` mode with `--skip-copilot-review` for this PR,
+   passing the same PR URL or number-and-base-repository input. It must
+   operate in the invoking checkout and resolve conflicts, CI failures, and
+   review feedback there. `pr-merge` owns the single Copilot request and wait
+   for this iteration.
 2. If the effective rules do not include `copilot_code_review`, record that
    review is disabled and continue to Step 2.
 3. If review is enabled, retrieve the PR node ID:

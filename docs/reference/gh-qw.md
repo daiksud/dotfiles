@@ -169,15 +169,19 @@ skill:
 | --- | --- |
 | Create | Create a feature branch in the invoking checkout only from an exactly synchronized default branch, or use a non-default branch that has no existing PR. |
 | Fix | Require a clean invoking checkout of the exact PR head repository and branch, including the fork for a fork PR. |
-| Merge | Require that same checkout, merge one PR, leave the local branch checked out, and delete only an unchanged remote head branch. |
+| Merge | Merge one PR without switching, or sequentially merge same-repository PRs in batch mode with verified branch switches, then restore the starting branch. |
 
 The skills still resolve canonical GitHub identities and re-check branch,
 working-state, remote-head, review, and CI conditions before mutating a PR.
-Concurrent PR work requires separate checkouts, such as linked worktrees or
-ordinary clones. See
-[Using skills](../guides/06-skills.md) and
-[ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md) and
-[ADR 0027](../development/99-adr/0027-gh-qw.md) for the
+Batch `pr-merge` does not create a `gh-qw` worktree: it switches only between
+clean, same-repository branches, preserves local branches, and stops rather
+than discarding state when a failed PR leaves the checkout unsafe. Concurrent
+work outside that batch requires separate checkouts, such as linked worktrees
+or ordinary clones. See
+[Using skills](../guides/06-skills.md),
+[ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md),
+[ADR 0027](../development/99-adr/0027-gh-qw.md), and
+[ADR 0033](../development/99-adr/0033-pr-merge-batch-processing.md) for the
 complete workflow.
 
 ## Shell shortcuts

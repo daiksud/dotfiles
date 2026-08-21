@@ -103,16 +103,20 @@ worktree. Do not create a `gh-qw`, Git, or other worktree for a PR workflow.
   It preserves intended staged, unstaged, and non-ignored untracked changes
   while creating that branch. Stop if the default branch is ahead, behind, or
   diverged instead of pulling, rebasing, or resetting it.
-- `pr-fix` and `pr-merge` require the invoking checkout to be clean, on the
-  exact PR head branch, and pointed at the head repository. For a fork, require
-  a PR URL or explicit base repository and report the canonical fork URL and
-  branch when the caller must prepare another checkout.
+- `pr-fix` and single-PR `pr-merge` require the invoking checkout to be clean,
+  on the exact PR head branch, and pointed at the head repository. For a fork,
+  require a PR URL or explicit base repository and report the canonical fork
+  URL and branch when the caller must prepare another checkout. Batch
+  `pr-merge` instead requires a clean checkout of the target base repository
+  and only switches between same-repository PR head branches.
 - Resolve and verify the canonical GitHub identity before API or Git
   operations. Re-check the current branch, working state, and remote head
   before commits, pushes, and merges, particularly after polling waits.
-- Do not automatically switch branches for a fix or merge. A direct checkout
-  can host only one active PR branch, so concurrent work requires separate
-  checkouts, such as linked worktrees or ordinary clones.
+- Do not automatically switch branches for `pr-fix` or single-PR `pr-merge`.
+  Batch `pr-merge` is the explicit sequential exception: it verifies each
+  branch before switching, never discards local work, and stops on an unsafe
+  state. Concurrent work outside that batch still requires separate checkouts,
+  such as linked worktrees or ordinary clones.
 - Do not reuse a non-default branch that already has an open, closed, or
   merged PR. Do not silently discard changes, force-push, or use destructive
   recovery.
@@ -122,8 +126,9 @@ worktree. Do not create a `gh-qw`, Git, or other worktree for a PR workflow.
 
 This restriction belongs in the skill procedure and constraints. Do not add a
 global shell wrapper that changes ordinary interactive Git behavior. See
-[ADR 0021](./99-adr/0021-pr-skills-invoking-checkout.md) and
-[ADR 0027](./99-adr/0027-gh-qw.md) for the rationale.
+[ADR 0021](./99-adr/0021-pr-skills-invoking-checkout.md),
+[ADR 0027](./99-adr/0027-gh-qw.md), and
+[ADR 0033](./99-adr/0033-pr-merge-batch-processing.md) for the rationale.
 
 ## File Placement
 

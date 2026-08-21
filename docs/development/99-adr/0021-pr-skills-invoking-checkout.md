@@ -13,6 +13,9 @@ Supersedes [ADR 0010](./0010-pr-skills-gh-qwt.md).
 > [ADR 0023](./0023-pr-skills-gh-qwt-checkouts.md) amends this decision. It
 > permits PR skills in gh-qwt primary checkouts and linked worktrees. The
 > remainder of this record preserves the original decision and rationale.
+>
+> [ADR 0033](./0033-pr-merge-batch-processing.md) amends the `pr-merge`
+> single-invocation constraint for its explicit sequential batch mode.
 
 ## Context
 

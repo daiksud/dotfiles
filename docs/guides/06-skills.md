@@ -52,7 +52,7 @@ invocation is the most predictable choice.
 | ----------- | ----------------------------------------------------------------------------------------- |
 | `pr-create` | Automatically creates a draft PR from the current changes |
 | `pr-fix` | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR |
-| `pr-merge` | Loops enabled Copilot Code Review to zero findings, requests approval only when required, waits for CI, and squash merges one PR |
+| `pr-merge` | Loops review and CI checks, then squash merges one PR, an ordered list, or all open same-repository PRs |
 
 When `install.sh` is re-run, it removes stale symbolic links to canonical skill
 directories whose `SKILL.md` no longer exists. Real directories and links to
@@ -72,20 +72,23 @@ do not create or use a `gh-qw`, Git, or other worktree.
 - When invoked from a non-default branch, `pr-create` stops if that branch
   already has an open, closed, or merged PR. Create a new branch rather than
   reusing a branch left checked out after a squash merge.
-- `pr-fix` and `pr-merge` require a clean checkout of the exact PR head branch
-  and repository. For a fork PR, prepare a checkout of the fork on its
-  head branch before invoking the skill.
-- For `pr-fix` and `pr-merge`, provide a PR URL or a PR number together with
-  its host-qualified base repository. A fork checkout cannot identify the base
-  repository from a number alone.
+- `pr-fix` and single-PR `pr-merge` require a clean checkout of the exact PR
+  head branch and repository. For a fork PR, prepare a checkout of the fork
+  on its head branch before invoking the skill.
+- Batch `pr-merge` requires a clean checkout of the target base repository. It
+  switches only between verified same-repository head branches and does not
+  process fork PRs.
+- For numeric inputs, the host-qualified base repository is optional and
+  defaults to the current checkout's canonical `origin`.
 - Before commits, pushes, and merges, the skills re-check the branch, working
   state, remote head, and expected PR SHA. They stop if another actor changed
   the checkout.
-- `pr-merge` handles one PR per invocation and leaves the local head branch
-  checked out after a successful merge. It can delete the matching remote head
-  branch only after verifying its SHA.
-- Use separate checkouts, such as linked worktrees or ordinary clones, for
-  concurrent PR work.
+- Single-PR `pr-merge` leaves the local head branch checked out after a
+  successful merge. A batch returns to its starting branch and keeps every
+  processed local branch. Both modes delete a matching remote head branch only
+  after verifying its SHA.
+- Batch PRs run sequentially in one checkout. Use separate checkouts, such as
+  linked worktrees or ordinary clones, for unrelated concurrent work.
 
 ## Use `pr-create`
 
@@ -139,24 +142,42 @@ limit the run to CI failures, review comments, or conflicts respectively.
 
 ## Use `pr-merge`
 
-Explicitly invoke `pr-merge` with a PR URL, or a PR number and host-qualified
-base repository, from a clean checkout of that PR's head repository and branch.
-A natural-language request to merge a review-clean PR also selects this skill
-through the shared personal instructions.
+Explicitly invoke `pr-merge` with one of these forms:
+
+```text
+pr-merge <PR_URL>
+pr-merge <PR_NUMBER> [<base-repository>]
+pr-merge <PR_NUMBER> <PR_NUMBER> ... [<base-repository>]
+pr-merge all [<base-repository>]
+```
+
+For numeric inputs, the optional base repository defaults to the current
+checkout's canonical `origin`. A single PR URL remains the compatibility form
+for fork PRs. A natural-language request to merge a review-clean PR also
+selects this skill through the shared personal instructions.
 
 ### What happens
 
-1. Runs `pr-fix` and, when the base branch enables Copilot Code Review,
-   requests reviews until there are no unresolved findings (up to 10 attempts)
-2. Takes the PR out of Draft and asks GitHub whether approval is required
-3. Reuses an existing valid approval or, only when review is required, applies
+1. In single-PR mode, verifies the exact head checkout. In batch mode, saves
+   the starting branch, snapshots the requested PRs, and switches only between
+   clean same-repository head branches.
+2. Runs `pr-fix` and, when the base branch enables Copilot Code Review, requests
+   reviews until there are no unresolved findings (up to 10 attempts per PR).
+3. Takes each PR out of Draft and asks GitHub whether approval is required.
+4. Reuses an existing valid approval or, only when review is required, applies
    the `self approval` label once and waits up to 3 minutes for the existing
-   automation; the approval is retained across CI or conflict retries while
-   GitHub continues to report it as valid
-4. Waits for CI to go green, going back to step 1 if a merge conflict or a CI failure shows up
-5. Squash merges the PR once everything is green, leaves the local branch
-   checked out, and safely deletes only an unchanged matching remote head
-   branch
+   automation. Approval state is retained only while GitHub reports it as
+   valid, and never carries across PRs.
+5. Waits for CI to go green, going back to the retry loop if a merge conflict
+   or CI failure appears.
+6. Squash merges each verified PR, safely deletes only an unchanged matching
+   remote head, and records cleanup warnings.
+7. For a batch, continues after a clean per-PR failure, stops rather than
+   discarding dirty or conflicted state, and returns to the starting branch.
+
+`all` includes every open PR, including Drafts, snapshots them at invocation
+time, and processes them in ascending PR-number order. Fork PRs are reported as
+skipped because batch mode requires the target repository's own head branches.
 
 An unavailable base-branch rules query is reported as a failure; it is not
 treated as a disabled feature.

@@ -81,6 +81,19 @@ disabled.
 
 Among the `100-*` scripts, those that depend on Homebrew (`ghostty`, `lazyvim`, `sheldon`) run sequentially, while the others run in parallel (maximum concurrency: the `DOTFILES_PARALLEL_JOBS` environment variable, default `3`).
 
+#### Herdr service updates
+
+On macOS, the Herdr setup checks whether the running server is compatible with
+the installed Homebrew client. A Homebrew upgrade can replace the client
+binary while leaving the old server process alive; in that case the setup
+automatically stops the old service and server, starts the current service,
+and verifies the new server.
+
+Stopping a Herdr server terminates its panes. If the installation is
+interrupted during this handoff, use the recovery sequence in the
+[Herdr reference](../reference/herdr.md#server-lifecycle) after saving any
+recoverable work.
+
 ### 3. Generate SSH `allowed_signers`
 
 If global `user.email` and `~/.ssh/id_ed25519.pub` exist, it generates `~/.ssh/allowed_signers` for Git SSH signature verification.

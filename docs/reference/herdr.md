@@ -79,13 +79,32 @@ herdr runs as a background server plus one or more attached clients. The
 server owns panes and process state, so panes and any agents inside them keep
 running after a client detaches or a terminal window closes.
 
-`scripts/100-herdr.sh` keeps the server resident via `brew services start
-herdr` on macOS. Opening a Ghostty window attaches to the default session
-automatically through `command` in `dotfiles/ghostty/config` (see
+On macOS, `scripts/100-herdr.sh` keeps the server resident through a Homebrew
+LaunchAgent. It checks the client/server compatibility and leaves a healthy
+service alone. If a Homebrew upgrade left an incompatible server running, the
+script stops the old service and server, starts the current service, and
+verifies the new server before reporting success.
+
+Stopping a server terminates its panes. If an interrupted installation leaves
+the service in a failed state, save any recoverable work and run:
+
+```bash
+brew services stop herdr
+herdr server stop
+brew services start herdr
+herdr status
+```
+
+Opening a Ghostty window attaches to the default session automatically through
+`command` in `dotfiles/ghostty/config` (see
 [Ghostty](./ghostty.md#startup-command)); other launch paths (VS Code,
 Codespaces, SSH sessions started some other way) still start a plain shell.
 Run `herdr` manually to attach from one of those, or `herdr --session <name>`
 for a separate named session.
+
+> [!WARNING]
+> `herdr server stop` exits all processes in the server's panes. Do not run
+> the recovery sequence while agents or other important commands are active.
 
 ## Environment variables
 

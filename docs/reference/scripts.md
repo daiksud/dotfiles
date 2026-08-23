@@ -85,9 +85,17 @@ Installs the Ghostty terminal emulator and configures terminfo (if not already i
 
 ### 100-herdr.sh
 
-Keeps the herdr server resident on macOS.
+Keeps the herdr server resident on macOS and hands off cleanly after a
+Homebrew upgrade.
 
-- Start the `herdr` background service with `brew services start herdr`
+- Query the Herdr server and Homebrew service status in machine-readable form
+- Leave a compatible, healthy Homebrew-managed server running
+- Stop a stale or incompatible server and start the current Homebrew service
+- Verify that the restarted service is running and compatible
+
+Stopping a Herdr server terminates its panes, so the automatic handoff is only
+performed when the existing server cannot be used by the installed client.
+Linux remains a no-op because `brew services` is macOS-only.
 
 ### 100-lazyvim.sh
 

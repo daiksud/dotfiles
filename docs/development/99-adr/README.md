@@ -42,6 +42,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0031](./0031-ghostty-ctrl-e-end-key.md) | Remap `ctrl+e` to the End key in Ghostty | Accepted |
 | [0032](./0032-single-copilot-review-request.md) | Let pr-merge own the single Copilot review request | Accepted |
 | [0033](./0033-pr-merge-batch-processing.md) | Process ordered same-repository PR merge batches | Accepted |
+| [0034](./0034-herdr-service-restart-on-upgrade.md) | Restart Herdr after an incompatible Homebrew upgrade | Accepted |
 
 ## How to Write a New ADR
 

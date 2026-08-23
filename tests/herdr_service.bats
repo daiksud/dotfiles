@@ -65,6 +65,8 @@ EOF
   cat >"${FAKE_BIN}/herdr" <<'EOF'
 #!/bin/bash
 printf 'herdr %s\n' "$*" >>"${COMMAND_LOG}"
+printf 'herdr selectors socket=%s session=%s\n' \
+  "${HERDR_SOCKET_PATH-unset}" "${HERDR_SESSION-unset}" >>"${COMMAND_LOG}"
 
 case "$*" in
 "status server --json")
@@ -105,6 +107,20 @@ write_herdr_status() {
   printf '%s\n' "$1" >"${HERDR_STATUS_FILE}"
 }
 
+assert_command_not_logged() {
+  if grep -Fxq "$1" "${COMMAND_LOG}"; then
+    echo "Unexpected command in log: $1" >&2
+    return 1
+  fi
+}
+
+assert_log_not_contains() {
+  if grep -Fq "$1" "${COMMAND_LOG}"; then
+    echo "Unexpected text in command log: $1" >&2
+    return 1
+  fi
+}
+
 run_herdr_script() {
   run env \
     PATH="${FAKE_BIN}:/usr/bin:/bin" \
@@ -122,10 +138,14 @@ run_herdr_script() {
     BREW_STOP_FAIL="${BREW_STOP_FAIL:-0}" \
     BREW_START_FAIL="${BREW_START_FAIL:-0}" \
     HERDR_STOP_FAIL="${HERDR_STOP_FAIL:-0}" \
+    HERDR_ENV="${TEST_HERDR_ENV:-0}" \
+    HERDR_SOCKET_PATH="${TEST_HERDR_SOCKET_PATH:-}" \
+    HERDR_SESSION="${TEST_HERDR_SESSION:-}" \
     "${SCRIPT}"
 }
 
 healthy_herdr_status='{"status":"running","running":true,"version":"0.8.2","protocol":20,"capabilities":{"live_handoff":true},"compatible":true,"socket":"/tmp/herdr.sock","session":null,"restart_needed":false}'
+compatible_upgrade_status='{"status":"running","running":true,"version":"0.8.1","protocol":20,"capabilities":{"live_handoff":true},"compatible":true,"socket":"/tmp/herdr.sock","session":null,"restart_needed":true}'
 old_herdr_status='{"status":"running","running":true,"version":"0.8.0","protocol":19,"capabilities":{"live_handoff":true},"compatible":false,"socket":"/tmp/herdr.sock","session":null,"restart_needed":true}'
 not_running_herdr_status='{"status":"not_running","running":false,"version":null,"protocol":null,"capabilities":null,"compatible":null,"socket":"/tmp/herdr.sock","session":null,"restart_needed":false}'
 started_service='[{"name":"herdr","status":"started","user":"test","file":"/tmp/homebrew.mxcl.herdr.plist","exit_code":0}]'
@@ -149,7 +169,7 @@ missing_service='[]'
 
   [ "$status" -eq 0 ]
   grep -Fxq 'brew services start herdr' "${COMMAND_LOG}"
-  ! grep -Fxq 'brew services stop herdr' "${COMMAND_LOG}"
+  assert_command_not_logged 'brew services stop herdr'
   [[ "$output" == *"Herdr service is running"* ]]
 }
 
@@ -160,9 +180,53 @@ missing_service='[]'
   run_herdr_script
 
   [ "$status" -eq 0 ]
-  ! grep -Fxq 'brew services start herdr' "${COMMAND_LOG}"
-  ! grep -Fxq 'brew services stop herdr' "${COMMAND_LOG}"
+  assert_command_not_logged 'brew services start herdr'
+  assert_command_not_logged 'brew services stop herdr'
   [[ "$output" == *"already healthy"* ]]
+}
+
+@test "preserves a compatible managed service after a version-only upgrade" {
+  write_service_list "${started_service}"
+  write_herdr_status "${compatible_upgrade_status}"
+  printf '%s\n' "${healthy_herdr_status}" >"${HERDR_AFTER_START_FILE}"
+
+  run_herdr_script
+
+  [ "$status" -eq 0 ]
+  assert_command_not_logged 'brew services start herdr'
+  assert_command_not_logged 'brew services stop herdr'
+  assert_command_not_logged 'herdr server stop'
+  [[ "$output" == *"already healthy"* ]]
+}
+
+@test "targets the Homebrew-managed default session during a handoff" {
+  write_service_list "${error_service}"
+  write_herdr_status "${old_herdr_status}"
+  printf '%s\n' "${healthy_herdr_status}" >"${HERDR_AFTER_START_FILE}"
+  TEST_HERDR_SOCKET_PATH=/tmp/named-herdr.sock
+  TEST_HERDR_SESSION=named
+
+  run_herdr_script
+
+  [ "$status" -eq 0 ]
+  grep -Fxq 'herdr selectors socket=unset session=unset' "${COMMAND_LOG}"
+  assert_log_not_contains 'herdr selectors socket=/tmp/named-herdr.sock'
+  assert_log_not_contains 'session=named'
+}
+
+@test "refuses a destructive handoff from a Herdr-managed pane" {
+  write_service_list "${error_service}"
+  write_herdr_status "${old_herdr_status}"
+  printf '%s\n' "${healthy_herdr_status}" >"${HERDR_AFTER_START_FILE}"
+  TEST_HERDR_ENV=1
+
+  run_herdr_script
+
+  [ "$status" -eq 1 ]
+  assert_command_not_logged 'brew services stop herdr'
+  assert_command_not_logged 'brew services start herdr'
+  assert_command_not_logged 'herdr server stop'
+  [[ "$output" == *"plain shell"* ]]
 }
 
 @test "stops an incompatible server before starting the current service" {

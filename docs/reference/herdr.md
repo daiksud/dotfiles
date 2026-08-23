@@ -81,12 +81,19 @@ running after a client detaches or a terminal window closes.
 
 On macOS, `scripts/100-herdr.sh` keeps the server resident through a Homebrew
 LaunchAgent. It checks the client/server compatibility and leaves a healthy
-service alone. If a Homebrew upgrade left an incompatible server running, the
-script stops the old service and server, starts the current service, and
-verifies the new server before reporting success.
+service alone, including when only the client and server version strings
+differ. If a Homebrew upgrade left an incompatible server running, the script
+stops the old service and default server, starts the current service, and
+verifies the new server before reporting success. It performs the same handoff
+when the server is compatible but its Homebrew service is unhealthy. Inherited
+`HERDR_SOCKET_PATH` and `HERDR_SESSION` selectors are ignored so named and
+custom sessions are not mistaken for the Homebrew-managed default session.
 
-Stopping a server terminates its panes. If an interrupted installation leaves
-the service in a failed state, save any recoverable work and run:
+Stopping a server terminates its panes. The setup therefore refuses a required
+handoff when `HERDR_ENV=1`, before changing the Homebrew service. Save any
+recoverable work, open a plain shell outside Herdr, and rerun `bash install.sh`.
+If an interrupted installation already left the service in a failed state, run
+this recovery sequence from that plain shell:
 
 ```bash
 brew services stop herdr
@@ -111,8 +118,10 @@ for a separate named session.
 Panes started by herdr expose `HERDR_ENV=1`, which scripts can check to
 detect that they are already running inside a herdr pane (herdr uses this
 itself to block nested launches; `dotfiles/ghostty/herdr-launch.sh` checks it
-for the same reason). Panes also expose `HERDR_PANE_ID`, `HERDR_TAB_ID`, and
-`HERDR_WORKSPACE_ID` to identify the current pane, tab, and workspace.
+for the same reason). Named or custom sessions can also select their server
+through `HERDR_SESSION` or `HERDR_SOCKET_PATH`. Panes expose `HERDR_PANE_ID`,
+`HERDR_TAB_ID`, and `HERDR_WORKSPACE_ID` to identify the current pane, tab, and
+workspace.
 
 ## Constraints
 

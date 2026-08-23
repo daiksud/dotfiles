@@ -89,13 +89,20 @@ Keeps the herdr server resident on macOS and hands off cleanly after a
 Homebrew upgrade.
 
 - Query the Herdr server and Homebrew service status in machine-readable form
-- Leave a compatible, healthy Homebrew-managed server running
-- Stop a stale or incompatible server and start the current Homebrew service
+- Target only the Homebrew-managed default session, regardless of inherited
+  named or custom session selectors
+- Leave a protocol-compatible, healthy Homebrew-managed server running even
+  when its version differs from the client
+- Stop an incompatible server, or a compatible server with an unhealthy
+  Homebrew service, and start the current service
 - Verify that the restarted service is running and compatible
 
 Stopping a Herdr server terminates its panes, so the automatic handoff is only
-performed when the existing server cannot be used by the installed client.
-Linux remains a no-op because `brew services` is macOS-only.
+performed when the existing server cannot be used by the installed client or
+its Homebrew service is unhealthy. If the handoff is required from a
+Herdr-managed pane, the script exits before changing the service and requires
+a rerun from a plain shell. Linux remains a no-op because `brew services` is
+macOS-only.
 
 ### 100-lazyvim.sh
 

@@ -26,23 +26,31 @@ Make `scripts/100-herdr.sh` version- and health-aware on macOS.
 
 - Read Herdr server status and Homebrew service status through their JSON
   interfaces.
+- Clear inherited session and socket selectors when querying or stopping Herdr
+  so the lifecycle operation always targets the default session managed by the
+  Homebrew LaunchAgent.
 - Leave a compatible server alone when it is already managed by a healthy
-  Homebrew service.
-- When the server is stale, incompatible, or not backed by a healthy service,
-  stop the existing Homebrew job, stop the Herdr server, start the current
-  Homebrew service, and verify that the resulting server is compatible.
+  Homebrew service, even when its version string differs from the installed
+  client and Herdr recommends a restart.
+- When the server is incompatible or not backed by a healthy service, stop the
+  existing Homebrew job, stop the Herdr server, start the current Homebrew
+  service, and verify that the resulting server is compatible.
+- Refuse that destructive handoff before changing the service when
+  `HERDR_ENV=1`. The user must save pane work and rerun `install.sh` from a
+  plain shell so stopping the server cannot terminate its own installer.
 - Keep the Linux path as a no-op.
 - Propagate status, stop, start, and verification errors instead of masking
   them.
 
 ## Alternatives Considered
 
-### Require manual recovery
+### Always require manual recovery
 
 The installer could report the mismatch and leave the old server running.
 Rejected because every Homebrew upgrade would require a separate recovery
 step and the installation would remain failed even though the correct binary
-is installed.
+is installed. Requiring a plain-shell rerun only when the installer itself is
+owned by a Herdr pane retains automatic recovery where it is safe.
 
 ### Restart on every installation
 
@@ -59,9 +67,14 @@ after terminal clients close and across reboots.
 ## Consequences
 
 - Re-running `install.sh` is non-disruptive when the Herdr service is healthy
-  and compatible.
+  and protocol-compatible, including across version-only upgrades.
 - A stale or incompatible server is automatically handed off to the current
-  Homebrew service, but stopping it terminates all processes in its panes.
+  Homebrew service from a plain shell, but stopping it terminates all processes
+  in its panes.
+- An installer running inside Herdr reports the required plain-shell rerun
+  before it unloads the Homebrew job or stops the default server.
+- Named and custom sessions are not inspected or stopped during Homebrew
+  service recovery.
 - The service setup now depends on the JSON status interfaces of the installed
   Homebrew and Herdr versions.
 - Hermetic Bats tests cover the lifecycle decisions without invoking launchd

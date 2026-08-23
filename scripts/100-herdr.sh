@@ -90,11 +90,18 @@ else:
 '
 }
 
+run_default_herdr() {
+  (
+    unset HERDR_SOCKET_PATH HERDR_SESSION
+    "${HERDR_BIN}" "$@"
+  )
+}
+
 query_herdr_status() {
   local status_json
   local parsed_status
 
-  if ! status_json="$("${HERDR_BIN}" status server --json 2>&1)"; then
+  if ! status_json="$(run_default_herdr status server --json 2>&1)"; then
     echo "Cannot query the Herdr server status" >&2
     echo "${status_json}" >&2
     return 1
@@ -134,7 +141,7 @@ stop_homebrew_service() {
 
 stop_herdr_server() {
   echo "Stopping the existing Herdr server; its panes will exit"
-  if ! "${HERDR_BIN}" server stop; then
+  if ! run_default_herdr server stop; then
     echo "Failed to stop the existing Herdr server" >&2
     return 1
   fi
@@ -165,7 +172,6 @@ verify_service() {
 
     if [[ "${service_status}" == "started" &&
       "${server_running}" == "1" &&
-      "${restart_needed}" == "0" &&
       "${compatible}" == "1" ]]; then
       echo "Herdr service is running (${server_version}, protocol ${server_protocol})"
       return 0
@@ -187,7 +193,6 @@ service_status="$(query_service_status)" || exit 1
 IFS=$'\t' read -r server_running restart_needed compatible server_version server_protocol <<<"${herdr_status}"
 
 if [[ "${server_running}" == "1" &&
-  "${restart_needed}" == "0" &&
   "${compatible}" == "1" &&
   "${service_status}" == "started" ]]; then
   echo "Herdr service is already healthy (${server_version}, protocol ${server_protocol})"
@@ -201,14 +206,23 @@ elif [[ "${service_status}" != "missing" && "${service_status}" != "stopped" ]];
 fi
 
 case "${service_status}" in
-started | error)
-  stop_homebrew_service || exit 1
-  ;;
-missing | none | stopped)
+started | error | missing | none | stopped)
   ;;
 *)
   echo "Unsupported Herdr Homebrew service status: ${service_status}" >&2
   exit 1
+  ;;
+esac
+
+if [[ "${server_running}" == "1" && "${HERDR_ENV:-}" == "1" ]]; then
+  echo "Cannot hand off the default Herdr server from a Herdr-managed pane" >&2
+  echo "Re-run install.sh from a plain shell after saving work in the default session" >&2
+  exit 1
+fi
+
+case "${service_status}" in
+started | error)
+  stop_homebrew_service || exit 1
   ;;
 esac
 

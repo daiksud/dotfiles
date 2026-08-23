@@ -100,8 +100,10 @@ Current coverage:
   (`HERDR_ENV=1`).
 - `tests/herdr_service.bats` — `scripts/100-herdr.sh` behavior with fake
   Homebrew and Herdr commands: platform gating, starting and verifying a
-  missing service, preserving a healthy managed service, handing off from an
-  incompatible server in the required order, and propagating a start failure.
+  missing service, preserving healthy protocol-compatible services, targeting
+  the Homebrew-managed default session, refusing self-terminating handoffs from
+  Herdr panes, handing off an incompatible server in the required order, and
+  propagating a start failure.
 - `tests/install_symlinks.bats` — `install.sh`'s symlink-creation logic,
   exercised against a copy of the real script in an isolated sandbox (fixture
   `install_map.json` and `dotfiles/`, empty `scripts/` so no real installs

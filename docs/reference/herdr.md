@@ -87,7 +87,11 @@ stops the old service and default server, starts the current service, and
 verifies the new server before reporting success. It performs the same handoff
 when the server is compatible but its Homebrew service is unhealthy. Inherited
 `HERDR_SOCKET_PATH` and `HERDR_SESSION` selectors are ignored so named and
-custom sessions are not mistaken for the Homebrew-managed default session.
+custom sessions are not mistaken for the Homebrew-managed default session. The
+script serializes its complete lifecycle decision so concurrent installers
+cannot stop a server recovered by the other. After stopping a Homebrew job, it
+rechecks both states before stopping a remaining server. A failed post-stop
+status query triggers a best-effort reload of the job before setup fails.
 
 Stopping a server terminates its panes. The setup therefore refuses a required
 handoff when `HERDR_ENV=1`, before changing the Homebrew service. Save any

@@ -7,6 +7,21 @@ if [[ "$(uname)" != "Darwin" ]]; then
   exit 0
 fi
 
+LOCKF_BIN="${DOTFILES_LOCKF_BIN:-/usr/bin/lockf}"
+LOCK_FILE="${DOTFILES_HERDR_LOCK_FILE:-${TMPDIR:-/tmp}/dotfiles-herdr-service-${UID}.lock}"
+
+# Serialize the complete read-decide-write cycle. A status re-check alone
+# cannot prevent another installer from replacing the server between that
+# check and the destructive stop command.
+if [[ "${DOTFILES_HERDR_SERVICE_LOCKED:-0}" != "1" ]]; then
+  if [[ ! -x "${LOCKF_BIN}" ]]; then
+    echo "Lock utility not found: ${LOCKF_BIN}" >&2
+    exit 1
+  fi
+  export DOTFILES_HERDR_SERVICE_LOCKED=1
+  exec "${LOCKF_BIN}" -k "${LOCK_FILE}" /bin/bash "$0" "$@"
+fi
+
 BREW_BIN="${DOTFILES_BREW_BIN:-/opt/homebrew/bin/brew}"
 HERDR_BIN="${DOTFILES_HERDR_BIN:-herdr}"
 PYTHON_BIN="${DOTFILES_PYTHON_BIN:-python3}"
@@ -155,6 +170,23 @@ start_homebrew_service() {
   fi
 }
 
+restore_homebrew_service_after_query_failure() {
+  echo "Restoring the Herdr Homebrew service after a status query failure" >&2
+  if ! start_homebrew_service; then
+    echo "The Herdr Homebrew service could not be restored automatically" >&2
+  fi
+}
+
+service_is_healthy() {
+  local service_status="$1"
+  local server_running="$2"
+  local compatible="$3"
+
+  [[ "${service_status}" == "started" &&
+    "${server_running}" == "1" &&
+    "${compatible}" == "1" ]]
+}
+
 verify_service() {
   local attempt
   local service_status
@@ -170,9 +202,7 @@ verify_service() {
     herdr_status="$(query_herdr_status)" || return 1
     IFS=$'\t' read -r server_running restart_needed compatible server_version server_protocol <<<"${herdr_status}"
 
-    if [[ "${service_status}" == "started" &&
-      "${server_running}" == "1" &&
-      "${compatible}" == "1" ]]; then
+    if service_is_healthy "${service_status}" "${server_running}" "${compatible}"; then
       echo "Herdr service is running (${server_version}, protocol ${server_protocol})"
       return 0
     fi
@@ -192,9 +222,7 @@ herdr_status="$(query_herdr_status)" || exit 1
 service_status="$(query_service_status)" || exit 1
 IFS=$'\t' read -r server_running restart_needed compatible server_version server_protocol <<<"${herdr_status}"
 
-if [[ "${server_running}" == "1" &&
-  "${compatible}" == "1" &&
-  "${service_status}" == "started" ]]; then
+if service_is_healthy "${service_status}" "${server_running}" "${compatible}"; then
   echo "Herdr service is already healthy (${server_version}, protocol ${server_protocol})"
   exit 0
 fi
@@ -223,18 +251,35 @@ fi
 case "${service_status}" in
 started | error)
   stop_homebrew_service || exit 1
+  service_stop_completed=1
   ;;
+*) service_stop_completed=0 ;;
 esac
 
-if [[ "${server_running}" == "1" ]]; then
-  # Stopping a loaded service may already terminate the process it manages.
-  # Re-check before issuing the Herdr stop command so that handoff remains
-  # safe when launchd wins this race.
-  herdr_status="$(query_herdr_status)" || exit 1
-  IFS=$'\t' read -r server_running restart_needed compatible server_version server_protocol <<<"${herdr_status}"
-  if [[ "${server_running}" == "1" ]]; then
-    stop_herdr_server || exit 1
+# Stopping a loaded service may already terminate the process it manages, and
+# launchd may change state independently. Re-read both authoritative states
+# before issuing either remaining lifecycle command.
+if ! herdr_status="$(query_herdr_status)"; then
+  if [[ "${service_stop_completed}" == "1" ]]; then
+    restore_homebrew_service_after_query_failure
   fi
+  exit 1
+fi
+if ! service_status="$(query_service_status)"; then
+  if [[ "${service_stop_completed}" == "1" ]]; then
+    restore_homebrew_service_after_query_failure
+  fi
+  exit 1
+fi
+IFS=$'\t' read -r server_running restart_needed compatible server_version server_protocol <<<"${herdr_status}"
+
+if service_is_healthy "${service_status}" "${server_running}" "${compatible}"; then
+  echo "Herdr service became healthy during handoff (${server_version}, protocol ${server_protocol})"
+  exit 0
+fi
+
+if [[ "${server_running}" == "1" ]]; then
+  stop_herdr_server || exit 1
 fi
 
 start_homebrew_service || exit 1

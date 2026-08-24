@@ -89,7 +89,9 @@ binary while leaving the old server process alive. A different version remains
 running when its protocol is compatible and the Homebrew service is healthy.
 If the protocol is incompatible or the Homebrew service is unhealthy, the
 setup stops the old service and default server, starts the current service,
-and verifies the new server.
+and verifies the new server. Concurrent setup runs serialize this lifecycle;
+the later run waits, rechecks the resulting state, and preserves a healthy
+service instead of restarting it again.
 
 Stopping a Herdr server terminates its panes, including an installer running in
 one of them. When a handoff is required and `install.sh` is running inside

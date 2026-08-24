@@ -102,7 +102,9 @@ Current coverage:
   Homebrew and Herdr commands: platform gating, starting and verifying a
   missing service, preserving healthy protocol-compatible services, targeting
   the Homebrew-managed default session, refusing self-terminating handoffs from
-  Herdr panes, handing off an incompatible server in the required order, and
+  Herdr panes, handing off an incompatible server in the required order,
+  serializing concurrent destructive decisions, preserving externally
+  recovered services, restoring a stopped job after a query failure, and
   propagating a start failure.
 - `tests/install_symlinks.bats` — `install.sh`'s symlink-creation logic,
   exercised against a copy of the real script in an isolated sandbox (fixture

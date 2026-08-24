@@ -95,6 +95,9 @@ Homebrew upgrade.
   when its version differs from the client
 - Stop an incompatible server, or a compatible server with an unhealthy
   Homebrew service, and start the current service
+- Serialize concurrent lifecycle decisions and recheck both states before
+  stopping the server
+- Attempt to reload a stopped Homebrew job if the post-stop status query fails
 - Verify that the restarted service is running and compatible
 
 Stopping a Herdr server terminates its panes, so the automatic handoff is only

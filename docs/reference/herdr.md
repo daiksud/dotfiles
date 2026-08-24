@@ -79,21 +79,53 @@ herdr runs as a background server plus one or more attached clients. The
 server owns panes and process state, so panes and any agents inside them keep
 running after a client detaches or a terminal window closes.
 
-`scripts/100-herdr.sh` keeps the server resident via `brew services start
-herdr` on macOS. Opening a Ghostty window attaches to the default session
-automatically through `command` in `dotfiles/ghostty/config` (see
+On macOS, `scripts/100-herdr.sh` keeps the server resident through a Homebrew
+LaunchAgent. It checks the client/server compatibility and leaves a healthy
+service alone, including when only the client and server version strings
+differ. If a Homebrew upgrade left an incompatible server running, the script
+stops the old service and default server, starts the current service, and
+verifies the new server before reporting success. It performs the same handoff
+when the server is compatible but its Homebrew service is unhealthy. Inherited
+`HERDR_SOCKET_PATH` and `HERDR_SESSION` selectors are ignored so named and
+custom sessions are not mistaken for the Homebrew-managed default session. The
+script serializes its complete lifecycle decision so concurrent installers
+cannot stop a server recovered by the other. After stopping a Homebrew job, it
+rechecks both states before stopping a remaining server. A failed post-stop
+status query triggers a best-effort reload of the job before setup fails.
+
+Stopping a server terminates its panes. The setup therefore refuses a required
+handoff when `HERDR_ENV=1`, before changing the Homebrew service. Save any
+recoverable work, open a plain shell outside Herdr, and rerun `bash install.sh`.
+If an interrupted installation already left the service in a failed state, run
+this recovery sequence from that plain shell:
+
+```bash
+brew services stop herdr
+herdr server stop
+brew services start herdr
+herdr status
+```
+
+Opening a Ghostty window attaches to the default session automatically through
+`command` in `dotfiles/ghostty/config` (see
 [Ghostty](./ghostty.md#startup-command)); other launch paths (VS Code,
 Codespaces, SSH sessions started some other way) still start a plain shell.
 Run `herdr` manually to attach from one of those, or `herdr --session <name>`
 for a separate named session.
+
+> [!WARNING]
+> `herdr server stop` exits all processes in the server's panes. Do not run
+> the recovery sequence while agents or other important commands are active.
 
 ## Environment variables
 
 Panes started by herdr expose `HERDR_ENV=1`, which scripts can check to
 detect that they are already running inside a herdr pane (herdr uses this
 itself to block nested launches; `dotfiles/ghostty/herdr-launch.sh` checks it
-for the same reason). Panes also expose `HERDR_PANE_ID`, `HERDR_TAB_ID`, and
-`HERDR_WORKSPACE_ID` to identify the current pane, tab, and workspace.
+for the same reason). Named or custom sessions can also select their server
+through `HERDR_SESSION` or `HERDR_SOCKET_PATH`. Panes expose `HERDR_PANE_ID`,
+`HERDR_TAB_ID`, and `HERDR_WORKSPACE_ID` to identify the current pane, tab, and
+workspace.
 
 ## Constraints
 

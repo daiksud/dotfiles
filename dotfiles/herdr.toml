@@ -9,3 +9,14 @@ name = "tokyo-night"
 # keybindings (dotfiles/zshrc, dotfiles/nvim/lua/config/keymaps.lua), so move
 # the prefix to ctrl+t and leave ctrl+b for that.
 prefix = "ctrl+t"
+
+# Herdr does not expose a default split ratio, so replace the built-in
+# horizontal split with a custom command that keeps the existing pane above at
+# 70% and opens the new pane below at 30%.
+split_horizontal = ""
+
+[[keys.command]]
+key = "prefix+minus"
+type = "shell"
+command = 'exec "$HERDR_BIN_PATH" pane split --pane "$HERDR_ACTIVE_PANE_ID" --direction down --ratio 0.7 --focus'
+description = "split down (top 70%, bottom 30%)"

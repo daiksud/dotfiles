@@ -43,6 +43,12 @@ Adopt herdr (`herdrdev/herdr`) as the terminal multiplexer.
 >
 > The prefix key is no longer herdr's default `ctrl+b`; see
 > [ADR 0017](./0017-herdr-prefix-ctrl-t.md).
+>
+> The `prefix -` keyboard shortcut also no longer uses herdr's built-in
+> split-down action. It creates a 70:30 split with the existing pane above,
+> the new pane below, and focus on the new lower pane. This customization does
+> not change splits invoked from the menu or directly through the CLI; see the
+> [herdr reference](../../reference/herdr.md#keybindings).
 
 ## Alternatives Considered
 

@@ -6,10 +6,12 @@ This is the configuration reference for the terminal multiplexer (herdr).
 
 `dotfiles/herdr.toml` → `~/.config/herdr/config.toml`
 
-Three settings are pinned: onboarding is skipped, the theme is set to Tokyo
-Night, and the prefix key is remapped from herdr's default. Every other
-behavior — pane splits, pane navigation, and copy mode — uses herdr's
-built-in defaults. See `dotfiles/herdr.toml` for the exact values.
+Onboarding is skipped, the theme is set to Tokyo Night, and the prefix key is
+remapped from herdr's default. The split-down keyboard shortcut is also
+customized to preserve 70% of the height for the existing upper pane and use
+30% for the new lower pane. Every other behavior — split-right, pane
+navigation, and copy mode — uses herdr's built-in defaults. See
+`dotfiles/herdr.toml` for the exact values.
 
 ## Model
 
@@ -37,8 +39,8 @@ rationale.
 
 ## Keybindings
 
-Every action below is bound to herdr's built-in default key; none are
-configured by this repository. `prefix` itself is remapped to `ctrl+t` (see
+Except for split-down, every action below is bound to herdr's built-in default
+key. `prefix` itself is remapped to `ctrl+t` (see
 [Basic settings](#basic-settings) above), so read `prefix` in the tables below
 as `ctrl+t`.
 
@@ -48,12 +50,18 @@ as `ctrl+t`.
 | ----------------- | -------------------------------- |
 | `prefix c` | New tab |
 | `prefix v` | Split right |
-| `prefix -` | Split down |
+| `prefix -` | Split down with the existing pane above at 70% and the new pane below at 30% |
 | `prefix h/j/k/l` | Move between panes |
 | `prefix z` | Zoom the focused pane |
 | `prefix x` | Close pane |
 | `prefix n` / `p` | Next / previous tab |
 | `prefix q` | Detach, leave everything running |
+
+`prefix -` replaces herdr's built-in split-down binding with a custom command.
+After creating the 70:30 split, focus moves to the new lower pane. This ratio
+applies only to the keyboard shortcut: splits from the menu and direct
+`herdr pane split` commands retain herdr's default behavior unless the caller
+supplies a ratio explicitly.
 
 ### Copy mode
 

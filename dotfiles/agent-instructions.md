@@ -30,4 +30,6 @@ Invoke the skill from the checkout where the request was made.
 
 ## Comments on Issues / Pull Requests
 
-When posting a comment or reply on an Issue or Pull Request at the user's instruction, always prefix it with `:robot:`.
+When posting a comment or reply on an Issue or Pull Request in the `lds48`
+organization at the user's instruction, prefix it with `:robot:`. Do not add
+this prefix for other organizations.

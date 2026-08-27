@@ -132,8 +132,9 @@ repository when the PR head is a fork.
     case, write a failing unit test first, then fix the code until it passes.
   - **Not valid / not applicable** — Do not change code. Prepare a reply that
     explains why.
-- After pushing, reply to every comment from the base repository. Prefix every
-  comment body with `:robot:`.
+- After pushing, reply to every comment from the base repository. If the base
+  repository belongs to the `lds48` organization, prefix every comment body
+  with `:robot:`. Do not add this prefix for other organizations.
   - If fixed, explain the changes.
   - If not fixed, explain why the feedback is not applicable.
   - If the user declined it, state that it will not be addressed and that the

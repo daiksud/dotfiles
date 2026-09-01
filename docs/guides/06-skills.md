@@ -116,6 +116,10 @@ this skill through the shared personal instructions.
 5. Creates a draft PR
 6. Sets you as the assignee
 
+`pr-create` does not request Copilot Code Review or apply the `self approval`
+label. Those optional review and merge decisions belong to later `pr-fix` or
+`pr-merge` runs.
+
 ## Use `pr-fix`
 
 Explicitly invoke `pr-fix` with a PR URL, or a PR number and host-qualified
@@ -137,11 +141,11 @@ remote before editing. The invoking checkout is not changed.
 4. Checks review comments and applies reasonable fixes (any comment you reply "対応しない" to is left unchanged, and the reason is recorded in the PR body)
 5. Performs a local review before pushing
 6. Replies to each review comment with what was addressed and resolves the thread
-7. Requests Copilot Code Review only when the PR base branch enables it
+7. Requests Copilot Code Review only when the PR base branch enables it and the
+   feature is available
 
-If GitHub reports that Copilot Code Review is disabled, the skill finishes the
-feedback workflow without requesting it. If the live rules cannot be queried,
-the skill stops instead of guessing whether a review should run.
+If GitHub reports that Copilot Code Review is disabled or unavailable, the skill
+finishes the feedback workflow without requesting it and reports the reason.
 
 You can also specify `ci`, `feedback`, or `conflicts` before the PR number to
 limit the run to CI failures, review comments, or conflicts respectively.
@@ -169,11 +173,14 @@ selects this skill through the shared personal instructions.
    invoking checkout.
 2. Runs `pr-fix` and, when the base branch enables Copilot Code Review, requests
    reviews until there are no unresolved findings (up to 10 attempts per PR).
+   If Copilot Code Review is unavailable, it skips this optional step and
+   continues.
 3. Takes each PR out of Draft and asks GitHub whether approval is required.
-4. Reuses an existing valid approval or, only when review is required, applies
-   the `self approval` label once and waits up to 3 minutes for the existing
-   automation. Approval state is retained only while GitHub reports it as
-   valid, and never carries across PRs.
+4. Reuses an existing valid approval or, only when approval blocks a merge,
+   applies the `self approval` label once and waits up to 3 minutes for the
+   existing automation. If GitHub reports that the PR can merge without
+   approval, it skips the label. Approval state is retained only while GitHub
+   reports it as valid, and never carries across PRs.
 5. Waits for CI to go green, going back to the retry loop if a merge conflict
    or CI failure appears.
 6. Squash merges each verified PR, safely deletes only an unchanged matching
@@ -187,14 +194,15 @@ time, and processes them in ascending PR-number order. Fork PRs use the same
 isolated flow when their push remote can be verified; deleted forks or
 unavailable push access are reported per PR.
 
-An unavailable base-branch rules query is reported as a failure; it is not
-treated as a disabled feature.
+An unavailable base-branch rules query is reported as an unavailable optional
+review and skipped; it does not block merging when the PR otherwise satisfies
+the required checks.
 
 > [!IMPORTANT]
 > When review is required, `pr-merge` waits for an existing automation that
 > approves PRs labeled `self approval`; it does not create that automation or
-> label. Repositories where GitHub reports that review is unnecessary skip
-> both the label and approval wait.
+> label. If GitHub reports that the PR is mergeable without an approval
+> blocker, both the label and approval wait are skipped.
 
 ## Shared instructions
 

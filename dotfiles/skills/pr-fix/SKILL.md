@@ -227,7 +227,10 @@ the PR head is a fork.
   2. Query
      `repos/<base-owner>/<base-repo>/rules/branches/<encoded-base-ref>` with
      `gh api --hostname <base-host>`.
-  3. Stop if the query fails. Do not guess from local files.
+  3. If Copilot Code Review or the rules endpoint is unavailable, including
+     plan, permission, or endpoint availability errors, report that review is
+     unavailable and skip the request. Do not let this optional review block
+     the feedback workflow.
   4. If no rule has `type` equal to `copilot_code_review`, report that review
      is disabled and skip the request.
 - When the effective rules include `copilot_code_review`, request a review:
@@ -281,7 +284,7 @@ against the mergeable branch.
 ## Output
 
 - Report the absolute `<target-worktree>` used for the PR.
-- Report whether Copilot Code Review was requested or skipped because the
-  effective base-branch rules do not enable it.
-- Report any availability-query failure as a blocking error rather than
-  treating Copilot Code Review as enabled or disabled.
+- Report whether Copilot Code Review was requested, skipped because it is
+  disabled, or skipped because it is unavailable.
+- Report an unavailable optional review without treating it as a blocking
+  error.

@@ -5,7 +5,7 @@ the Pull Request skills.
 
 ## Status
 
-Accepted
+Superseded by [ADR 0036](./0036-pr-review-availability.md)
 
 ## Context
 

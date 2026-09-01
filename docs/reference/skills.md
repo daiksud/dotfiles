@@ -205,10 +205,11 @@ merge workflows.
   change normal interactive Git usage.
 
 See [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md),
-[ADR 0027](../development/99-adr/0027-gh-qw.md), and
-[ADR 0033](../development/99-adr/0033-pr-merge-batch-processing.md), and
-[ADR 0035](../development/99-adr/0035-pr-skills-dedicated-worktrees.md) for
-the rationale.
+[ADR 0027](../development/99-adr/0027-gh-qw.md),
+[ADR 0033](../development/99-adr/0033-pr-merge-batch-processing.md),
+[ADR 0035](../development/99-adr/0035-pr-skills-dedicated-worktrees.md), and
+[ADR 0036](../development/99-adr/0036-pr-review-availability.md) for the
+rationale.
 
 ## Detailed specification for `pr-create`
 
@@ -238,6 +239,10 @@ the rationale.
 
 - URL of the created draft PR
 
+`pr-create` does not request Copilot Code Review or apply the `self approval`
+label. Those optional review and merge decisions belong to later `pr-fix` or
+`pr-merge` runs.
+
 ## Detailed specification for `pr-fix`
 
 ### Workflow
@@ -251,9 +256,9 @@ the rationale.
 6. Before committing and pushing, perform an independent local review. Use a dedicated review skill or review subagent when the host provides one; otherwise make a separate review pass over the full diff
 7. After pushing, reply to each review comment with how it was addressed
 8. Query the active rules for the PR base branch and request Copilot Code
-   Review only when an effective `copilot_code_review` rule exists. When
-   `pr-merge` invokes this workflow, it passes `--skip-copilot-review` and
-   owns the request instead.
+   Review only when an effective `copilot_code_review` rule exists and the
+   feature is available. When `pr-merge` invokes this workflow, it passes
+   `--skip-copilot-review` and owns the request instead.
 
 The PR API remains scoped to the base repository. Git changes and pushes occur
 only in the deterministic PR worktree. A deleted fork, identity mismatch, or
@@ -267,7 +272,8 @@ creating a substitute branch.
 ### Output
 
 - Replies to each review comment
-- Whether Copilot Code Review was requested or skipped because it is disabled
+- Whether Copilot Code Review was requested, skipped because it is disabled, or
+  skipped because it is unavailable
 - Error report if CI still does not pass
 
 ## Detailed specification for `pr-merge`
@@ -286,17 +292,21 @@ the same isolated flow when their push remote can be verified.
 
 For each eligible PR, the skill:
 
-1. Re-queries the PR head and active base-branch rules, stopping that PR if the
-   rules query fails or the head identity changes
+1. Re-queries the PR head and active base-branch rules, skipping the optional
+   Copilot review when it is unavailable and stopping that PR if the head
+   identity changes
 2. Creates or reuses the PR-number worktree from the remote with
    `gh pr checkout --worktree`, then verifies its exact head SHA and push
    remote
 3. Runs `pr-fix` in `all` mode with `--skip-copilot-review`, then owns one
    Copilot Code Review request and waits for unresolved findings to reach zero
-   when the live rules enable it
+   when the live rules enable it. If Copilot Code Review is unavailable, it
+   skips this optional step and continues.
 4. Marks the PR ready, skips approval when `reviewDecision` is empty, reuses a
    valid approval, or applies the existing `self approval` label once and waits
-   up to three minutes for its automation
+   up to three minutes for its automation only when approval blocks the merge.
+   If GitHub reports that the PR can merge without approval, it skips the
+   label.
 5. Waits up to 30 minutes for required CI and mergeability, returning to the
    retry loop for conflicts or failed checks
 6. Revalidates the exact head SHA and squash merges with
@@ -312,8 +322,9 @@ and retains the PR worktrees.
 > [!NOTE]
 > When GitHub reports that review is required, `pr-merge` assumes an automation
 > that approves PRs labeled `self approval` and the label itself already exist.
-> It does not create either one. Repositories where `reviewDecision` is null or
-> empty do not need that automation or label for this workflow.
+> It does not create either one. If `reviewDecision` is null or empty, or
+> GitHub reports that the PR can merge without an approval blocker, the
+> automation and label are unnecessary for that workflow.
 
 ### Input
 

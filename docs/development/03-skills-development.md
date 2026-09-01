@@ -84,9 +84,10 @@ state for the canonical host, repository, and affected branch before invoking
 it. Do not infer availability from a checked-in settings file because
 organization rules and live repository settings can also apply.
 
-- Distinguish a successful query that reports a disabled feature from an API,
-  permission, or network failure. Skip the feature only in the first case and
-  stop with a clear error in the second.
+- Distinguish a successful query that reports a disabled feature from an
+  unavailable optional feature. For optional PR review automation, skip the
+  feature when GitHub reports that it is unavailable, including plan or
+  permission limitations, and report that decision clearly.
 - Prefer GitHub's computed PR state, such as `reviewDecision`, when deciding
   whether a workflow requirement has already been satisfied or does not apply.
 - Include optional-feature decisions in the skill output so the user can tell

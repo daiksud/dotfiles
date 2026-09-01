@@ -175,3 +175,7 @@ when the feature branch is created.
 ## Output
 
 Open the created draft PR URL in the browser and report it to the user.
+
+This skill does not request Copilot Code Review or apply the `self approval`
+label. Those optional review and merge decisions belong to later `pr-fix` or
+`pr-merge` runs.

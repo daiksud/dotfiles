@@ -26,7 +26,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0015](./0015-herdr-terminal-multiplexer.md) | Adopt herdr as the terminal multiplexer | Accepted |
 | [0016](./0016-ghostty-herdr-autostart.md) | Auto-start herdr from Ghostty | Accepted |
 | [0017](./0017-herdr-prefix-ctrl-t.md) | Change herdr's prefix key to `ctrl+t` | Accepted |
-| [0018](./0018-pr-review-requirements.md) | Evaluate repository review requirements before PR automation | Accepted |
+| [0018](./0018-pr-review-requirements.md) | Evaluate repository review requirements before PR automation | Superseded |
 | [0019](./0019-gh-qwt-ghq-layout.md) | Follow gh-qwt's ghq-compatible layout | Superseded |
 | [0020](./0020-central-gh-account-mapping.md) | Select the GitHub account per repository from a central mapping | Superseded |
 | [0021](./0021-pr-skills-invoking-checkout.md) | Use the invoking checkout for Pull Request skills | Accepted |
@@ -44,6 +44,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0033](./0033-pr-merge-batch-processing.md) | Process ordered same-repository PR merge batches | Accepted |
 | [0034](./0034-herdr-service-restart-on-upgrade.md) | Restart Herdr after an incompatible Homebrew upgrade | Accepted |
 | [0035](./0035-pr-skills-dedicated-worktrees.md) | Use dedicated remote-checked-out worktrees for PR maintenance | Accepted |
+| [0036](./0036-pr-review-availability.md) | Skip unavailable optional PR automation | Accepted |
 
 ## How to Write a New ADR
 

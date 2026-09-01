@@ -128,10 +128,13 @@ Before the first iteration for the current PR:
      "repos/<base-owner>/<base-repo>/rules/branches/<encoded-base-ref>"
    ```
 
-   Stop this PR if the query fails. Do not infer review availability from
-   local files.
-2. Record whether the response contains a rule whose `type` is
-   `copilot_code_review`. This value controls the full retry loop for this PR.
+   If the rules query reports that Copilot Code Review or the rules endpoint is
+   unavailable, including plan, permission, or endpoint availability errors,
+   record review as unavailable and continue this PR without requesting it.
+   Do not infer review availability from local files.
+2. If the query succeeds, record whether the response contains a rule whose
+   `type` is `copilot_code_review`. This value controls the full retry loop for
+   this PR.
 3. Initialize persistent approval state: an unset approval-request timestamp
    and no recorded approval. Keep both across retries for this PR only.
 
@@ -175,22 +178,30 @@ Before the first iteration for the current PR:
      required and skip the label request and Step 4.
    - If it is `APPROVED`, record the valid review identity and `submittedAt`
      and skip the label request and wait.
+   - Otherwise, query the computed merge state. If GitHub reports that the PR
+     is mergeable without an approval blocker, record that `self approval` is
+     unnecessary and skip the label request and Step 4.
    - Otherwise, continue with the approval request. On later iterations, keep
      a recorded approval only while GitHub still reports `APPROVED`.
 2. If approval is required, no valid approval exists, and no approval request
-   has been made for this PR, record the current time and run:
+   has been made for this PR, record the current time and run the existing
+   workflow:
 
    ```bash
    gh pr edit <PR_NUMBER> -R <base-repository> --add-label "self approval"
    ```
 
    Do not remove and re-add the label to retrigger automation.
-3. If GitHub reports that the required label does not exist, stop this PR. Do
-   not create the label or retry the request.
+3. If GitHub reports that the label is missing or unavailable, re-query
+   `reviewDecision`, `mergeable`, and `mergeStateStatus`. Continue without the
+   label only when GitHub reports that the PR is mergeable without an approval
+   blocker. Otherwise, stop this PR. Do not create the label or retry the
+   request.
 
 ### Step 4: Wait for bot approval
 
-- Skip this step when approval is not required or a valid approval remains.
+- Skip this step when approval is not required, a valid approval remains, or
+  the computed merge state says the PR can merge without approval.
 - Otherwise, poll once per minute for `reviewDecision` and current reviews.
   When GitHub reports `APPROVED`, require the corresponding new review to have
   a `submittedAt` at or after the persistent approval-request timestamp.
@@ -290,7 +301,9 @@ The batch result must distinguish:
   longer open;
 - remote branch cleanup warnings;
 - the absolute worktree used for each PR;
-- whether Copilot Code Review or self approval was skipped for each PR;
+- whether Copilot Code Review or self approval was skipped for each PR,
+  including whether Copilot was unavailable or the PR was mergeable without
+  the label;
 - whether the source checkout remained unchanged.
 
 Do not report a batch as fully successful when any requested PR failed or was
@@ -300,11 +313,11 @@ skipped, or when the source checkout changed unexpectedly.
 
 | Condition | Behavior for the current PR |
 | --- | --- |
-| Effective base-branch rules cannot be retrieved | Not retryable — stop and report |
+| Copilot Code Review or its rules endpoint is unavailable | Skip the optional review and continue |
 | Unresolved Copilot Code Review findings | Retryable — return to Step 1 |
 | Merge conflict detected | Retryable — return to Step 1 |
 | CI failure detected | Retryable — return to Step 1 |
-| Missing required `self approval` label | Not retryable — stop and report |
+| Missing `self approval` label while approval blocks the PR | Not retryable — stop and report |
 | Required bot-approval timeout | Not retryable — stop and report |
 | Enabled review-completion timeout | Not retryable — stop and report |
 | CI/mergeability wait timeout | Not retryable — stop and report |
@@ -331,6 +344,8 @@ repository that dismisses approvals after later conflict or CI fixes.
   minutes, and required bot approval after 3 minutes.
 - Limit each PR's retry loop to 10 iterations.
 - Never create the `self approval` label automatically.
+- Do not add the `self approval` label when GitHub reports that the PR can
+  merge without an approval blocker.
 - Do not force-push branch updates unless explicitly instructed. The
   lease-protected remote branch deletion in Step 6 is the sole exception.
 - Only use squash merges, matching this repository's merge strategy settings.
@@ -346,6 +361,7 @@ repository that dismisses approvals after later conflict or CI fixes.
   and step on failure.
 - For a batch, report the per-PR result table and the overall incomplete or
   successful status, including each worktree path and source-checkout status.
-- Report when Copilot Code Review or self approval was skipped because the
-  repository configuration did not require it.
+- Report when Copilot Code Review was skipped because it is disabled or
+  unavailable, and when self approval was skipped because it was unnecessary
+  or the PR was mergeable without the label.
 - Report a remote-branch cleanup warning separately from a successful merge.

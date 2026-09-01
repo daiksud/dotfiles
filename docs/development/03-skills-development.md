@@ -94,41 +94,42 @@ organization rules and live repository settings can also apply.
 
 ## Checkout-based Pull Request skills
 
-Shared PR skills operate in the Git checkout where the user invokes them. The
-checkout may be an ordinary clone, a gh-qw main worktree, or a linked
-worktree. Do not create a `gh-qw`, Git, or other worktree for a PR workflow.
+Shared PR skills use the Git checkout where the user invokes them for
+repository context. The checkout may be an ordinary clone, a gh-qw main
+worktree, or a linked worktree. `pr-create` keeps it as its workspace, while
+`pr-fix` and `pr-merge` create or reuse one deterministic worktree per PR with
+the native `gh pr checkout --worktree` command.
 
 - `pr-create` can create a new feature branch in the invoking checkout only
   when its default-branch `HEAD` exactly matches the remote default branch.
   It preserves intended staged, unstaged, and non-ignored untracked changes
   while creating that branch. Stop if the default branch is ahead, behind, or
   diverged instead of pulling, rebasing, or resetting it.
-- `pr-fix` and single-PR `pr-merge` require the invoking checkout to be clean,
-  on the exact PR head branch, and pointed at the head repository. For a fork,
-  require a PR URL or explicit base repository and report the canonical fork
-  URL and branch when the caller must prepare another checkout. Batch
-  `pr-merge` instead requires a clean checkout of the target base repository
-  and only switches between same-repository PR head branches.
+- `pr-fix` and `pr-merge` derive
+  `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
+  check out the PR from its remote, and verify the target worktree's exact
+  `headRefOid` and push destination before editing. A fork uses the same
+  isolated flow; a missing fork or unavailable push access stops that PR
+  safely.
 - Resolve and verify the canonical GitHub identity before API or Git
   operations. Re-check the current branch, working state, and remote head
   before commits, pushes, and merges, particularly after polling waits.
-- Do not automatically switch branches for `pr-fix` or single-PR `pr-merge`.
-  Batch `pr-merge` is the explicit sequential exception: it verifies each
-  branch before switching, never discards local work, and stops on an unsafe
-  state. Concurrent work outside that batch still requires separate checkouts,
-  such as linked worktrees or ordinary clones.
-- Do not reuse a non-default branch that already has an open, closed, or
-  merged PR. Do not silently discard changes, force-push, or use destructive
-  recovery.
-- After a merge, leave the checked-out local branch in place. A
+- Do not use the invoking checkout for PR edits or automatically switch its
+  branch. Batch `pr-merge` processes each PR sequentially in its own verified
+  worktree, never discards local work, and stops on an unsafe source or target
+  state.
+- `pr-create` must not reuse a non-default branch that already has an open,
+  closed, or merged PR. Do not silently discard changes, force-push, or use
+  destructive recovery.
+- After a merge, retain the clean PR worktree and local branch. A
   lease-protected remote head deletion is allowed only after verifying that the
   remote ref still equals the merged PR head SHA.
 
-This restriction belongs in the skill procedure and constraints. Do not add a
-global shell wrapper that changes ordinary interactive Git behavior. See
+This worktree contract belongs in the skill procedure and constraints. Do not
+add a global shell wrapper that changes ordinary interactive Git behavior. See
 [ADR 0021](./99-adr/0021-pr-skills-invoking-checkout.md),
 [ADR 0027](./99-adr/0027-gh-qw.md), and
-[ADR 0033](./99-adr/0033-pr-merge-batch-processing.md) for the rationale.
+[ADR 0035](./99-adr/0035-pr-skills-dedicated-worktrees.md) for the rationale.
 
 ## File Placement
 

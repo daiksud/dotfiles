@@ -43,6 +43,7 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0032](./0032-single-copilot-review-request.md) | Let pr-merge own the single Copilot review request | Accepted |
 | [0033](./0033-pr-merge-batch-processing.md) | Process ordered same-repository PR merge batches | Accepted |
 | [0034](./0034-herdr-service-restart-on-upgrade.md) | Restart Herdr after an incompatible Homebrew upgrade | Accepted |
+| [0035](./0035-pr-skills-dedicated-worktrees.md) | Use dedicated remote-checked-out worktrees for PR maintenance | Accepted |
 
 ## How to Write a New ADR
 

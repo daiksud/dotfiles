@@ -153,36 +153,34 @@ linked to the paths loaded by GitHub Copilot, Codex, and Claude Code (see
 [Using skills](../guides/06-skills.md)). They route Pull Request requests to
 the matching shared skill.
 
-The shared PR skills do not require `gh-qw`. They operate in the Git checkout
-where the user invokes them, including a gh-qw main worktree or linked
-worktree; their definitions under `dotfiles/skills/` remain the authoritative
-procedure. This page documents explicit `gh-qw` use for interactive repository
-and worktree management.
+The shared PR skills use the Git checkout where the user invokes them for
+repository context, including a gh-qw main worktree or linked worktree. Their
+definitions under `dotfiles/skills/` remain the authoritative procedure. The
+PR maintenance and merge skills use the native `gh pr checkout --worktree`
+command to create their deterministic per-PR worktrees; this page documents
+explicit `gh-qw` use for interactive repository and worktree management.
 
 ## Pull Request skill relationship
 
-The shared `pr-create`, `pr-fix`, and `pr-merge` Agent Skills do not provision
-or reuse a `gh-qw` worktree. They use the checkout where the user invoked the
-skill:
+The shared `pr-create`, `pr-fix`, and `pr-merge` Agent Skills use the invoking
+checkout for repository context:
 
 | PR phase | Checkout behavior |
 | --- | --- |
 | Create | Create a feature branch in the invoking checkout only from an exactly synchronized default branch, or use a non-default branch that has no existing PR. |
-| Fix | Require a clean invoking checkout of the exact PR head repository and branch, including the fork for a fork PR. |
-| Merge | Merge one PR without switching, or sequentially merge same-repository PRs in batch mode with verified branch switches, then restore the starting branch. |
+| Fix | Create or reuse `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>` from the remote PR head, then work only there. |
+| Merge | Create or reuse one remote-checked-out worktree per PR, process PRs sequentially, and leave the invoking checkout unchanged. |
 
 The skills still resolve canonical GitHub identities and re-check branch,
 working-state, remote-head, review, and CI conditions before mutating a PR.
-Batch `pr-merge` does not create a `gh-qw` worktree: it switches only between
-clean, same-repository branches, preserves local branches, and stops rather
-than discarding state when a failed PR leaves the checkout unsafe. Concurrent
-work outside that batch requires separate checkouts, such as linked worktrees
-or ordinary clones. See
+The target worktree must be clean, registered to the invoking repository, and
+able to push to the canonical PR head repository. A failed PR leaves its
+worktree in place for inspection and stops rather than discarding state. See
 [Using skills](../guides/06-skills.md),
 [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md),
 [ADR 0027](../development/99-adr/0027-gh-qw.md), and
-[ADR 0033](../development/99-adr/0033-pr-merge-batch-processing.md) for the
-complete workflow.
+[ADR 0035](../development/99-adr/0035-pr-skills-dedicated-worktrees.md) for
+the complete workflow.
 
 ## Shell shortcuts
 

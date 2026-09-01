@@ -1,13 +1,14 @@
 ---
 name: pr-fix
-description: Bring an existing GitHub Pull Request into a mergeable state from its checked-out head branch. Use when asked to fix a PR, resolve merge conflicts, repair failing CI checks, address unresolved review feedback, or run all of these workflows in sequence. Accept a PR URL, or a PR number with its base repository, an optional all, ci, feedback, or conflicts mode, and an optional flag for callers that own Copilot review requests.
+description: Bring an existing GitHub Pull Request into a mergeable state from a dedicated worktree checked out from its remote head. Use when asked to fix a PR, resolve merge conflicts, repair failing CI checks, address unresolved review feedback, or run all of these workflows in sequence. Accept a PR URL, or a PR number with its base repository, an optional all, ci, feedback, or conflicts mode, and an optional flag for callers that own Copilot review requests.
 ---
 
 # pr-fix
 
-Bring a Pull Request into a mergeable state from the invoking Git checkout.
-This skill never creates a `gh-qw`, Git, or other worktree, and it never
-switches the invoking checkout to another branch.
+Bring a Pull Request into a mergeable state from a dedicated worktree created
+for that PR. The invoking checkout supplies repository context only; it stays
+on its current branch, and its files and uncommitted changes are not used for
+the fix.
 
 ## Inputs
 
@@ -26,62 +27,132 @@ an optional mode:
   `pr-merge` can own the single review request and wait. This flag skips only
   the post-feedback Copilot request; review comments are still handled.
 
-## Checkout preconditions
+## Worktree preparation
 
-Complete these checks before the selected mode.
+Complete these checks before the selected mode and re-run the target
+validation after every retry. Use one deterministic worktree for the PR for
+the entire invocation:
 
-1. Use the invoking Git checkout. It may be an ordinary clone, a gh-qw main
-   worktree, or a linked worktree. Do not reject it solely because its `.git`
-   entry is a pointer file.
-2. Resolve the base repository from the supplied PR URL or explicit base
+`<target-worktree>` is
+`<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
+where `<repository-parent>` is the parent of the repository that owns the
+invoking checkout's Git common directory. This path is keyed by the PR number,
+not by the current branch, so later `pr-fix` and `pr-merge` invocations reuse
+the same worktree.
+
+1. Use the invoking checkout only to resolve repository context and launch
+   worktree preparation. Confirm that
+   `git rev-parse --show-toplevel` and
+   `git rev-parse --path-format=absolute --git-common-dir` succeed. It may be
+   an ordinary clone, a gh-qw main worktree, or a linked worktree. Do not
+   reject it solely because its `.git` entry is a pointer file. Preserve any
+   dirty files in this checkout, record its working state, and verify that it
+   is unchanged after preparation; never stash, discard, reset, or edit them.
+2. Confirm that `gh pr checkout --help` exposes `--worktree`. If it does not,
+   stop rather than checking out the PR in the invoking checkout or falling
+   back to another worktree implementation.
+3. Resolve the base repository from the supplied PR URL or explicit base
    repository through GitHub. Record its canonical URL, lowercase host,
    canonical `nameWithOwner`, and default branch. Define `<base-repository>` as
    the host-qualified `<base-host>/<base-owner>/<base-repo>`.
-3. Retrieve the PR explicitly from that base identity:
+   Require the invoking checkout's expanded `origin` fetch URL to resolve to
+   this canonical base repository; the source checkout is the repository from
+   which the PR worktree is provisioned.
+4. Retrieve the PR explicitly from that base identity:
 
    ```bash
    gh pr view <PR_NUMBER> -R <base-repository> \
-     --json headRefName,headRepository,baseRefName,url
+     --json headRefName,headRepository,headRefOid,baseRefName,url
    ```
 
-4. Stop if `headRepository` is null, which commonly means that a fork was
+5. Stop if `headRepository` is null, which commonly means that a fork was
    deleted. Resolve the head repository through GitHub on the base host and
-   record its canonical URL, lowercase host, and canonical `nameWithOwner`.
-5. Require the invoking checkout's expanded `origin` fetch URL to resolve to
-   that canonical head repository. Require its current branch to equal
-   `headRefName`, and stop on detached `HEAD`.
-6. Inspect `git status --porcelain`. It must be empty before the skill makes
-   any change. Do not stash, discard, or move unrelated changes.
-7. Fetch `origin --prune` and require `origin/<head-branch>` to exist:
-   - If local `HEAD` equals the remote head, continue.
-   - If the clean local branch is behind, run
-     `git merge --ff-only origin/<head-branch>`.
-   - If local `HEAD` is ahead or diverged, stop rather than overwriting or
-     applying fixes to a stale branch.
-8. Verify push access with
-   `git push --dry-run origin <head-branch>`. For a fork PR, this checks access
-   to the fork instead of assuming that the base repository is writable.
-9. Never create or use `gh qw`, `git worktree`, another checkout, or an
-   automatic branch switch. If the checkout does not meet these requirements,
-   stop and report the canonical head repository URL and head branch so the
-   user can prepare the correct checkout.
+   record its canonical URL, lowercase host, canonical `nameWithOwner`, and
+   `<head-branch>`.
+6. Resolve `<target-worktree>` from the Git common directory and create only
+   its parent directory:
 
-Use the invoking checkout for all Git changes. Pass `-R <base-repository>` to
-every `gh pr` command so API requests continue to target the verified base
-repository when the PR head is a fork.
+   ```bash
+   git_common_dir="$(git rev-parse --path-format=absolute --git-common-dir)"
+   repository_root="$(dirname "$git_common_dir")"
+   target_worktree="$(dirname "$repository_root")/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>"
+   mkdir -p "$(dirname "$target_worktree")"
+   ```
 
-## Working safely in the current checkout
+   Use the same absolute path on every retry. Do not place the target inside
+   the invoking checkout or replace an existing path that is not a registered
+   Git worktree.
+7. Inspect `git worktree list --porcelain`:
+   - If `<target-worktree>` is registered, require that it belongs to the same
+     Git common directory, is a directory, and has no uncommitted changes.
+   - If the path exists but is not registered, stop and report the collision.
+   - If `<head-branch>` is checked out in another worktree, do not switch or
+     force that worktree. A fork or default-branch collision may use the
+     disambiguated local branch selected by `gh pr checkout`; otherwise stop
+     and report the conflicting path.
+8. Create or refresh the target worktree from the PR remote with the native
+   GitHub CLI command:
+
+   ```bash
+   gh pr checkout <PR_NUMBER> -R <base-repository> \
+     --worktree <target-worktree>
+   ```
+
+   Do not pass `--force`. The command fetches the PR head from its remote
+   repository (or the base repository's PR ref when the head is a fork) and
+   creates or reuses the target worktree. For an existing worktree, a
+   fast-forward-only update is allowed; an ahead or diverged local branch is a
+   hard stop.
+9. Verify the result before editing:
+   - `<target-worktree>` is a registered worktree from the same Git common
+     directory, and its `HEAD` equals the latest `<head-ref-oid>` returned by
+     GitHub.
+   - Re-query the PR immediately before the first edit and require the target
+     `HEAD` to equal the newly returned `headRefOid`; if it changed during
+     preparation, refresh and validate again rather than editing a stale
+     head.
+   - Its working tree is clean. Record the local branch as `<local-branch>`;
+     GitHub CLI may choose a disambiguated local name for a fork or a default
+     branch collision.
+   - Resolve `<head-remote>` from the target branch's push configuration. If
+     no configured push destination exists, use the canonical head repository
+     URL directly. In either case, require the expanded push URL to equal the
+     canonical head repository. Push explicitly to `<head-branch>` so a
+     disambiguated local branch cannot update a different remote branch.
+   - Verify push access without changing the target:
+
+     ```bash
+     git -C <target-worktree> push --dry-run <head-remote> \
+       HEAD:<head-branch>
+     ```
+
+   Stop if any identity, SHA, worktree, cleanliness, or push-access check
+   fails. Do not continue with a stale or unpushable PR head.
+
+Use `<target-worktree>` for every Git command that inspects, modifies, tests,
+commits, or pushes the PR. Pass `-R <base-repository>` to every `gh pr`
+command so API requests continue to target the verified base repository when
+the PR head is a fork.
+
+## Working safely in the target worktree
 
 - Before resuming after a wait and before each commit, push, or merge-related
-  command, confirm that the current branch is still `<head-branch>`.
-- Before the first edit, require a clean checkout. Before a commit, stage only
-  the intended paths and review the full staged diff. After a commit and before
-  a push, stop if unexpected unstaged or untracked content remains.
-- Re-fetch and re-check the remote head before a push. Stop if another actor
-  changed the branch in a way that cannot be fast-forwarded safely.
-- A single checkout cannot safely host concurrent PR workflows. Use separate
-  checkouts, such as linked worktrees or ordinary clones, when a user, another
-  agent, or automation needs to work on another branch at the same time.
+  command, confirm that `<target-worktree>` is still the registered worktree,
+  its local branch is still `<local-branch>`, and its `HEAD` still belongs to
+  this PR.
+- Before the first edit, require a clean target worktree. Before a commit,
+  stage only the intended paths and review the full staged diff. After a
+  commit and before a push, stop if unexpected unstaged or untracked content
+  remains.
+- Before each push, record the target `HEAD` as `<pre-push-head>`, re-query the
+  PR, and fetch or query `<head-remote>`. Require the SHA for
+  `refs/heads/<head-branch>` and the latest PR `headRefOid` to equal
+  `<pre-push-head>`, and require the local post-commit `HEAD` to descend from
+  it. Push with the explicit `HEAD:<head-branch>` refspec. If another actor
+  changed the PR, stop instead of rebasing, resetting, or force-pushing.
+- Leave the invoking checkout exactly as it was found. A dirty invoking
+  checkout is not permission to copy, stage, or clean those changes into the
+  PR worktree.
 
 ## Modes
 
@@ -89,30 +160,32 @@ repository when the PR head is a fork.
 
 - Retrieve CI status with `gh pr checks <PR_NUMBER> -R <base-repository>`.
 - If any checks are failing, inspect their logs and identify the root cause.
-- Apply fixes in the invoking checkout, run the smallest relevant local
+- Apply fixes in `<target-worktree>`, run the smallest relevant local
   validation, and repeat until all CI checks pass.
-- Commit and push from the invoking checkout once CI is green.
+- Commit and push from `<target-worktree>` once CI is green, using
+  `git push <head-remote> HEAD:<head-branch>`.
 - If the CI failures cannot be resolved after 3 attempts, stop and report the
   issue.
 
 ### conflicts — Resolve merge conflicts
 
 - Retrieve `baseRefName` during checkout preparation.
-- Fetch the PR base into the invoking checkout. For a same-repository PR, use
-  `origin/<base-ref>`. For a fork PR, configure or reuse an `upstream` remote
-  for the base repository, then fetch `upstream/<base-ref>`.
+- Fetch the PR base into `<target-worktree>`. For a same-repository PR, use
+  the verified base remote's `<base-ref>`. For a fork PR, configure or reuse
+  an `upstream` remote for the base repository, then fetch
+  `upstream/<base-ref>`.
 - Before fetching a newly configured or reused `upstream`, resolve its expanded
   fetch URL through GitHub and require its canonical URL and full
   host/owner/repository identity to equal the recorded base identity. Stop on
   an unverifiable or mismatched remote instead of rewriting it.
-- Merge the fetched base into the head branch and resolve every conflict while
-  preserving the intent of the PR changes. Prefer a merge over a rebase so the
-  result can be pushed without force-pushing.
+- Merge the fetched base into the local PR branch in `<target-worktree>` and
+  resolve every conflict while preserving the intent of the PR changes. Prefer
+  a merge over a rebase so the result can be pushed without force-pushing.
 - Identify all conflicted files. Unless the base-branch change is obviously
   correct, resolve each conflict deliberately rather than accepting one side
   wholesale.
-- Commit the resolution with a clear message and push from the invoking
-  checkout.
+- Commit the resolution with a clear message and push from `<target-worktree>`
+  to `<head-remote> HEAD:<head-branch>`.
 
 ### feedback — Handle review comments
 
@@ -128,7 +201,7 @@ repository when the PR head is a fork.
   such as "対応しない", do not change code for that comment. Record the reason
   in the PR body.
 - Evaluate every remaining comment:
-  - **Valid** — Apply the fix in the invoking checkout. For a reported error
+  - **Valid** — Apply the fix in `<target-worktree>`. For a reported error
     case, write a failing unit test first, then fix the code until it passes.
   - **Not valid / not applicable** — Do not change code. Prepare a reply that
     explains why.
@@ -192,15 +265,22 @@ against the mergeable branch.
 
 ## Constraints
 
-- Keep the invoking checkout on the PR head branch. Do not create a worktree
-  or switch to another branch as a workaround.
+- Always create or reuse the deterministic PR worktree with
+  `gh pr checkout --worktree` before editing. Keep the invoking checkout on
+  its original branch and never use it as the PR workspace.
+- Keep the target worktree after the skill completes so a later `pr-fix` or
+  `pr-merge` invocation can reuse it.
+- Never fall back to `git checkout`, `git switch`, a normal-clone branch
+  checkout, or a different worktree when preparation fails.
 - Make one commit per logical fix and use a clear message.
 - Do not force-push unless explicitly instructed.
 - Preserve recoverable state and stop on an unsafe checkout, missing remote
-  branch, deleted fork, identity mismatch, or concurrent branch update.
+  branch, deleted fork, identity mismatch, worktree collision, or concurrent
+  PR update.
 
 ## Output
 
+- Report the absolute `<target-worktree>` used for the PR.
 - Report whether Copilot Code Review was requested or skipped because the
   effective base-branch rules do not enable it.
 - Report any availability-query failure as a blocking error rather than

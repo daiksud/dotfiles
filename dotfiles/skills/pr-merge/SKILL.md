@@ -1,6 +1,6 @@
 ---
 name: pr-merge
-description: Take one or more GitHub Pull Requests through final review, conditional approval, required CI, and squash merge from verified head branches in the invoking checkout. Use when asked to merge one PR, an ordered list of PRs, or all open PRs in the current repository. Accept a PR URL, one or more PR numbers with an optional host-qualified base repository, or all.
+description: Take one or more GitHub Pull Requests through final review, conditional approval, required CI, and squash merge from dedicated worktrees checked out from their remote heads. Use when asked to merge one PR, an ordered list of PRs, or all open PRs in the current repository. Accept a PR URL, one or more PR numbers with an optional host-qualified base repository, or all.
 ---
 
 # pr-merge
@@ -10,15 +10,9 @@ description: Take one or more GitHub Pull Requests through final review, conditi
 Take Pull Requests from "ready for final review" to "merged". For each
 selected PR, use `pr-fix`, request a Copilot Code Review when the base branch
 requires it, wait for approval and CI, then squash merge the verified head
-SHA.
-
-A single-PR invocation preserves the existing checkout contract: it operates
-in the invoking checkout, requires the exact PR head branch, and does not
-switch branches. A batch invocation processes same-repository PRs
-sequentially in the invoking checkout. It may switch between clean local
-branches, but it never creates a `gh-qw`, Git, or other worktree. It leaves
-all processed local branches in place and returns to the branch that was
-checked out when the batch started.
+SHA. Each PR is prepared in the deterministic worktree keyed by its PR number;
+the invoking checkout is used only for repository context and remains on its
+original branch.
 
 ## Inputs
 
@@ -43,59 +37,62 @@ unambiguous.
 trailing repository token, duplicate PR numbers, or inputs that resolve to
 different base repositories before starting any branch or GitHub mutation.
 
-## Checkout rules
+## Worktree rules
 
 ### Single PR
 
-`pr-fix` owns checkout validation. Its requirements apply before every retry:
-the invoking checkout's `origin` must resolve to the PR head repository, its
-current branch must equal the PR head branch, and it must be clean before
-changes begin.
+`pr-fix` owns worktree preparation. Its requirements apply before every retry:
+the invoking checkout must resolve to the verified base repository, and
+`pr-fix` must create or reuse the deterministic
+`<target-worktree>` for this PR with `gh pr checkout --worktree`. The source
+checkout may contain unrelated changes, but it must not be changed.
 
 Resolve the base repository through GitHub for every PR. Record its canonical
 URL, lowercase host, canonical `nameWithOwner`, and default branch. Define
 `<base-repository>` as the host-qualified
 `<base-host>/<base-owner>/<base-repo>` and pass it to every `gh pr` command.
 
-Never create or use `gh qw`, `git worktree`, another checkout, or an automatic
-branch switch for a single PR. If the current checkout is not the PR head,
-stop and report the canonical head repository URL and branch.
+The target worktree path is
+`<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
+using the parent of the repository that owns the invoking checkout's Git
+common directory. Never substitute the invoking checkout, a different PR's
+worktree, or an unverified path.
 
 ### Batch
 
 Batch mode is enabled when the input contains multiple PR numbers or `all`.
 Before resolving the queue:
 
-1. Require a Git checkout with a clean working tree, a non-detached `HEAD`, no
-   unresolved merge or rebase, and a resolvable current branch. Save that
-   starting branch for restoration.
+1. Require a non-bare Git checkout with a resolvable `origin`, no unresolved
+   merge or rebase, and a successful `gh pr checkout --help` query exposing
+   `--worktree`. The source working tree may be dirty; record it and never
+   stash, discard, reset, or edit it.
 2. Resolve the target base repository and require the invoking checkout's
    expanded `origin` fetch URL to equal that canonical base repository. This
-   same-repository requirement intentionally excludes fork PR heads.
-3. Fetch `origin --prune` and verify that no unrelated process changed the
-   checkout while the queue was being prepared.
+   gives every PR worktree a verified base remote while allowing its head to
+   be a fork.
+3. Fetch the verified base remote with `--prune` and verify that no unrelated
+   process changed the source checkout while the queue was being prepared.
 
-Before switching to each PR branch:
+Before preparing each PR worktree:
 
 - Re-query the PR from the canonical base repository. Skip it if it is no
-  longer open, its head repository is missing, or its canonical head
-  repository differs from the target base repository.
-- Require the current checkout to be clean and free of an unresolved merge or
-  rebase. Re-check the current branch before every switch.
-- Fetch the expected head branch and verify its remote SHA. If the local branch
-  does not exist, create it from the exact `origin/<head-branch>` ref. If it
-  exists, switch to it only when it is not checked out in another worktree and
-  fast-forward it when it is strictly behind the remote. Stop processing that
-  PR on an ahead or diverged branch, missing remote ref, branch collision, or
-  changed head identity. Never reset, discard, stash, force-push, or silently
-  overwrite local work.
-- After the switch, let `pr-fix` perform its normal exact-head checkout
-  validation.
+  longer open or its head repository is missing. Do not silently substitute a
+  different head repository or branch.
+- Let `pr-fix` create or refresh the PR-number worktree from the remote with
+  `gh pr checkout <PR_NUMBER> -R <base-repository> --worktree <target-worktree>`.
+  Do not pass `--force`, switch the source checkout, or reuse a worktree
+  belonging to another PR.
+- If the target path collides, is dirty, is ahead or diverged from the remote,
+  or cannot verify push access to the canonical head repository, record the
+  failure and leave it unchanged. A fork is not skipped merely because it is a
+  fork; it is eligible when its head remote and push access pass validation.
 
-After each PR, require a clean checkout before continuing. A per-PR failure is
-recorded and the next PR is attempted when the checkout is still safe to
-switch. If a failure leaves dirty files, unresolved conflicts, a rebase in
-progress, or an unverifiable branch state, preserve that state and stop the
+Before starting the next PR, verify that its target path can be prepared and
+that the source checkout is still safe. A per-PR failure, including a dirty or
+conflicted target, is recorded and left in place while the next independent
+worktree is attempted. If the source checkout, Git common directory, or next
+target path is unsafe to continue, preserve all recoverable state and stop the
 batch rather than trying to repair it destructively.
 
 ## Batch queue
@@ -108,12 +105,9 @@ complete result is available. Include draft PRs and PRs targeting any base
 branch. Snapshot at the beginning so PRs opened after the query are not added
 implicitly. Sort the snapshot by ascending PR number. Keep each PR's URL,
 base branch, head repository, head branch, head SHA, and draft state for
-reporting and pre-switch verification.
-
-Fork PRs are not eligible in batch mode. Record them as skipped with their
-canonical head repository and continue to the next eligible PR. This does not
-change the single-PR flow, which can still operate from a checkout of a fork
-head repository.
+reporting and pre-preparation verification. Fork PRs use the same isolated
+worktree flow; a missing fork or unavailable push access is reported as a
+per-PR skip or failure without changing the source checkout.
 
 ## Procedure
 
@@ -144,10 +138,10 @@ Before the first iteration for the current PR:
 ### Step 1: Resolve Copilot Code Review feedback
 
 1. Use `pr-fix` in `all` mode with `--skip-copilot-review` for this PR,
-   passing the same PR URL or number-and-base-repository input. It must
-   operate in the current checkout and resolve conflicts, CI failures, and
-   review feedback there. `pr-merge` owns the single Copilot request and wait
-   for this iteration.
+   passing the same PR URL or number-and-base-repository input. It must create
+   or reuse the PR-number worktree with `gh pr checkout --worktree` and resolve
+   conflicts, CI failures, and review feedback there. `pr-merge` owns the
+   single Copilot request and wait for this iteration.
 2. If the effective rules do not include `copilot_code_review`, record that
    review is disabled and continue to Step 2.
 3. If review is enabled, retrieve the PR node ID:
@@ -230,17 +224,21 @@ Before the first iteration for the current PR:
    Resolve the head repository through GitHub. Stop this PR if it is missing or
    its canonical identity differs from the repository verified for this
    invocation.
-2. Require the invoking checkout's expanded `origin` fetch URL to resolve to
-   the verified head repository and its current branch to equal
-   `<head-branch>`. In batch mode, the head repository is the target base
-   repository; in single-PR mode it may be the verified fork repository.
-3. Before every merge-related mutation, re-check the current branch and
-   working state, run `git fetch origin --prune`, and verify all of the
-   following:
-   - `git status --porcelain` is empty.
-   - Local `HEAD`, `origin/<head-branch>`, and the PR `headRefOid` are
-     identical.
-   - No other actor changed the branch or checkout while the skill waited.
+2. Resolve the same `<target-worktree>` path used by `pr-fix`. Verify that it
+   is registered with the invoking repository's Git common directory, its
+   local branch still belongs to this PR, and its working tree is clean.
+3. Resolve `<head-remote>` from the target branch's push configuration. If no
+   configured push destination exists, use the verified canonical head
+   repository URL directly. In either case, require its canonical push URL to
+   equal the verified head repository. Before every merge-related mutation,
+   re-check the target worktree, fetch the head remote with `--prune`, and
+   query `refs/heads/<head-branch>` when the destination is a URL, and verify
+   all of the following:
+   - `git -C <target-worktree> status --porcelain` is empty.
+   - The target `HEAD`, the SHA for `<head-remote>`'s
+     `refs/heads/<head-branch>`, and the PR `headRefOid` are identical.
+   - No other actor changed the PR, target worktree, or remote head while the
+     skill waited.
 4. Squash merge with the checked SHA, without `--delete-branch`:
 
    ```bash
@@ -249,17 +247,19 @@ Before the first iteration for the current PR:
    ```
 
 5. Confirm that the PR is merged. If the merge command fails or the PR remains
-   open, report failure for this PR and leave the checkout unchanged.
-6. Do not delete the local branch or switch branches in this step. Delete the
+   open, report failure for this PR and leave the target worktree and source
+   checkout unchanged.
+6. Keep the clean PR worktree and its local branch for later reuse. Delete the
    remote head branch only when it still equals the verified PR head SHA:
 
    ```bash
-   if remote_ref="$(git ls-remote origin "refs/heads/<head-branch>")"; then
+   if remote_ref="$(git -C <target-worktree> ls-remote <head-remote> \
+     "refs/heads/<head-branch>")"; then
      remote_oid="${remote_ref%%[[:space:]]*}"
      if [ -n "$remote_ref" ] && [ "$remote_oid" = "<head-ref-oid>" ]; then
-       git push \
+       git -C <target-worktree> push \
          --force-with-lease="refs/heads/<head-branch>:<head-ref-oid>" \
-         origin --delete <head-branch>
+         <head-remote> --delete <head-branch>
      fi
    else
      echo "Could not verify the remote head branch; leaving it in place" >&2
@@ -273,27 +273,28 @@ Before the first iteration for the current PR:
 ## Batch completion
 
 After a queued PR finishes, classify it as `merged`, `failed`, or `skipped` and
-attach its URL, step, review decisions, and cleanup warnings. When the current
-checkout is clean and no operation is in progress, switch to the next eligible
-head branch and repeat the per-PR procedure.
+attach its URL, target worktree, step, review decisions, and cleanup warnings.
+Then create or reuse the next PR's independent worktree and repeat the per-PR
+procedure. Never switch the source checkout or a different PR's worktree.
 
-When the queue is exhausted, return to the branch saved at batch start. Verify
-that the branch is still present and that the checkout is clean before and
-after restoration. If restoration is unsafe or fails, report it separately and
-do not report the batch as fully successful. For `all` with no open PRs, report
-an explicit no-op result.
+When the queue is exhausted, verify that the source checkout is still on its
+original branch and that its recorded working state was not changed by the
+skill. There is no branch restoration step because the source checkout is
+never switched. For `all` with no open PRs, report an explicit no-op result.
 
 The batch result must distinguish:
 
 - merged PRs;
 - failed PRs with the step and retry state where they stopped;
-- skipped PRs, including fork heads and PRs no longer open;
+- skipped PRs, including PRs whose head repository was deleted or that were no
+  longer open;
 - remote branch cleanup warnings;
+- the absolute worktree used for each PR;
 - whether Copilot Code Review or self approval was skipped for each PR;
-- whether the original branch was restored.
+- whether the source checkout remained unchanged.
 
-Do not report a batch as fully successful when any requested PR failed, was
-skipped, or the starting branch could not be restored.
+Do not report a batch as fully successful when any requested PR failed or was
+skipped, or when the source checkout changed unexpectedly.
 
 ## Retryable vs. non-retryable failures
 
@@ -307,15 +308,16 @@ skipped, or the starting branch could not be restored.
 | Required bot-approval timeout | Not retryable — stop and report |
 | Enabled review-completion timeout | Not retryable — stop and report |
 | CI/mergeability wait timeout | Not retryable — stop and report |
-| Dirty, wrong-branch, or out-of-date current checkout | Not retryable — stop and report |
+| Dirty, wrong-branch, or out-of-date target worktree | Not retryable — stop and report |
 | Merge request fails or PR remains open | Not retryable — stop and report |
 | Loop exceeds 10 iterations | Not retryable — stop and report |
 
 In batch mode, a non-retryable failure is followed by the next PR only when
-the checkout is clean, no merge or rebase is active, and the next branch can be
-verified without discarding work. A fork head, a closed PR, or a duplicate
-input is a skipped result rather than a retry. An unsafe checkout state stops
-the entire batch and leaves all recoverable state in place.
+the source checkout and every target worktree remain safe, no merge or rebase is
+active, and the next worktree can be verified without discarding work. A
+closed PR, deleted head repository, or duplicate input is a skipped result
+rather than a retry. An unsafe checkout or worktree state stops the entire
+batch and leaves all recoverable state in place.
 
 Keep the approved review identity and timestamp outside the retry loop for the
 current PR only. Reuse it only while GitHub continues to report
@@ -332,15 +334,18 @@ repository that dismisses approvals after later conflict or CI fixes.
 - Do not force-push branch updates unless explicitly instructed. The
   lease-protected remote branch deletion in Step 6 is the sole exception.
 - Only use squash merges, matching this repository's merge strategy settings.
-- Never create or use a worktree, automatically change branches in
-  single-PR mode, or use a destructive command to make a batch switch possible.
+- Always create or reuse one deterministic PR worktree with
+  `gh pr checkout --worktree` before `pr-fix` starts changing files. Never use
+  the source checkout for PR changes or automatically switch branches there.
+- Never fall back to a normal-clone checkout, reuse another PR's worktree, or
+  use a destructive command to make worktree preparation possible.
 
 ## Output
 
 - For a single PR, report the merged PR URL on success, or the failure reason
   and step on failure.
 - For a batch, report the per-PR result table and the overall incomplete or
-  successful status, including branch restoration.
+  successful status, including each worktree path and source-checkout status.
 - Report when Copilot Code Review or self approval was skipped because the
   repository configuration did not require it.
 - Report a remote-branch cleanup warning separately from a successful merge.

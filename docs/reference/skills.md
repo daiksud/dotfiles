@@ -8,8 +8,8 @@ Copilot, Codex, and Claude Code.
 | Skill | Description |
 | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
 | `pr-create` | Create a draft PR from the current checkout, with an appropriate commit message and description |
-| `pr-fix` | Use the checkout of the PR head branch to fix CI errors and handle review comments |
-| `pr-merge` | Merge one or more PRs from the invoking checkout, including all open same-repository PRs |
+| `pr-fix` | Create or reuse a per-PR worktree checked out from the remote head to fix CI errors and handle review comments |
+| `pr-merge` | Create per-PR worktrees, then merge one or more PRs after review and required CI checks |
 
 ## Installation destination
 
@@ -157,10 +157,13 @@ name: Skill name
 
 ## PR checkout policy
 
-The three PR skills operate in the Git checkout where the user invokes them.
-That checkout may be an ordinary clone, a gh-qw main worktree, or a linked
-worktree. They do not create or use `gh-qw`, `git worktree`, or another
-checkout.
+The three PR skills use the Git checkout where the user invokes them for
+repository context. `pr-create` keeps that checkout as its only workspace,
+while `pr-fix` and `pr-merge` create or reuse a deterministic worktree for
+each PR with the native `gh pr checkout --worktree` command. The source
+checkout may be an ordinary clone, a gh-qw main worktree, or a linked
+worktree, and its branch and files remain unchanged by the maintenance and
+merge workflows.
 
 - Every skill resolves the relevant remote through GitHub and records its
   canonical URL and lowercase `<host>/<owner>/<repo>` identity before GitHub
@@ -177,29 +180,35 @@ checkout.
 - A non-default branch used by `pr-create` must not already correspond to an
   open, closed, or merged PR. This prevents accidental reuse of a branch left
   checked out after a squash merge.
-- `pr-fix` and single-PR `pr-merge` require a clean invoking checkout of the
-  exact PR head branch and repository. A fork PR requires a checkout of the
-  fork and a PR URL or explicit base repository; the skills report the
-  canonical URL and branch when the caller must prepare one.
-- Batch `pr-merge` accepts multiple PR numbers or `all`, requires a clean
-  checkout of the target base repository, and switches only between verified
-  same-repository head branches. It never provisions another checkout or
-  handles fork heads in the batch.
-- Before commits, pushes, merges, and branch switches, especially after
-  polling waits, the skills re-check the current branch, working state, remote
-  head, and expected PR SHA. They stop on an unsafe or concurrent change.
-- Single-PR `pr-merge` leaves its local head branch checked out. A batch
-  restores its starting branch and retains every processed local branch. Both
+- `pr-fix` and `pr-merge` resolve the PR head, derive
+  `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
+  and run `gh pr checkout <PR_NUMBER> -R <base-repository> --worktree
+  <target-worktree>` before changing files. A clean, registered target
+  worktree is reused; an unregistered path, branch collision, stale SHA, or
+  unavailable push remote stops the workflow without a force operation.
+- The target worktree is checked against the remote PR `headRefOid` before
+  editing and before every push or merge. Its configured push destination, or
+  the canonical head URL when no destination is configured, must resolve to
+  the PR head repository, including for fork PRs.
+- Batch `pr-merge` accepts multiple PR numbers or `all`, keeps the invoking
+  checkout untouched, and creates one isolated worktree per PR instead of
+  switching between local branches. Fork heads use the same worktree flow; a
+  deleted head repository or unavailable push access is reported per PR.
+- Before commits, pushes, and merges, especially after polling waits, the
+  skills re-check the target worktree, working state, remote head, and expected
+  PR SHA. They stop on an unsafe or concurrent change.
+- `pr-fix` and `pr-merge` retain each clean PR worktree for later reuse. Both
   modes delete a remote head branch only when its ref still equals the
   verified PR head SHA.
-- Batch PRs run sequentially in one checkout. Concurrent work unrelated to
-  that batch still requires separate checkouts, such as linked worktrees or
-  ordinary clones. The policy does not change normal interactive Git usage.
+- Batch PRs run sequentially in separate worktrees while the source checkout
+  remains available for unrelated interactive work. The policy does not
+  change normal interactive Git usage.
 
 See [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md),
 [ADR 0027](../development/99-adr/0027-gh-qw.md), and
-[ADR 0033](../development/99-adr/0033-pr-merge-batch-processing.md) for the
-rationale.
+[ADR 0033](../development/99-adr/0033-pr-merge-batch-processing.md), and
+[ADR 0035](../development/99-adr/0035-pr-skills-dedicated-worktrees.md) for
+the rationale.
 
 ## Detailed specification for `pr-create`
 
@@ -233,8 +242,8 @@ rationale.
 
 ### Workflow
 
-1. Resolve the base repository and PR head, then require a clean current
-   checkout of the exact head repository and branch
+1. Resolve the base repository and PR head, then create or reuse the
+   deterministic PR-number worktree from the remote head
 2. Check the CI status of the specified PR
 3. If there are CI failures, analyze the logs and repeat fixes (up to 3 times)
 4. Retrieve all review comments and judge the validity of each one
@@ -247,9 +256,9 @@ rationale.
    owns the request instead.
 
 The PR API remains scoped to the base repository. Git changes and pushes occur
-only in the invoking checkout. For a fork PR, it must be a checkout of the
-head repository; a deleted fork or missing push access stops the skill instead
-of creating a substitute branch in the base repository.
+only in the deterministic PR worktree. A deleted fork, identity mismatch, or
+missing push access stops the skill instead of editing the source checkout or
+creating a substitute branch.
 
 ### Input
 
@@ -269,33 +278,36 @@ of creating a substitute branch in the base repository.
 host-qualified base repository, or `all [<base-repository>]`. A missing base
 repository is resolved from the current checkout's canonical `origin`.
 
-Single-PR mode keeps the existing exact-head checkout contract. Batch mode
-retains explicit PR-number order, or snapshots every open PR with pagination,
-including drafts, and sorts `all` by ascending PR number. It skips fork heads
-and PRs that are no longer open rather than switching the checkout to another
-repository.
+Single-PR mode and batch mode both create or reuse a deterministic worktree
+keyed by the PR number. Batch mode retains explicit PR-number order, or
+snapshots every open PR with pagination, including drafts, and sorts `all` by
+ascending PR number. It never switches the invoking checkout; fork heads use
+the same isolated flow when their push remote can be verified.
 
 For each eligible PR, the skill:
 
 1. Re-queries the PR head and active base-branch rules, stopping that PR if the
    rules query fails or the head identity changes
-2. Runs `pr-fix` in `all` mode with `--skip-copilot-review`, then owns one
+2. Creates or reuses the PR-number worktree from the remote with
+   `gh pr checkout --worktree`, then verifies its exact head SHA and push
+   remote
+3. Runs `pr-fix` in `all` mode with `--skip-copilot-review`, then owns one
    Copilot Code Review request and waits for unresolved findings to reach zero
    when the live rules enable it
-3. Marks the PR ready, skips approval when `reviewDecision` is empty, reuses a
+4. Marks the PR ready, skips approval when `reviewDecision` is empty, reuses a
    valid approval, or applies the existing `self approval` label once and waits
    up to three minutes for its automation
-4. Waits up to 30 minutes for required CI and mergeability, returning to the
+5. Waits up to 30 minutes for required CI and mergeability, returning to the
    retry loop for conflicts or failed checks
-5. Revalidates the exact head SHA and squash merges with
+6. Revalidates the exact head SHA and squash merges with
    `--match-head-commit`, then attempts lease-protected remote head cleanup
 
 Each PR has an independent retry loop capped at 10 iterations and independent
 review/approval state. A batch continues after a per-PR failure only while the
-checkout remains clean and safe to switch. Dirty files, unresolved conflicts,
-diverged branches, or failed branch restoration stop the batch without
-discarding work. A completed batch returns to its starting branch and retains
-local branches.
+source checkout and remaining target worktrees are safe. Dirty files,
+unresolved conflicts, or diverged target branches remain isolated to that PR
+and are not discarded. A completed batch leaves the source checkout unchanged
+and retains the PR worktrees.
 
 > [!NOTE]
 > When GitHub reports that review is required, `pr-merge` assumes an automation
@@ -315,4 +327,4 @@ local branches.
 - A per-PR merged, failed, or skipped result for a batch
 - The failure reason and step when a PR could not be merged
 - Whether Copilot Code Review or self approval was skipped as unnecessary
-- Remote cleanup warnings and whether the batch restored its starting branch
+- Remote cleanup warnings and whether the source checkout remained unchanged

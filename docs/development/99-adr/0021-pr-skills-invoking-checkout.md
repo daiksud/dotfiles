@@ -16,6 +16,10 @@ Supersedes [ADR 0010](./0010-pr-skills-gh-qwt.md).
 >
 > [ADR 0033](./0033-pr-merge-batch-processing.md) amends the `pr-merge`
 > single-invocation constraint for its explicit sequential batch mode.
+>
+> [ADR 0035](./0035-pr-skills-dedicated-worktrees.md) amends this decision
+> again: `pr-fix` and `pr-merge` use deterministic per-PR worktrees checked out
+> from the remote, while `pr-create` continues to use the invoking checkout.
 
 ## Context
 

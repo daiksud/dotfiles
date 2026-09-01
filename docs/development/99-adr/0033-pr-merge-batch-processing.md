@@ -7,6 +7,12 @@ same-repository PRs sequentially without provisioning another checkout.
 
 Accepted
 
+> [!IMPORTANT]
+> [ADR 0035](./0035-pr-skills-dedicated-worktrees.md) amends the no-worktree
+> and branch-switching portions of this decision. Batch `pr-merge` now uses
+> one deterministic remote-checked-out worktree per PR and leaves the invoking
+> checkout unchanged.
+
 ## Context
 
 `pr-merge` previously accepted exactly one Pull Request and required the

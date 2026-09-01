@@ -51,8 +51,8 @@ invocation is the most predictable choice.
 | Skill | What it does |
 | ----------- | ----------------------------------------------------------------------------------------- |
 | `pr-create` | Automatically creates a draft PR from the current changes |
-| `pr-fix` | Fixes CI errors, handles reviews, and resolves merge conflicts for the specified PR |
-| `pr-merge` | Loops review and CI checks, then squash merges one PR, an ordered list, or all open same-repository PRs |
+| `pr-fix` | Creates or reuses a remote-checked-out worktree, then fixes CI errors, reviews, and merge conflicts for the specified PR |
+| `pr-merge` | Creates per-PR worktrees, loops review and CI checks, then squash merges one PR, an ordered list, or all open PRs |
 
 When `install.sh` is re-run, it removes stale symbolic links to canonical skill
 directories whose `SKILL.md` no longer exists. Real directories and links to
@@ -60,9 +60,11 @@ other sources are preserved.
 
 ## How PR skills use the current checkout
 
-The PR skills operate in the Git checkout where you invoke the agent. It may be
-an ordinary clone, a gh-qw main worktree, or a linked worktree. The skills
-do not create or use a `gh-qw`, Git, or other worktree.
+The PR skills use the Git checkout where you invoke the agent for repository
+context. It may be an ordinary clone, a gh-qw main worktree, or a linked
+worktree. `pr-create` keeps that checkout as its workspace; `pr-fix` and
+`pr-merge` create or reuse a dedicated worktree for each PR with
+`gh pr checkout --worktree`.
 
 - `pr-create` creates a feature branch in the current checkout when the
   default branch's `HEAD` exactly matches its remote. It keeps staged,
@@ -72,23 +74,25 @@ do not create or use a `gh-qw`, Git, or other worktree.
 - When invoked from a non-default branch, `pr-create` stops if that branch
   already has an open, closed, or merged PR. Create a new branch rather than
   reusing a branch left checked out after a squash merge.
-- `pr-fix` and single-PR `pr-merge` require a clean checkout of the exact PR
-  head branch and repository. For a fork PR, prepare a checkout of the fork
-  on its head branch before invoking the skill.
-- Batch `pr-merge` requires a clean checkout of the target base repository. It
-  switches only between verified same-repository head branches and does not
-  process fork PRs.
+- `pr-fix` and `pr-merge` derive
+  `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`
+  and check out the specified PR from its remote before making changes. The
+  target must be clean, registered to the invoking repository, and pointed at
+  the current PR head SHA.
+- The target worktree's push remote must resolve to the canonical PR head
+  repository. This is checked separately for fork PRs; a missing fork,
+  identity mismatch, or unavailable push access stops that PR safely.
 - For numeric inputs, the host-qualified base repository is optional and
   defaults to the current checkout's canonical `origin`.
-- Before commits, pushes, and merges, the skills re-check the branch, working
-  state, remote head, and expected PR SHA. They stop if another actor changed
-  the checkout.
-- Single-PR `pr-merge` leaves the local head branch checked out after a
-  successful merge. A batch returns to its starting branch and keeps every
-  processed local branch. Both modes delete a matching remote head branch only
-  after verifying its SHA.
-- Batch PRs run sequentially in one checkout. Use separate checkouts, such as
-  linked worktrees or ordinary clones, for unrelated concurrent work.
+- Before commits, pushes, and merges, the skills re-check the target worktree,
+  working state, remote head, and expected PR SHA. They stop if another actor
+  changed the target.
+- `pr-fix` and `pr-merge` retain each clean PR worktree after completion so a
+  later invocation can reuse it. Both modes delete a matching remote head
+  branch only after verifying its SHA.
+- Batch PRs run sequentially across independent worktrees and never switch the
+  invoking checkout. The source checkout remains available for unrelated
+  concurrent work.
 
 ## Use `pr-create`
 
@@ -119,13 +123,15 @@ base repository, for example `github.com/owner/repo #42`. A natural-language
 request to fix or make a PR mergeable also selects this skill through the
 shared personal instructions.
 
-Before invoking it, prepare a clean checkout of the PR head repository on the
-exact head branch. For a fork PR, this must be a checkout of the fork.
+Before invoking it, use a checkout of the target base repository with
+`gh pr checkout --worktree` support. The skill creates or reuses the
+deterministic PR-number worktree itself and verifies the PR head and push
+remote before editing. The invoking checkout is not changed.
 
 ### What happens
 
-1. Resolves the PR head repository and verifies the invoking checkout matches
-   its head branch
+1. Resolves the PR head repository and creates or reuses its deterministic
+   PR-number worktree from the remote
 2. Detects and resolves merge conflicts
 3. Identifies CI failures from logs and fixes them (repeating until they pass)
 4. Checks review comments and applies reasonable fixes (any comment you reply "対応しない" to is left unchanged, and the reason is recorded in the PR body)
@@ -158,9 +164,9 @@ selects this skill through the shared personal instructions.
 
 ### What happens
 
-1. In single-PR mode, verifies the exact head checkout. In batch mode, saves
-   the starting branch, snapshots the requested PRs, and switches only between
-   clean same-repository head branches.
+1. Creates or reuses one remote-checked-out worktree per PR. In batch mode,
+   snapshots the requested PRs and processes them without switching the
+   invoking checkout.
 2. Runs `pr-fix` and, when the base branch enables Copilot Code Review, requests
    reviews until there are no unresolved findings (up to 10 attempts per PR).
 3. Takes each PR out of Draft and asks GitHub whether approval is required.
@@ -172,12 +178,14 @@ selects this skill through the shared personal instructions.
    or CI failure appears.
 6. Squash merges each verified PR, safely deletes only an unchanged matching
    remote head, and records cleanup warnings.
-7. For a batch, continues after a clean per-PR failure, stops rather than
-   discarding dirty or conflicted state, and returns to the starting branch.
+7. For a batch, records failures and leaves dirty or conflicted target-worktree
+   state in place while independent PR worktrees continue when safe. The
+   source checkout remains unchanged.
 
 `all` includes every open PR, including Drafts, snapshots them at invocation
-time, and processes them in ascending PR-number order. Fork PRs are reported as
-skipped because batch mode requires the target repository's own head branches.
+time, and processes them in ascending PR-number order. Fork PRs use the same
+isolated flow when their push remote can be verified; deleted forks or
+unavailable push access are reported per PR.
 
 An unavailable base-branch rules query is reported as a failure; it is not
 treated as a disabled feature.

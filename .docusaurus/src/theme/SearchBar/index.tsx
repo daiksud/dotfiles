@@ -1,8 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type MouseEvent,
+  type ReactElement,
+} from "react";
 import useBaseUrl from "@docusaurus/useBaseUrl";
 import styles from "./styles.module.css";
 
-export default function SearchBar(): JSX.Element {
+export default function SearchBar(): ReactElement {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const pagefindRef = useRef<unknown>(null);
@@ -102,7 +109,7 @@ export default function SearchBar(): JSX.Element {
 
   // Close on backdrop click
   const handleBackdropClick = useCallback(
-    (e: React.MouseEvent) => {
+    (e: MouseEvent) => {
       if (e.target === e.currentTarget) {
         closeModal();
       }

@@ -25,7 +25,11 @@ same tool versions.
 
 Adopt rumdl as the only repository Markdown formatter and linter.
 
-- Pin rumdl `0.2.44` in `mise.toml`.
+- Resolve rumdl with the `latest` selector in `mise.toml`, and commit
+  `mise.lock` so local and CI installations use the same release until the
+  next deliberate lockfile refresh.
+- Use `mise lock --bump` to advance the lockfile when a newer rumdl release is
+  available.
 - Keep repository-wide rules in `.rumdl.toml` and parse Markdown as GitHub
   Flavored Markdown, with MDX enabled for `*.mdx`.
 - Enable the opt-in MD060 rule in its `compact` mode. Compact tables keep one
@@ -75,8 +79,8 @@ the repository exposes rumdl's formatter as the normal editing workflow.
   instructions, skills, and repository metadata.
 - Contributors need only one command to format Markdown and one command to
   reproduce the CI lint check.
-- CI installs the pinned rumdl release through mise and rejects formatting or
-  lint drift.
+- CI installs the rumdl release recorded in `mise.lock` through mise and
+  rejects formatting or lint drift.
 - A rumdl version update may change formatter output and must be reviewed as a
   deliberate repository-wide tooling change.
 - The initial adoption touches many Markdown files mechanically even though

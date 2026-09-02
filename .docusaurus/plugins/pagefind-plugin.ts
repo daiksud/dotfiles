@@ -6,7 +6,7 @@ async function findHtmlFiles(dir: string): Promise<string[]> {
   const entries = await readdir(dir, { withFileTypes: true, recursive: true });
   return entries
     .filter((e) => e.isFile() && e.name.endsWith(".html"))
-    .map((e) => join(e.parentPath ?? e.path, e.name));
+    .map((e) => join(e.parentPath, e.name));
 }
 
 export default function pagefindPlugin(): Plugin {

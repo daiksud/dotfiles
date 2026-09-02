@@ -2,7 +2,7 @@
 bats = "latest"
 shellcheck = "latest"
 python = "latest"
-rumdl = "0.2.44"
+rumdl = "latest"
 
 [tasks."markdown:format"]
 description = "Format Markdown files with rumdl"

@@ -31,6 +31,9 @@ The global toolchain intentionally follows rolling versions:
 | Global Bun | `latest` |
 | Repository Bun | `^1.3.14` |
 
+Docusaurus requires Node.js `>=24.0`. The Vite+ `lts` setting is used for
+development and CI, so it must remain on Node.js 24 or newer.
+
 A compatible Bun already present in Vite+'s package-manager cache can continue
 to satisfy the repository range. The global Bun installation is managed
 separately and is refreshed when the setup script runs.

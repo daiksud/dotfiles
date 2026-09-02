@@ -29,7 +29,7 @@ Defines the development environment for the dotfiles repository itself.
 | `bats` | `latest` | bats-core test runner (for `tests/*.bats`) |
 | `shellcheck` | `latest` | Shell script linter (for `install.sh`, `scripts/*.sh`) |
 | `python` | `latest` | Provides a `tomllib`-capable `python3` for CI's TOML checks and `install.sh`'s JSON parsing |
-| `rumdl` | `0.2.44` | Markdown formatter and linter |
+| `rumdl` | `latest` | Markdown formatter and linter |
 
 Node.js, Bun, and JavaScript dependency installation are handled separately by
 [Vite+](./vite-plus.md). mise has no dependency-install postinstall hook.

@@ -30,6 +30,12 @@ Invoke the skill from the checkout where the request was made.
 
 ## Comments on Issues / Pull Requests
 
-When posting a comment or reply on an Issue or Pull Request in the `configured organization`
-organization at the user's instruction, prefix it with `:robot:`. Do not add
-this prefix for other organizations.
+When posting a comment or reply on an Issue or Pull Request at the user's
+instruction, consult the local GitHub comment policy at
+`$XDG_CONFIG_HOME/dotfiles/agent.toml`, or
+`~/.config/dotfiles/agent.toml` when `XDG_CONFIG_HOME` is unset. Look up the
+base repository organization under `[github.comment_prefixes]`. If it has a
+configured prefix, prepend that value and a single space to the comment body.
+If no prefix is configured, do not add an organization-specific prefix. If the
+file exists but cannot be read or parsed, stop before posting and report the
+configuration error.

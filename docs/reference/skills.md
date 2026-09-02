@@ -211,6 +211,24 @@ See [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md),
 [ADR 0036](../development/99-adr/0036-pr-review-availability.md) for the
 rationale.
 
+## Local GitHub comment policy
+
+Organization-specific comment prefixes are read from
+`$XDG_CONFIG_HOME/dotfiles/agent.toml`, or
+`~/.config/dotfiles/agent.toml` when `XDG_CONFIG_HOME` is unset. The file uses
+a TOML table where each GitHub organization maps to the prefix that should be
+followed by one space:
+
+```toml
+[github.comment_prefixes]
+"your-organization" = ":robot:"
+```
+
+The personal instructions and `pr-fix` consult this table before posting
+comments. A missing organization entry means that no organization-specific
+prefix is added. A present but unreadable or invalid file is a configuration
+error and must be reported before posting.
+
 ## Detailed specification for `pr-create`
 
 ### Workflow
@@ -254,7 +272,9 @@ label. Those optional review and merge decisions belong to later `pr-fix` or
 4. Retrieve all review comments and judge the validity of each one
 5. Fix valid comments and skip invalid ones; for comments the user replied "対応しない" (will not address) to, record in the PR body that they will not be addressed along with the reason
 6. Before committing and pushing, perform an independent local review. Use a dedicated review skill or review subagent when the host provides one; otherwise make a separate review pass over the full diff
-7. After pushing, reply to each review comment with how it was addressed
+7. Before replying, consult the local GitHub comment policy and apply the
+   configured organization prefix when one exists; after pushing, reply to each
+   review comment with how it was addressed
 8. Query the active rules for the PR base branch and request Copilot Code
    Review only when an effective `copilot_code_review` rule exists and the
    feature is available. When `pr-merge` invokes this workflow, it passes

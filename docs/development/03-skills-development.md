@@ -76,6 +76,8 @@ frontmatter are correct.
   skill. Those files stay in vendor-specific directories.
 - Test explicit invocation in all supported agents when a change affects
   discovery, inputs, or cross-skill delegation.
+- Keep user-specific policies, such as organization-specific comment prefixes,
+  in an untracked local configuration file rather than in shared skill text.
 
 ## Repository-dependent automation
 

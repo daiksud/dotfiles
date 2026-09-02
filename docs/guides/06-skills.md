@@ -220,6 +220,24 @@ commit: non-trivial commits record their context, decision, considerations,
 and impact. The detailed procedures remain in the skills, so all three agents
 execute the same workflow instead of maintaining product-specific copies.
 
+### Local GitHub comment policy
+
+Organization-specific comment prefixes are kept outside the repository in
+`$XDG_CONFIG_HOME/dotfiles/agent.toml`, or
+`~/.config/dotfiles/agent.toml` when `XDG_CONFIG_HOME` is unset. Add a
+`[github.comment_prefixes]` table whose keys are GitHub organization names and
+whose values are the prefixes to prepend, followed by one space:
+
+```toml
+[github.comment_prefixes]
+"your-organization" = ":robot:"
+```
+
+The shared instructions and `pr-fix` read this file before posting Issue or
+Pull Request comments. An organization without an entry receives no
+organization-specific prefix. Keep this file local; it is intentionally not a
+repository source or install-map entry.
+
 Root `AGENTS.md` is the canonical repository instruction file. Claude imports
 it through `CLAUDE.md`. Copilot Code Review reads
 `.github/copilot-instructions.md` directly and does not import `AGENTS.md`, so

@@ -205,9 +205,15 @@ the PR head is a fork.
     case, write a failing unit test first, then fix the code until it passes.
   - **Not valid / not applicable** — Do not change code. Prepare a reply that
     explains why.
-- After pushing, reply to every comment from the base repository. If the base
-  repository belongs to the `configured organization` organization, prefix every comment body
-  with `:robot:`. Do not add this prefix for other organizations.
+- Before posting replies, consult the local GitHub comment policy at
+  `$XDG_CONFIG_HOME/dotfiles/agent.toml`, or
+  `~/.config/dotfiles/agent.toml` when `XDG_CONFIG_HOME` is unset. Look up the
+  base repository organization under `[github.comment_prefixes]`. If it has a
+  configured prefix, prepend that value and a single space to every comment
+  body. If no prefix is configured, do not add an organization-specific
+  prefix. If the file exists but cannot be read or parsed, stop before posting
+  and report the configuration error.
+- After pushing, reply to every comment from the base repository.
   - If fixed, explain the changes.
   - If not fixed, explain why the feedback is not applicable.
   - If the user declined it, state that it will not be addressed and that the

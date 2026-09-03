@@ -168,7 +168,7 @@ checkout for repository context:
 | PR phase | Checkout behavior |
 | --- | --- |
 | Create | Create a feature branch in the invoking checkout only from an exactly synchronized default branch, or use a non-default branch that has no existing PR. |
-| Fix | Create or reuse `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>` from the remote PR head, then work only there. |
+| Fix | Reuse a verified existing `<head-branch>` worktree when available; otherwise create or reuse `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>` from the remote PR head, then work only there. |
 | Merge | Create or reuse one remote-checked-out worktree per PR, process PRs sequentially, and leave the invoking checkout unchanged. |
 
 The skills still resolve canonical GitHub identities and re-check branch,

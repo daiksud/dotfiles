@@ -100,8 +100,9 @@ organization rules and live repository settings can also apply.
 Shared PR skills use the Git checkout where the user invokes them for
 repository context. The checkout may be an ordinary clone, a gh-qw main
 worktree, or a linked worktree. `pr-create` keeps it as its workspace, while
-`pr-fix` and `pr-merge` create or reuse one deterministic worktree per PR with
-the native `gh pr checkout --worktree` command.
+`pr-fix` and `pr-merge` reuse a verified existing PR-head worktree or create
+or reuse one deterministic worktree per PR with the native
+`gh pr checkout --worktree` command.
 
 - `pr-create` can create a new feature branch in the invoking checkout only
   when its default-branch `HEAD` exactly matches the remote default branch.
@@ -110,10 +111,11 @@ the native `gh pr checkout --worktree` command.
   diverged instead of pulling, rebasing, or resetting it.
 - `pr-fix` and `pr-merge` derive
   `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
-  check out the PR from its remote, and verify the target worktree's exact
-  `headRefOid` and push destination before editing. A fork uses the same
-  isolated flow; a missing fork or unavailable push access stops that PR
-  safely.
+  reuse an existing clean worktree for `<head-branch>` when one is registered
+  outside the invoking checkout, or check out the PR from its remote
+  otherwise. They verify the selected worktree's exact `headRefOid` and push
+  destination before editing. A fork uses the same isolated flow; a missing
+  fork or unavailable push access stops that PR safely.
 - Resolve and verify the canonical GitHub identity before API or Git
   operations. Re-check the current branch, working state, and remote head
   before commits, pushes, and merges, particularly after polling waits.

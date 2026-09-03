@@ -76,9 +76,11 @@ worktree. `pr-create` keeps that checkout as its workspace; `pr-fix` and
   reusing a branch left checked out after a squash merge.
 - `pr-fix` and `pr-merge` derive
   `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`
-  and check out the specified PR from its remote before making changes. The
-  target must be clean, registered to the invoking repository, and pointed at
-  the current PR head SHA.
+  and check out the specified PR from its remote before making changes, unless
+  a clean, registered worktree for `<head-branch>` already exists outside the
+  invoking checkout. In that case, they reuse that worktree. The selected
+  target must be registered to the invoking repository and pointed at the
+  current PR head SHA.
 - The target worktree's push remote must resolve to the canonical PR head
   repository. This is checked separately for fork PRs; a missing fork,
   identity mismatch, or unavailable push access stops that PR safely.

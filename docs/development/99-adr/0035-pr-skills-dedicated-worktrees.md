@@ -1,7 +1,8 @@
 # 0035: Use dedicated remote-checked-out worktrees for PR maintenance
 
-Use a deterministic worktree per Pull Request for fixing and merging work,
-checked out from the PR's remote head before any edits.
+Use a verified dedicated worktree per Pull Request for fixing and merging
+work, preferring an existing PR-head worktree and otherwise checking out the
+deterministic candidate from the PR's remote head before any edits.
 
 ## Status
 
@@ -28,14 +29,17 @@ They also need to avoid applying fixes to a stale or unpushable PR head.
 
 - Keep `pr-create` in the invoking checkout. Only `pr-fix` and `pr-merge`
   provision PR worktrees.
-- Derive one deterministic target for each PR at
+- Derive one deterministic candidate for each PR at
   `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`.
-  Reuse that target on retries and later invocations.
+  Reuse a clean, registered worktree already checked out to the PR's
+  `<head-branch>` when one exists outside the invoking checkout; otherwise
+  reuse the candidate on retries and later invocations.
 - Resolve the PR and its canonical base and head repositories before creating
-  the target. Run `gh pr checkout <PR_NUMBER> -R <base-repository>
-  --worktree <target-worktree>` to fetch the remote PR head and create or
-  refresh the worktree. Never pass `--force` or fall back to the invoking
-  checkout when worktree preparation fails.
+  the candidate. When no existing branch worktree is selected, run
+  `gh pr checkout <PR_NUMBER> -R <base-repository> --worktree
+  <target-worktree>` to fetch the remote PR head and create or refresh the
+  candidate. Never pass `--force` or fall back to the invoking checkout when
+  worktree preparation fails.
 - Require the target worktree to be registered to the invoking repository,
   clean before edits, and at the current PR `headRefOid`. Resolve its
   configured push destination, or use the canonical head repository URL when
@@ -77,6 +81,8 @@ command provides those operations as one verified preparation step.
   uncommitted files.
 - A clean deterministic worktree remains available for follow-up fixes and
   review retries.
+- An existing clean worktree for a PR head branch can be reused without
+  attempting to check out that branch a second time.
 - The source checkout needs a resolvable base repository and a GitHub CLI with
   `gh pr checkout --worktree`; unsupported clients stop safely.
 - Each PR consumes a registered worktree until the user removes it. The skills

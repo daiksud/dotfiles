@@ -159,11 +159,11 @@ name: Skill name
 
 The three PR skills use the Git checkout where the user invokes them for
 repository context. `pr-create` keeps that checkout as its only workspace,
-while `pr-fix` and `pr-merge` create or reuse a deterministic worktree for
-each PR with the native `gh pr checkout --worktree` command. The source
-checkout may be an ordinary clone, a gh-qw main worktree, or a linked
-worktree, and its branch and files remain unchanged by the maintenance and
-merge workflows.
+while `pr-fix` and `pr-merge` reuse a verified existing PR-head worktree or
+create or reuse a deterministic worktree for each PR with the native
+`gh pr checkout --worktree` command. The source checkout may be an ordinary
+clone, a gh-qw main worktree, or a linked worktree, and its branch and files
+remain unchanged by the maintenance and merge workflows.
 
 - Every skill resolves the relevant remote through GitHub and records its
   canonical URL and lowercase `<host>/<owner>/<repo>` identity before GitHub
@@ -182,10 +182,12 @@ merge workflows.
   checked out after a squash merge.
 - `pr-fix` and `pr-merge` resolve the PR head, derive
   `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
-  and run `gh pr checkout <PR_NUMBER> -R <base-repository> --worktree
-  <target-worktree>` before changing files. A clean, registered target
-  worktree is reused; an unregistered path, branch collision, stale SHA, or
-  unavailable push remote stops the workflow without a force operation.
+  and prefer a clean, registered worktree already checked out to
+  `<head-branch>` when it is outside the invoking checkout. Otherwise they run
+  `gh pr checkout <PR_NUMBER> -R <base-repository> --worktree
+  <target-worktree>` before changing files. An unregistered path, unsafe
+  branch worktree, stale SHA, or unavailable push remote stops the workflow
+  without a force operation.
 - The target worktree is checked against the remote PR `headRefOid` before
   editing and before every push or merge. Its configured push destination, or
   the canonical head URL when no destination is configured, must resolve to
@@ -265,8 +267,9 @@ label. Those optional review and merge decisions belong to later `pr-fix` or
 
 ### Workflow
 
-1. Resolve the base repository and PR head, then create or reuse the
-   deterministic PR-number worktree from the remote head
+1. Resolve the base repository and PR head, then reuse a verified existing
+   `<head-branch>` worktree or create or reuse the deterministic PR-number
+   worktree from the remote head
 2. Check the CI status of the specified PR
 3. If there are CI failures, analyze the logs and repeat fixes (up to 3 times)
 4. Retrieve all review comments and judge the validity of each one
@@ -304,18 +307,20 @@ creating a substitute branch.
 host-qualified base repository, or `all [<base-repository>]`. A missing base
 repository is resolved from the current checkout's canonical `origin`.
 
-Single-PR mode and batch mode both create or reuse a deterministic worktree
-keyed by the PR number. Batch mode retains explicit PR-number order, or
-snapshots every open PR with pagination, including drafts, and sorts `all` by
-ascending PR number. It never switches the invoking checkout; fork heads use
-the same isolated flow when their push remote can be verified.
+Single-PR mode and batch mode both reuse a verified existing PR-head worktree
+when available or create or reuse a deterministic worktree keyed by the PR
+number. Batch mode retains explicit PR-number order, or snapshots every open
+PR with pagination, including drafts, and sorts `all` by ascending PR number.
+It never switches the invoking checkout; fork heads use the same isolated flow
+when their push remote can be verified.
 
 For each eligible PR, the skill:
 
 1. Re-queries the PR head and active base-branch rules, skipping the optional
    Copilot review when it is unavailable and stopping that PR if the head
    identity changes
-2. Creates or reuses the PR-number worktree from the remote with
+2. Reuses a verified existing `<head-branch>` worktree when available;
+   otherwise creates or reuses the PR-number worktree from the remote with
    `gh pr checkout --worktree`, then verifies its exact head SHA and push
    remote
 3. Runs `pr-fix` in `all` mode with `--skip-copilot-review`, then owns one

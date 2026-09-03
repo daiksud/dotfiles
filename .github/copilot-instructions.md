@@ -27,6 +27,7 @@ These repository rules are shared by GitHub Copilot, Codex, and Claude Code.
 - Include the same rationale in every Pull Request description. Squash merges
   retain the PR body on the resulting commit, rather than the branch commits'
   bodies.
+- Request Copilot Code Review with `gh api graphql` using `requestReviews(input:{pullRequestId:$pullRequestId,botIds:["BOT_kgDOCnlnWA"]})`, not `reviewerIds` or `gh pr edit --add-reviewer`.
 
 ## Documentation
 

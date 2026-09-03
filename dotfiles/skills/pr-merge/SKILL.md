@@ -166,9 +166,8 @@ Before the first iteration for the current PR:
    gh pr view <PR_NUMBER> -R <base-repository> --json id -q .id
    ```
 
-4. Immediately before requesting the review, record the UTC timestamp. Request
-   `copilot-pull-request-reviewer` with a GraphQL `requestReviews` mutation
-   using bot ID `BOT_kgDOCnlnWA`.
+4. Immediately before requesting the review, record the UTC timestamp. Follow
+   the one-line Copilot Code Review request procedure in `AGENTS.md`.
 5. Poll once per minute for up to 30 minutes for a review from
    `copilot-pull-request-reviewer` whose `submittedAt` is after the request
    timestamp. Use `gh pr view <PR_NUMBER> -R <base-repository> --json

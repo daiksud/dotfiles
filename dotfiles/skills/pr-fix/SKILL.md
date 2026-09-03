@@ -265,10 +265,7 @@ the PR head is a fork.
 - When the effective rules include `copilot_code_review`, request a review:
   - Retrieve the PR node ID with
     `gh pr view <PR_NUMBER> -R <base-repository> --json id -q .id`.
-  - Use that node ID in a GraphQL `requestReviews` mutation with bot ID
-    `BOT_kgDOCnlnWA` for `copilot-pull-request-reviewer`.
-  - Do not use `gh pr edit --add-reviewer`; GitHub rejects bots as
-    non-collaborators through that REST API.
+  - Follow the one-line Copilot Code Review request procedure in `AGENTS.md`.
 
 ### default / all — Fix everything
 

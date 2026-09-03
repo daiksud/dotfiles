@@ -63,7 +63,8 @@ other sources are preserved.
 The PR skills use the Git checkout where you invoke the agent for repository
 context. It may be an ordinary clone, a gh-qw main worktree, or a linked
 worktree. `pr-create` keeps that checkout as its workspace; `pr-fix` and
-`pr-merge` create or reuse a dedicated worktree for each PR with
+`pr-merge` reuse a verified existing PR-head worktree, including the invoking
+checkout, or create or reuse a dedicated worktree for each PR with
 `gh pr checkout --worktree`.
 
 - `pr-create` creates a feature branch in the current checkout when the
@@ -77,8 +78,8 @@ worktree. `pr-create` keeps that checkout as its workspace; `pr-fix` and
 - `pr-fix` and `pr-merge` derive
   `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`
   and check out the specified PR from its remote before making changes, unless
-  a clean, registered worktree for `<head-branch>` already exists outside the
-  invoking checkout. In that case, they reuse that worktree. The selected
+  a clean, registered worktree for `<head-branch>` already exists, including
+  the invoking checkout. In that case, they reuse that worktree. The selected
   target must be registered to the invoking repository and pointed at the
   current PR head SHA.
 - The target worktree's push remote must resolve to the canonical PR head
@@ -93,8 +94,9 @@ worktree. `pr-create` keeps that checkout as its workspace; `pr-fix` and
   later invocation can reuse it. Both modes delete a matching remote head
   branch only after verifying its SHA.
 - Batch PRs run sequentially across independent worktrees and never switch the
-  invoking checkout. The source checkout remains available for unrelated
-  concurrent work.
+  invoking checkout to another branch. The source checkout remains available
+  for unrelated concurrent work unless it is intentionally selected as the
+  verified target for one PR.
 
 ## Use `pr-create`
 
@@ -130,14 +132,17 @@ request to fix or make a PR mergeable also selects this skill through the
 shared personal instructions.
 
 Before invoking it, use a checkout of the target base repository with
-`gh pr checkout --worktree` support. The skill creates or reuses the
-deterministic PR-number worktree itself and verifies the PR head and push
-remote before editing. The invoking checkout is not changed.
+`gh pr checkout --worktree` support. The skill reuses the invoking checkout
+when it already is the verified PR head worktree; otherwise it creates or
+reuses the deterministic PR-number worktree and verifies the PR head and push
+remote before editing. It never automatically switches the invoking checkout
+to another branch.
 
 ### What happens
 
-1. Resolves the PR head repository and creates or reuses its deterministic
-   PR-number worktree from the remote
+1. Resolves the PR head repository and reuses a verified existing head-branch
+   worktree or creates or reuses its deterministic PR-number worktree from the
+   remote
 2. Detects and resolves merge conflicts
 3. Identifies CI failures from logs and fixes them (repeating until they pass)
 4. Checks review comments and applies reasonable fixes (any comment you reply "対応しない" to is left unchanged, and the reason is recorded in the PR body)
@@ -170,9 +175,10 @@ selects this skill through the shared personal instructions.
 
 ### What happens
 
-1. Creates or reuses one remote-checked-out worktree per PR. In batch mode,
-   snapshots the requested PRs and processes them without switching the
-   invoking checkout.
+1. Reuses an existing verified head-branch worktree, including the invoking
+   checkout, or creates or reuses one remote-checked-out worktree per PR. In
+   batch mode, snapshots the requested PRs and never switches the invoking
+   checkout to another branch.
 2. Runs `pr-fix` and, when the base branch enables Copilot Code Review, requests
    reviews until there are no unresolved findings (up to 10 attempts per PR).
    If Copilot Code Review is unavailable, it skips this optional step and
@@ -188,8 +194,10 @@ selects this skill through the shared personal instructions.
 6. Squash merges each verified PR, safely deletes only an unchanged matching
    remote head, and records cleanup warnings.
 7. For a batch, records failures and leaves dirty or conflicted target-worktree
-   state in place while independent PR worktrees continue when safe. The
-   source checkout remains unchanged.
+   state in place while independent PR worktrees continue when safe. If the
+   invoking checkout is the verified target for a PR, report that it was
+   intentionally reused instead of treating its expected changes as an
+   unexpected source modification.
 
 `all` includes every open PR, including Drafts, snapshots them at invocation
 time, and processes them in ascending PR-number order. Fork PRs use the same

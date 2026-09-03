@@ -102,7 +102,8 @@ repository context. The checkout may be an ordinary clone, a gh-qw main
 worktree, or a linked worktree. `pr-create` keeps it as its workspace, while
 `pr-fix` and `pr-merge` reuse a verified existing PR-head worktree or create
 or reuse one deterministic worktree per PR with the native
-`gh pr checkout --worktree` command.
+`gh pr checkout --worktree` command. The invoking checkout may be the selected
+target when it already checks out the PR head branch and passes validation.
 
 - `pr-create` can create a new feature branch in the invoking checkout only
   when its default-branch `HEAD` exactly matches the remote default branch.
@@ -111,18 +112,18 @@ or reuse one deterministic worktree per PR with the native
   diverged instead of pulling, rebasing, or resetting it.
 - `pr-fix` and `pr-merge` derive
   `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
-  reuse an existing clean worktree for `<head-branch>` when one is registered
-  outside the invoking checkout, or check out the PR from its remote
+  reuse an existing clean worktree for `<head-branch>` when one is registered,
+  including the invoking checkout, or check out the PR from its remote
   otherwise. They verify the selected worktree's exact `headRefOid` and push
   destination before editing. A fork uses the same isolated flow; a missing
   fork or unavailable push access stops that PR safely.
 - Resolve and verify the canonical GitHub identity before API or Git
   operations. Re-check the current branch, working state, and remote head
   before commits, pushes, and merges, particularly after polling waits.
-- Do not use the invoking checkout for PR edits or automatically switch its
-  branch. Batch `pr-merge` processes each PR sequentially in its own verified
-  worktree, never discards local work, and stops on an unsafe source or target
-  state.
+- Do not automatically switch the invoking checkout to another branch. It may
+  be used for PR edits when it is already the verified target branch. Batch
+  `pr-merge` processes each PR sequentially in verified worktrees, never
+  discards local work, and stops on an unsafe source or target state.
 - `pr-create` must not reuse a non-default branch that already has an open,
   closed, or merged PR. Do not silently discard changes, force-push, or use
   destructive recovery.

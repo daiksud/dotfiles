@@ -168,14 +168,16 @@ checkout for repository context:
 | PR phase | Checkout behavior |
 | --- | --- |
 | Create | Create a feature branch in the invoking checkout only from an exactly synchronized default branch, or use a non-default branch that has no existing PR. |
-| Fix | Reuse a verified existing `<head-branch>` worktree when available; otherwise create or reuse `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>` from the remote PR head, then work only there. |
-| Merge | Create or reuse one remote-checked-out worktree per PR, process PRs sequentially, and leave the invoking checkout unchanged. |
+| Fix | Reuse a verified existing `<head-branch>` worktree, including the invoking checkout, when available; otherwise create or reuse `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>` from the remote PR head, then work only there. |
+| Merge | Reuse a verified existing PR-head worktree, including the invoking checkout, or create or reuse one remote-checked-out worktree per PR, process PRs sequentially, and never switch the invoking checkout to another branch. |
 
 The skills still resolve canonical GitHub identities and re-check branch,
 working-state, remote-head, review, and CI conditions before mutating a PR.
 The target worktree must be clean, registered to the invoking repository, and
 able to push to the canonical PR head repository. A failed PR leaves its
-worktree in place for inspection and stops rather than discarding state. See
+worktree in place for inspection and stops rather than discarding state. If the
+invoking checkout is selected as the target, its expected PR changes are
+allowed and reported as intentional. See
 [Using skills](../guides/06-skills.md),
 [ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md),
 [ADR 0027](../development/99-adr/0027-gh-qw.md), and

@@ -11,9 +11,10 @@ Take Pull Requests from "ready for final review" to "merged". For each
 selected PR, use `pr-fix`, request a Copilot Code Review when the base branch
 requires it, wait for approval and CI, then squash merge the verified head
 SHA. Each PR uses a verified dedicated worktree, preferring an existing
-worktree for its head branch and otherwise using the deterministic worktree
-keyed by its PR number. The invoking checkout is used only for repository
-context and remains on its original branch.
+worktree for its head branch, including the invoking checkout, and otherwise
+using the deterministic worktree keyed by its PR number. The invoking
+checkout is never automatically switched, but may be used as the target when
+it already checks out the PR head branch and passes validation.
 
 ## Inputs
 
@@ -46,8 +47,10 @@ different base repositories before starting any branch or GitHub mutation.
 the invoking checkout must resolve to the verified base repository, and
 `pr-fix` must create or reuse a verified dedicated worktree for this PR with
 `gh pr checkout --worktree`, unless a registered worktree already checks out
-`<head-branch>`, in which case that worktree is reused after validation. The
-source checkout may contain unrelated changes, but it must not be changed.
+`<head-branch>`, including the invoking checkout, in which case that worktree
+is reused after validation. The source checkout may contain unrelated changes
+when it remains context only; if it is selected as the target, it must be
+clean and may be changed according to the target-worktree rules.
 
 Resolve the base repository through GitHub for every PR. Record its canonical
 URL, lowercase host, canonical `nameWithOwner`, and default branch. Define
@@ -57,10 +60,10 @@ URL, lowercase host, canonical `nameWithOwner`, and default branch. Define
 The deterministic candidate worktree path is
 `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
 using the parent of the repository that owns the invoking checkout's Git
-common directory. If a registered worktree for `<head-branch>` already exists
-outside the invoking checkout and passes `pr-fix`'s validation, use its
-absolute path as `<target-worktree>` instead. Never substitute the invoking
-checkout, a different PR's worktree, or an unverified path.
+common directory. If a registered worktree for `<head-branch>` already exists,
+including the invoking checkout, and passes `pr-fix`'s validation, use its
+absolute path as `<target-worktree>` instead. Never substitute a different
+PR's worktree or an unverified path.
 
 ### Batch
 
@@ -83,17 +86,20 @@ Before preparing each PR worktree:
 - Re-query the PR from the canonical base repository. Skip it if it is no
   longer open or its head repository is missing. Do not silently substitute a
   different head repository or branch.
-- Let `pr-fix` reuse an existing registered worktree for `<head-branch>` when
-  it is clean and belongs to the invoking repository's Git common directory;
-  otherwise let it create or refresh the deterministic PR-number worktree
-  from the remote with `gh pr checkout <PR_NUMBER> -R <base-repository>
-  --worktree <target-worktree>`. Do not pass `--force`, switch the source
-  checkout, or reuse a worktree belonging to another PR.
+- Let `pr-fix` reuse an existing registered worktree for `<head-branch>`,
+  including the invoking checkout, when it is clean and belongs to the
+  invoking repository's Git common directory; otherwise let it create or
+  refresh the deterministic PR-number worktree from the remote with
+  `gh pr checkout <PR_NUMBER> -R <base-repository> --worktree
+  <target-worktree>`. Do not pass `--force`, switch the source checkout to
+  another branch, or reuse a worktree belonging to another PR.
 - If no reusable branch worktree exists and the deterministic target path
   collides, is dirty, is ahead or diverged from the remote, or cannot verify
   push access to the canonical head repository, record the failure and leave
-  it unchanged. A fork is not skipped merely because it is a fork; it is
-  eligible when its head remote and push access pass validation.
+  it unchanged. If the invoking checkout was selected as the target, apply
+  the same failure rules to it rather than treating it as context. A fork is
+  not skipped merely because it is a fork; it is eligible when its head remote
+  and push access pass validation.
 
 Before starting the next PR, verify that its target path can be prepared and
 that the source checkout is still safe. A per-PR failure, including a dirty or
@@ -295,12 +301,17 @@ Before the first iteration for the current PR:
 After a queued PR finishes, classify it as `merged`, `failed`, or `skipped` and
 attach its URL, target worktree, step, review decisions, and cleanup warnings.
 Then create or reuse the next PR's independent worktree and repeat the per-PR
-procedure. Never switch the source checkout or a different PR's worktree.
+procedure. Never switch the source checkout to another branch or use a
+different PR's worktree. If the invoking checkout was intentionally selected
+for one PR, keep it on that branch and report it as that PR's target.
 
 When the queue is exhausted, verify that the source checkout is still on its
-original branch and that its recorded working state was not changed by the
-skill. There is no branch restoration step because the source checkout is
-never switched. For `all` with no open PRs, report an explicit no-op result.
+original branch. If it was not selected as a target, also verify that its
+recorded working state was not changed by the skill. If it was intentionally
+selected as a target, verify its expected target state and report that the
+source checkout was reused. There is no branch restoration step because the
+source checkout is never switched. For `all` with no open PRs, report an
+explicit no-op result.
 
 The batch result must distinguish:
 
@@ -313,10 +324,12 @@ The batch result must distinguish:
 - whether Copilot Code Review or self approval was skipped for each PR,
   including whether Copilot was unavailable or the PR was mergeable without
   the label;
-- whether the source checkout remained unchanged.
+- whether the source checkout was reused as a target and, when it was not,
+  remained unchanged.
 
 Do not report a batch as fully successful when any requested PR failed or was
-skipped, or when the source checkout changed unexpectedly.
+skipped, or when the source checkout changed unexpectedly outside the PR for
+which it was intentionally selected as the target.
 
 ## Retryable vs. non-retryable failures
 
@@ -360,9 +373,10 @@ repository that dismisses approvals after later conflict or CI fixes.
 - Only use squash merges, matching this repository's merge strategy settings.
 - Always use one verified dedicated PR worktree before `pr-fix` starts
   changing files. Prefer an existing registered worktree for
-  `<head-branch>`; otherwise create or reuse the deterministic PR worktree
-  with `gh pr checkout --worktree`. Never use the source checkout for PR
-  changes or automatically switch branches there.
+  `<head-branch>`, including the invoking checkout; otherwise create or reuse
+  the deterministic PR worktree with `gh pr checkout --worktree`. Never
+  automatically switch the invoking checkout to another branch, but use it as
+  the PR workspace when it is already the verified target branch.
 - Never fall back to a normal-clone checkout, reuse another PR's worktree, or
   use a destructive command to make worktree preparation possible.
 

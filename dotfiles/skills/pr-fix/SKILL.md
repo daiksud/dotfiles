@@ -5,10 +5,10 @@ description: Bring an existing GitHub Pull Request into a mergeable state from a
 
 # pr-fix
 
-Bring a Pull Request into a mergeable state from a dedicated worktree created
-for that PR. The invoking checkout supplies repository context only; it stays
-on its current branch, and its files and uncommitted changes are not used for
-the fix.
+Bring a Pull Request into a mergeable state from a verified dedicated
+worktree. The invoking checkout supplies repository context by default, but it
+may also be the target when it already checks out the PR head branch and passes
+all target-worktree validation.
 
 ## Inputs
 
@@ -31,8 +31,9 @@ an optional mode:
 
 Complete these checks before the selected mode and re-run the target
 validation after every retry. Use one verified dedicated worktree for the PR
-for the entire invocation, preferring an existing worktree for the PR head
-branch before falling back to the deterministic candidate:
+for the entire invocation, preferring an existing registered worktree for the
+PR head branch, including the invoking checkout, before falling back to the
+deterministic candidate:
 
 `<target-worktree>` is
 `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>`,
@@ -43,17 +44,18 @@ reuse the same worktree. Before using this candidate path, prefer an already
 registered worktree checked out to `<head-branch>` when it passes the
 worktree, SHA, and push-destination checks below.
 
-1. Use the invoking checkout only to resolve repository context and launch
+1. Use the invoking checkout to resolve repository context and launch
    worktree preparation. Confirm that
    `git rev-parse --show-toplevel` and
    `git rev-parse --path-format=absolute --git-common-dir` succeed. It may be
    an ordinary clone, a gh-qw main worktree, or a linked worktree. Do not
-   reject it solely because its `.git` entry is a pointer file. Preserve any
-   dirty files in this checkout, record its working state, and verify that it
-   is unchanged after preparation; never stash, discard, reset, or edit them.
+   reject it solely because its `.git` entry is a pointer file. Record its
+   working state. Preserve dirty files when this checkout remains context
+   only; if it is selected as the target, require the target to be clean before
+   editing and apply the target-worktree rules to it.
 2. Confirm that `gh pr checkout --help` exposes `--worktree`. If it does not,
-   stop rather than checking out the PR in the invoking checkout or falling
-   back to another worktree implementation.
+   stop rather than provisioning the PR in another checkout or falling back to
+   another worktree implementation.
 3. Resolve the base repository from the supplied PR URL or explicit base
    repository through GitHub. Record its canonical URL, lowercase host,
    canonical `nameWithOwner`, and default branch. Define `<base-repository>` as
@@ -81,28 +83,30 @@ worktree, SHA, and push-destination checks below.
    target_worktree="$(dirname "$repository_root")/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>"
    ```
 
-   Use the same absolute candidate path on every retry. Do not place the
-   target inside the invoking checkout or replace an existing path that is not
-   a registered Git worktree. Step 7 may replace this candidate with an
-   already registered worktree for `<head-branch>`.
+   Use the same absolute candidate path on every retry. Do not create the
+   candidate inside the invoking checkout or replace an existing path that is
+   not a registered Git worktree. Step 7 may replace this candidate with an
+   already registered worktree for `<head-branch>`, including the invoking
+   checkout.
 7. Inspect `git worktree list --porcelain`:
    - First look for a registered worktree whose branch is exactly
-     `refs/heads/<head-branch>`. If one exists outside the invoking checkout,
-     use its absolute path as `<target-worktree>` instead of creating the
-     deterministic candidate. Require that it belongs to the same Git common
-     directory, is a directory, and has no uncommitted changes. Do not switch,
-     move, or force this worktree; verify its PR head SHA and push destination
-     in Step 9 before editing.
+     `refs/heads/<head-branch>`. If exactly one exists, including the invoking
+     checkout, use its absolute path as `<target-worktree>` instead of creating
+     the deterministic candidate. Require that it belongs to the same Git
+     common directory, is a directory, and has no uncommitted changes. Do not
+     switch, move, or force this worktree; verify its PR head SHA and push
+     destination in Step 9 before editing. If it is the invoking checkout,
+     intentionally use it as the PR workspace after validation.
    - If more than one registered worktree matches `<head-branch>`, stop and
      report the ambiguous paths rather than choosing one.
-   - If the matching branch worktree is the invoking checkout, stop and report
-     that the source checkout cannot be used for PR changes.
    - If no matching branch worktree exists, create only the deterministic
      candidate's parent directory with
      `mkdir -p "$(dirname "$target_worktree")"`. If the candidate is
      registered, require that it belongs to the same Git common directory, is a
-     directory, and has no uncommitted changes. If the candidate path exists
-     but is not registered, stop and report the collision.
+     directory, and has no uncommitted changes. The candidate may be the
+     invoking checkout when the invoking checkout is already that registered
+     target. If the candidate path exists but is not registered, stop and
+     report the collision.
 8. Create or refresh the target worktree from the PR remote with the native
    GitHub CLI command:
 
@@ -111,9 +115,11 @@ worktree, SHA, and push-destination checks below.
      --worktree <target-worktree>
    ```
 
-   Run this command only when Step 7 selected the deterministic candidate.
-   When an existing `<head-branch>` worktree was selected, use it directly and
-   do not invoke `gh pr checkout` against a branch that is already checked out.
+   Run this command only when Step 7 selected the deterministic candidate and
+   it does not already represent the target worktree. When an existing
+   `<head-branch>` worktree was selected, including the invoking checkout, use
+   it directly and do not invoke `gh pr checkout` against a branch that is
+   already checked out.
    Do not pass `--force`. For an existing deterministic candidate, the command
    fetches the PR head from its remote repository (or the base repository's PR
    ref when the head is a fork) and reuses it. A fast-forward-only update is
@@ -165,9 +171,11 @@ the PR head is a fork.
   `<pre-push-head>`, and require the local post-commit `HEAD` to descend from
   it. Push with the explicit `HEAD:<head-branch>` refspec. If another actor
   changed the PR, stop instead of rebasing, resetting, or force-pushing.
-- Leave the invoking checkout exactly as it was found. A dirty invoking
-  checkout is not permission to copy, stage, or clean those changes into the
-  PR worktree.
+- If the invoking checkout is not the selected target, leave it exactly as it
+  was found. A dirty invoking checkout is not permission to copy, stage, or
+  clean those changes into the PR worktree. If it is the selected target,
+  apply the target-worktree cleanliness, review, commit, and push rules to the
+  invoking checkout itself.
 
 ## Modes
 
@@ -290,10 +298,11 @@ against the mergeable branch.
 ## Constraints
 
 - Always use one verified dedicated PR worktree before editing. Prefer an
-  existing registered worktree for `<head-branch>`; otherwise create or reuse
-  the deterministic PR worktree with `gh pr checkout --worktree`. Keep the
-  invoking checkout on its original branch and never use it as the PR
-  workspace.
+  existing registered worktree for `<head-branch>`, including the invoking
+  checkout; otherwise create or reuse the deterministic PR worktree with
+  `gh pr checkout --worktree`. Never automatically switch the invoking
+  checkout to another branch, but use it as the PR workspace when it is
+  already the verified target branch.
 - Keep the target worktree after the skill completes so a later `pr-fix` or
   `pr-merge` invocation can reuse it.
 - Never fall back to `git checkout`, `git switch`, a normal-clone branch

@@ -96,26 +96,18 @@ if [[ "${is_managed}" -eq 0 ]]; then
   fi
 fi
 
-copy_file_atomically() {
-  local source="$1"
-  local destination="$2"
-  local temporary
-
-  if ! temporary="$(mktemp "${destination}.tmp.XXXXXX")"; then
-    echo "Could not create temporary file for ${destination}" >&2
-    return 1
+if [[ -L "${manifest}" ]]; then
+  linked_source="$(readlink "${manifest}")"
+  if [[ "${linked_source}" != "${source_manifest}" ]]; then
+    rm -f "${manifest}"
+    ln -s "${source_manifest}" "${manifest}"
   fi
-
-  if ! cp -p "${source}" "${temporary}"; then
-    rm -f "${temporary}"
-    echo "Could not copy ${source} to ${destination}" >&2
-    return 1
-  fi
-
-  mv -f "${temporary}" "${destination}"
-}
-
-copy_file_atomically "${source_manifest}" "${manifest}"
+elif [[ -e "${manifest}" ]]; then
+  rm -f "${manifest}"
+  ln -s "${source_manifest}" "${manifest}"
+else
+  ln -s "${source_manifest}" "${manifest}"
+fi
 
 if [[ "${is_managed}" -eq 0 ]]; then
   (umask 077 && printf '%s\n' 'managed-by=daiksud/dotfiles' >"${marker}")
@@ -123,4 +115,26 @@ fi
 
 echo "Installing global APM configuration"
 "${apm_bin}" install --global
-"${apm_bin}" compile --global
+
+compile_global_apm() {
+  local compile_status
+
+  rm -f "${manifest}"
+  if ! cp -p "${source_manifest}" "${manifest}"; then
+    ln -s "${source_manifest}" "${manifest}"
+    echo "Could not prepare APM manifest for compilation" >&2
+    return 1
+  fi
+
+  if "${apm_bin}" compile --global; then
+    compile_status=0
+  else
+    compile_status=$?
+  fi
+
+  rm -f "${manifest}"
+  ln -s "${source_manifest}" "${manifest}"
+  return "${compile_status}"
+}
+
+compile_global_apm

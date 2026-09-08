@@ -15,12 +15,12 @@ and OpenAI Codex CLI. Agent skills and instructions are authored in
 | Location | Owner | Purpose |
 | --- | --- | --- |
 | `dotfiles/apm/apm.yml` | This repository | Canonical global consumer manifest |
-| `~/.apm/apm.yml` | Bootstrap script | Runtime copy of the canonical manifest |
+| `~/.apm/apm.yml` | Bootstrap script | Symbolic link to the canonical manifest |
 | `~/.apm/apm.lock.yaml`, `config.json`, caches, modules, lifecycle files | APM | Local runtime state; not version controlled |
 | `daiksud/agents` | Its repository | APM package containing skills and instructions |
 
-`scripts/100-apm.sh` copies the canonical global manifest to `~/.apm/`, then
-runs:
+`install.sh` links the canonical global manifest into `~/.apm/`.
+`scripts/100-apm.sh` verifies the link, then runs:
 
 ```bash
 apm install --global
@@ -51,8 +51,9 @@ dotfiles setup, the script copies it to a private directory under:
 ~/.apm/backups/dotfiles-apm-*/
 ```
 
-It then activates the canonical manifest and writes an ownership marker. Later
-runs replace only the managed manifest and do not create additional backups.
+It then activates the canonical manifest as a symbolic link and writes an
+ownership marker. Later runs replace only the managed manifest and do not
+create additional backups.
 The script never removes `config.json`, caches, modules, lifecycle state, or
 unrelated skills.
 

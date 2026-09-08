@@ -7,6 +7,7 @@
     "ghostty": "~/.config/ghostty",
     "nvim": "~/.config/nvim",
     "sheldon": "~/.config/sheldon",
-    "starship.toml": "~/.config/starship.toml"
+    "starship.toml": "~/.config/starship.toml",
+    "apm/apm.yml": "~/.apm/apm.yml"
   }
 }

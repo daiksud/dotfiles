@@ -53,10 +53,9 @@ The prompt appears only in an interactive shell: it is skipped inside a zle
 widget, when stdin is not a terminal, and when `TERM` is `dumb`, so a
 non-interactive shell never blocks on it.
 
-`gh-account.zsh` deliberately never reads, sets, or clears
-`COPILOT_GITHUB_TOKEN`. Copilot user selection belongs to the parent process.
-See
-[Automatic Git identity switching](../../guides/04-git-identity.md).
+`gh-account.zsh` manages only the GitHub account environment used by the
+current shell. It intentionally avoids reading or mutating unrelated parent
+process tokens.
 
 ### Functions provided
 
@@ -79,8 +78,6 @@ See
 
 This plugin's behavior is covered by the bats suite in `tests/` — see
 [Testing](../../development/04-testing.md).
-
-For details, see [Automatic Git identity switching](../../guides/04-git-identity.md).
 
 ---
 

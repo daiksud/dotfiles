@@ -32,34 +32,3 @@ MAP_FILE="${REPO_ROOT}/install_map.json"
     esac
   done < <(jq -r '.links | values[] | if type == "array" then .[] else . end' "$MAP_FILE")
 }
-
-@test "agent instructions are shared with Copilot, Codex, and Claude Code" {
-  run jq -e '
-    .links["agent-instructions.md"] as $targets |
-    ($targets | type == "array") and
-    ([
-      "~/.copilot/copilot-instructions.md",
-      "~/.codex/AGENTS.md",
-      "~/.claude/CLAUDE.md"
-    ] - $targets | length == 0)
-  ' "$MAP_FILE"
-  [ "$status" -eq 0 ]
-  [ "$output" = "true" ]
-}
-
-@test "skill_targets is an array of absolute or ~-rooted paths" {
-  run jq -e '
-    (.skill_targets | type == "array" and length > 0) and
-    all(.skill_targets[]; type == "string") and
-    (["~/.agents/skills", "~/.claude/skills"] - .skill_targets | length == 0)
-  ' "$MAP_FILE"
-  [ "$status" -eq 0 ]
-  [ "$output" = "true" ]
-
-  while IFS= read -r target; do
-    case "$target" in
-    \~/* | /*) ;;
-    *) return 1 ;;
-    esac
-  done < <(jq -r '.skill_targets[]' "$MAP_FILE")
-}

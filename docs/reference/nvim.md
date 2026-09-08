@@ -33,7 +33,6 @@ Extras enabled in `lazyvim.json`:
 
 | Extra | Description |
 | ----------------- | --------------------------- |
-| `ai.copilot` | GitHub Copilot completion |
 | `editor.fzf` | fzf file search |
 | `lang.json` | JSON LSP and highlighting |
 | `lang.toml` | TOML LSP and highlighting |

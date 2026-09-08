@@ -47,11 +47,6 @@ zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 # Editor
 export EDITOR='nvim'
 
-# Copilot CLI の ctrl+y は補完確定と「plan/リサーチレポートを $EDITOR で開く」の
-# 二役を持つ。Emacs の yank のつもりで押すとエディタが開いてしまうため、
-# 即座に終了するコマンドを指定して誤爆を no-op 化する。
-export COPILOT_EDITOR=/usr/bin/true
-
 # Starship prompt
 eval "$(starship init zsh)"
 

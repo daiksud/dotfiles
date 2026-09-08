@@ -25,7 +25,7 @@ Configured in the global gitconfig:
 - `gpg.format = ssh` — use SSH format instead of GPG
 - `gpg.ssh.allowedSignersFile = ~/.ssh/allowed_signers` — for local signature verification
 
-The repository-specific `user.signingkey` is automatically set by `gh-account.zsh` according to the account selected for the repository (`~/.ssh/<login>.pub`). See [ADR 0020](./0020-central-gh-account-mapping.md) for how that account is selected and injected.
+The repository-specific `user.signingkey` is automatically set by `gh-account.zsh` according to the account selected for the repository (`~/.ssh/<login>.pub`). The selected account is resolved from the repository mapping and then injected into the current shell environment.
 
 ## Alternatives Considered
 

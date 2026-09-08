@@ -72,9 +72,6 @@ them.
 
 Current coverage:
 
-- `tests/agent_configuration.bats` — the root and GitHub Actions canonical
-  `AGENTS.md` files, exact synchronization of their inline Copilot mirrors,
-  and the Claude import adapters.
 - `tests/gh_account.bats` — `dotfiles/zsh/gh-account.zsh` behavior, loaded in a
   non-interactive `zsh -c` subshell with a scratch mapping file
   (`GH_ACCOUNT_MAP_FILE`) so no real `gh` account or credential is touched:
@@ -106,27 +103,11 @@ Current coverage:
   serializing concurrent destructive decisions, preserving externally
   recovered services, restoring a stopped job after a query failure, and
   propagating a start failure.
-- `tests/install_symlinks.bats` — `install.sh`'s symlink-creation logic,
-  exercised against a copy of the real script in an isolated sandbox (fixture
-  `install_map.json` and `dotfiles/`, empty `scripts/` so no real installs
-  run): single- and multi-destination link creation, per-skill links into every
-  `skill_targets` root, idempotent re-runs, preservation of unrelated skills,
-  resolving relative parent links, converting valid symlinked parents while
-  migrating their contents, preserving valid Copilot, Codex, and Claude
-  configuration-root links, and preserving dangling or non-directory parent
-  links on failure. It also removes stale links to deleted canonical skills
-  while preserving unrelated entries and canonical sources behind aliased
-  roots. Failure cases cover invalid JSON, invalid skill-target
-  schema, and path-resolution helper errors before cleanup. Migration tests
-  also verify that the legacy Copilot skill link remains available until every
-  replacement link succeeds, throughout those failures, and whenever a
-  whole-directory replacement alias may depend on it. They also verify
-  idempotent re-runs of that alias case and that an empty skill-target list
-  does not remove the only legacy discovery path.
+- `tests/install_symlinks.bats` — `install.sh`'s ordinary symlink-creation
+  logic, exercised against a copy of the real script in an isolated sandbox.
 - `tests/install_map.bats` — every `links` source resolves to a real path under
-  `dotfiles/`, destination values have the supported string or string-array
-  shape, the shared personal instruction destinations are present, and skill
-  targets include the common and Claude discovery roots using valid paths.
+  `dotfiles/`, and destination values have the supported string or
+  string-array shape.
 - `tests/repository_select.bats` — `dotfiles/zsh/repository-select.zsh`
   behavior: the plugin parses as valid Zsh, and a missing `fzf` produces a
   clear, immediate error instead of a bare `command not found`.

@@ -8,12 +8,11 @@ Accepted
 
 ## Context
 
-[ADR 0020](./0020-central-gh-account-mapping.md) centralized GitHub account
-credentials in the user-level `gh` configuration and recorded the chosen
-account per `<host>/<owner>/<repo>` in `repos.json`. That eliminated
-per-checkout credential stores and local Git identity drift, but it still asks
-for the same account once for every repository owned by the same organization
-or user.
+The earlier design centralized GitHub account credentials in the user-level
+`gh` configuration and recorded the chosen account per
+`<host>/<owner>/<repo>` in `repos.json`. That eliminated per-checkout
+credential stores and local Git identity drift, but it still asked for the
+same account once for every repository owned by the same organization or user.
 
 Most owners use one account across all of their repositories. A few
 repositories legitimately need another account, such as a release repository
@@ -50,8 +49,8 @@ created explicit overrides.
   only when every repository entry for that host and owner has identical
   `login`, `name`, and `email` values. Leave conflicting groups unchanged.
 - Preserve ADR 0020's user-level `gh` credentials, shell-scoped `GH_TOKEN`,
-  environment-injected Git identity, signing-key handling, and separation from
-  `COPILOT_GITHUB_TOKEN`.
+  environment-injected Git identity, and signing-key handling while keeping the
+  host process token environment separate.
 
 ## Alternatives Considered
 

@@ -29,7 +29,6 @@ Node.js and Bun are managed by [Vite+](./vite-plus.md), not by `Brewfile`.
 
 | Package | Purpose |
 | ---------------------- | ----------------------------- |
-| `copilot-cli` | GitHub Copilot CLI |
 | `font-moralerspace-hw` | Programming font (macOS only) |
 
 ## Adding tools

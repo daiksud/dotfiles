@@ -184,7 +184,6 @@ _gh_account_clear_env() {
   done
   _GH_ACCOUNT_GIT_CONFIG_COUNT=0
 
-  # Copilot authentication belongs to the caller and must survive shell sync.
   unset GIT_CONFIG_COUNT GH_TOKEN GH_CONFIG_DIR
   _GH_ACCOUNT_APPLIED_REPO_ID=""
 }

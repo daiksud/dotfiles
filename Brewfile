@@ -16,5 +16,4 @@ brew "sheldon"
 brew "starship"
 brew "wget"
 
-cask "copilot-cli"
 cask "font-moralerspace-hw" if OS.mac?

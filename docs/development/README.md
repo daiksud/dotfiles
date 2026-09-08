@@ -10,7 +10,6 @@ This is the developer documentation for changing and extending the dotfiles repo
 
 - [Project Structure](./01-project-structure.md) — Directory structure and the role of each file
 - [Documentation Style](./02-docs-style.md) — Markdown writing conventions
-- [Skills Development](./03-skills-development.md) — How to author and vendor Agent Skills shared across coding agents
 - [Testing](./04-testing.md) — CI jobs, the bats test suite, and how to run checks locally
 - [Commit Messages](./05-commit-messages.md) — Decision records required in agent-created commits
 

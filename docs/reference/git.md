@@ -38,4 +38,4 @@ The following are not written globally because `gh-config-dir.zsh` sets them aut
 - `user.email`
 - `user.signingkey`
 
-For details, see [Automatic Git identity switching](../guides/04-git-identity.md).
+This logic is implemented in the `gh-account.zsh` plugin and is applied per shell.

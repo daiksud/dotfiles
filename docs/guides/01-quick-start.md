@@ -60,4 +60,4 @@ herdr status client
 
 - [Installation details](./02-installation.md) — Learn how `install.sh` works in detail
 - [Adding and changing links](./03-managing-links.md) — Add a new configuration file to the managed set
-- [Automatic Git ID switching](./04-git-identity.md) — Use multiple GitHub accounts
+- `gh-account.zsh` — Use multiple GitHub accounts from a shell-scoped repository mapping

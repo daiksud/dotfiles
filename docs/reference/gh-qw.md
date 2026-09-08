@@ -4,7 +4,7 @@ This is the reference for managing GitHub repositories and Git worktrees togethe
 
 ## Overview
 
-[gh-qw](https://github.com/daiksud/gh-qw) (`daiksud/gh-qw`) is a GitHub CLI extension that keeps **one ordinary main clone** per repository, discoverable at an ordinary ghq-style path, and gives every other branch its own **linked worktree** under a separate root. It replaces the earlier `gh-qwt` extension in this repository; see [ADR 0027](../development/99-adr/0027-gh-qw.md) for why.
+[gh-qw](https://github.com/daiksud/gh-qw) (`daiksud/gh-qw`) is a GitHub CLI extension that keeps **one ordinary main clone** per repository, discoverable at an ordinary ghq-style path, and gives every other branch its own **linked worktree** under a separate root. It replaces the earlier `gh-qwt` extension in this repository.
 
 The main worktree is an ordinary clone with a real `.git` directory, so `git` and every other standard tool keep working with it. Linked worktrees live in a separate tree and share the main worktree's Git common directory, so checking out another branch never requires stashing, re-cloning, or thrashing a single working tree.
 
@@ -72,7 +72,7 @@ Starship has no gh-qw integration. Both the main worktree and every linked workt
 
 `gh-qw`'s `get` and `worktree add` are the only commands that perform network-capable Git or GitHub API operations, and both delegate to `gh` (`gh repo clone`, `gh repo sync`, and the API used to look up a repository's default branch). Before either operation, `gh-qw` resolves which authenticated account to use for the repository's `<owner>` on its own: an explicit `GH_TOKEN`/`GITHUB_TOKEN`, then a valid cached choice, an owner-matching account, a sole authenticated account, or an interactive prompt.
 
-This is independent from, and does not replace, this repository's own account selection. The `gh-account.zsh` plugin resolves the canonical `<host>/<owner>/<repo>` identity of `origin`, checks its repository override before its `<host>/<owner>` default in `~/.config/gh/repos.json`, and exports that account's token and Git identity for the current shell only. The main worktree and its linked worktrees share the same `origin`, so they resolve to the same account without any per-worktree configuration. See [Automatic Git identity switching](../guides/04-git-identity.md) for the full behavior and [Zsh plugins](./zsh/plugins.md) for the plugin's functions.
+This is independent from, and does not replace, this repository's own account selection. The `gh-account.zsh` plugin resolves the canonical `<host>/<owner>/<repo>` identity of `origin`, checks its repository override before its `<host>/<owner>` default in `~/.config/gh/repos.json`, and exports that account's token and Git identity for the current shell only. The main worktree and its linked worktrees share the same `origin`, so they resolve to the same account without any per-worktree configuration. See [Zsh plugins](./zsh/plugins.md) for the plugin's functions.
 
 ## Usage
 
@@ -146,44 +146,6 @@ gh qw list --worktree --exact --full-path "github.com/cli/cli@fix/parser"
 
 `list` exits `0` even when nothing matches, printing nothing; empty output, not a nonzero exit status, is the "not found" signal.
 
-## Agent session integration
-
-The canonical personal instructions at `dotfiles/agent-instructions.md` are
-linked to the paths loaded by GitHub Copilot, Codex, and Claude Code (see
-[Using skills](../guides/06-skills.md)). They route Pull Request requests to
-the matching shared skill.
-
-The shared PR skills use the Git checkout where the user invokes them for
-repository context, including a gh-qw main worktree or linked worktree. Their
-definitions under `dotfiles/skills/` remain the authoritative procedure. The
-PR maintenance and merge skills use the native `gh pr checkout --worktree`
-command to create their deterministic per-PR worktrees; this page documents
-explicit `gh-qw` use for interactive repository and worktree management.
-
-## Pull Request skill relationship
-
-The shared `pr-create`, `pr-fix`, and `pr-merge` Agent Skills use the invoking
-checkout for repository context:
-
-| PR phase | Checkout behavior |
-| --- | --- |
-| Create | Create a feature branch in the invoking checkout only from an exactly synchronized default branch, or use a non-default branch that has no existing PR. |
-| Fix | Reuse a verified existing `<head-branch>` worktree, including the invoking checkout, when available; otherwise create or reuse `<repository-parent>/.pr-worktrees/<base-host>/<base-owner>/<base-repo>/pr-<PR_NUMBER>` from the remote PR head, then work only there. |
-| Merge | Reuse a verified existing PR-head worktree, including the invoking checkout, or create or reuse one remote-checked-out worktree per PR, process PRs sequentially, and never switch the invoking checkout to another branch. |
-
-The skills still resolve canonical GitHub identities and re-check branch,
-working-state, remote-head, review, and CI conditions before mutating a PR.
-The target worktree must be clean, registered to the invoking repository, and
-able to push to the canonical PR head repository. A failed PR leaves its
-worktree in place for inspection and stops rather than discarding state. If the
-invoking checkout is selected as the target, its expected PR changes are
-allowed and reported as intentional. See
-[Using skills](../guides/06-skills.md),
-[ADR 0021](../development/99-adr/0021-pr-skills-invoking-checkout.md),
-[ADR 0027](../development/99-adr/0027-gh-qw.md), and
-[ADR 0035](../development/99-adr/0035-pr-skills-dedicated-worktrees.md) for
-the complete workflow.
-
 ## Shell shortcuts
 
 For interactive shells, this repository provides zsh functions built on `gh qw list --worktree` and `gh qw list --exact --full-path`:
@@ -198,4 +160,4 @@ See [Zsh plugins](./zsh/plugins.md) for details.
 
 - [gh-qw repository](https://github.com/daiksud/gh-qw)
 - [gh-qw documentation](https://daiksud.github.io/gh-qw/)
-- For the background behind this technology choice, see [ADR 0027](../development/99-adr/0027-gh-qw.md)
+- The design keeps the main worktree and linked worktrees as ordinary Git worktrees while avoiding mixed branch-state churn.

@@ -6,61 +6,60 @@ sidebar_position: 1
 
 [APM](https://microsoft.github.io/apm/) manages AI agent packages and deploys
 their primitives to supported harnesses. This repository installs the APM CLI
-with Homebrew and maintains one global configuration for GitHub Copilot CLI and
-OpenAI Codex CLI.
+with Homebrew and maintains a global consumer manifest for GitHub Copilot CLI
+and OpenAI Codex CLI. Agent skills and instructions are authored in
+[daiksud/agents](https://github.com/daiksud/agents).
 
 ## Managed configuration
 
 | Location | Owner | Purpose |
 | --- | --- | --- |
-| `dotfiles/apm/apm.yml` | This repository | Canonical APM manifest |
-| `dotfiles/apm/apm.lock.yaml` | This repository | Pinned dependency and content hashes |
+| `dotfiles/apm/apm.yml` | This repository | Canonical global consumer manifest |
 | `~/.apm/apm.yml` | Bootstrap script | Runtime copy of the canonical manifest |
-| `~/.apm/apm.lock.yaml` | Bootstrap script and APM | Runtime lockfile copy |
-| `~/.apm/config.json`, caches, modules, lifecycle files | APM | Local runtime state; not version controlled |
+| `~/.apm/apm.lock.yaml`, `config.json`, caches, modules, lifecycle files | APM | Local runtime state; not version controlled |
+| `daiksud/agents` | Its repository | APM package containing skills and instructions |
 
-`scripts/100-apm.sh` copies the two canonical files to `~/.apm/` and runs:
+`scripts/100-apm.sh` copies the canonical global manifest to `~/.apm/`, then
+runs:
 
 ```bash
-apm install --global --frozen
+apm install --global
+apm compile --global
 ```
 
-The `--frozen` flag prevents the bootstrap from resolving newer dependencies.
-It deploys the initial managed skill to:
+The manifest pins `daiksud/agents` to an immutable commit. APM owns the
+runtime lockfile it creates under `~/.apm/`, while the agents repository owns
+the package source and its update history.
 
-```text
-~/.agents/skills/skill-creator/
-```
+## Package ownership
 
-APM uses this shared skill location for both the `copilot` and `codex` targets,
-so the skill is installed once rather than duplicated per harness.
+Do not add skills or instructions under `dotfiles/`. Add and version them in
+[`daiksud/agents`](https://github.com/daiksud/agents) using its `.apm/` source
+tree. After publishing a new commit there, update the pinned dependency in
+`dotfiles/apm/apm.yml`.
+
+`apm install --global` deploys primitives supported natively by each target.
+`apm compile --global` renders root-context files for unscoped package
+instructions on targets such as Codex.
 
 ## First-run migration
 
-When `~/.apm/apm.yml` or `~/.apm/apm.lock.yaml` already exists outside this
-dotfiles setup, the script copies those files to a private directory under:
+When `~/.apm/apm.yml` already exists outside this
+dotfiles setup, the script copies it to a private directory under:
 
 ```text
 ~/.apm/backups/dotfiles-apm-*/
 ```
 
-It then activates the canonical configuration and writes an ownership marker.
-Later runs replace only the two managed runtime copies and do not create
-additional backups. The script never removes `config.json`, caches, modules,
-lifecycle state, or unrelated skills.
+It then activates the canonical manifest and writes an ownership marker. Later
+runs replace only the managed manifest and do not create additional backups.
+The script never removes `config.json`, caches, modules, lifecycle state, or
+unrelated skills.
 
-## Updating managed packages
+## Updating the dependency
 
-The initial package is
-`anthropics/skills/skills/skill-creator`, pinned to an immutable commit in
-`dotfiles/apm/apm.yml`. To add or update a managed package:
-
-1. Update the canonical manifest with an explicit commit SHA.
-2. Generate and review a new canonical `apm.lock.yaml` in an isolated `HOME`
-   using the final manifest and `apm install --global`.
-3. Commit both files. The next `install.sh` copies them into `~/.apm/` and
-   deploys the exact locked content.
-
-Do not run an unfrozen update against `~/.apm/` as the way to manage this
-configuration: its result is runtime state and will be replaced by the
-canonical files during the next dotfiles installation.
+1. Commit and push the primitive change in
+   [`daiksud/agents`](https://github.com/daiksud/agents).
+2. Update the commit SHA for `daiksud/agents` in `dotfiles/apm/apm.yml`.
+3. Rerun `install.sh` to replace the global manifest and install the new
+   package revision.

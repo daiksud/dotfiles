@@ -68,15 +68,14 @@ Installs GitHub CLI extensions and adds related tools.
 
 ### 100-apm.sh
 
-Installs the version-controlled global APM configuration after the `apm`
+Installs the version-controlled global APM consumer manifest after the `apm`
 Homebrew formula is available.
 
-- Copy the canonical `dotfiles/apm/apm.yml` and `apm.lock.yaml` into
-  `~/.apm/`; they are copied rather than linked because APM can rewrite its
-  runtime lockfile
-- On first run, back up existing unmanaged manifests and lockfiles under
-  `~/.apm/backups/` before replacing them
-- Run `apm install --global --frozen` to deploy the locked configuration
+- Copy the canonical `dotfiles/apm/apm.yml` into `~/.apm/`
+- On first run, back up an existing unmanaged manifest under
+  `~/.apm/backups/` before replacing it
+- Run `apm install --global` and `apm compile --global` to install the
+  `daiksud/agents` package and generate supported global instruction context
 - Leave APM runtime state such as `config.json`, caches, modules, lifecycle
   locks, and unrelated skills unmanaged
 

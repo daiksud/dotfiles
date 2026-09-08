@@ -6,7 +6,7 @@ targets:
   - copilot
 dependencies:
   apm:
-    - "anthropics/skills/skills/skill-creator#41bbe19d1a1a7eaab5e7bb9050a417e5c6cffc8f"
+    - "daiksud/agents#6d0d7691dce8f4d0fff04bbdee42b813b5b02a42"
   mcp: []
 includes: auto
 scripts: {}

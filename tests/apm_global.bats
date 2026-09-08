@@ -14,11 +14,13 @@ setup() {
   mkdir -p "${REPO_ROOT}/scripts" "${SOURCE_DIR}" "${FAKE_HOME}" "${FAKE_BIN}"
   cp "${SCRIPT_SOURCE}" "${SCRIPT}"
   printf '%s\n' 'name: dotfiles-global-apm' >"${SOURCE_DIR}/apm.yml"
-  printf '%s\n' "lockfile_version: '1'" >"${SOURCE_DIR}/apm.lock.yaml"
 
   cat >"${FAKE_BIN}/apm" <<'EOF'
 #!/bin/bash
 printf 'apm %s\n' "$*" >>"${COMMAND_LOG}"
+if [[ "$*" == "compile --global" ]]; then
+  exit "${FAKE_APM_COMPILE_STATUS:-0}"
+fi
 exit "${FAKE_APM_STATUS:-0}"
 EOF
   chmod +x "${FAKE_BIN}/apm"
@@ -34,6 +36,7 @@ invoke_apm_script() {
     COMMAND_LOG="${COMMAND_LOG}" \
     DOTFILES_APM_BIN="${FAKE_BIN}/apm" \
     FAKE_APM_STATUS="${FAKE_APM_STATUS:-0}" \
+    FAKE_APM_COMPILE_STATUS="${FAKE_APM_COMPILE_STATUS:-0}" \
     /bin/bash "${SCRIPT}"
 }
 
@@ -53,14 +56,14 @@ directory_mode() {
   fi
 }
 
-@test "copies canonical configuration and runs a frozen global install" {
+@test "copies the canonical manifest and installs global agent packages" {
   run invoke_apm_script
 
   [ "$status" -eq 0 ]
   cmp "${SOURCE_DIR}/apm.yml" "${FAKE_HOME}/.apm/apm.yml"
-  cmp "${SOURCE_DIR}/apm.lock.yaml" "${FAKE_HOME}/.apm/apm.lock.yaml"
   grep -Fxq 'managed-by=daiksud/dotfiles' "${FAKE_HOME}/.apm/.dotfiles-apm-managed"
-  grep -Fxq 'apm install --global --frozen' "${COMMAND_LOG}"
+  grep -Fxq 'apm install --global' "${COMMAND_LOG}"
+  grep -Fxq 'apm compile --global' "${COMMAND_LOG}"
   [ "$(backup_count)" = "0" ]
 }
 
@@ -76,9 +79,8 @@ directory_mode() {
   [ -n "${backup_dir}" ]
   [ "$(directory_mode "${backup_dir}")" = "700" ]
   grep -Fxq 'name: existing-configuration' "${backup_dir}/apm.yml"
-  grep -Fxq 'existing-lockfile' "${backup_dir}/apm.lock.yaml"
   cmp "${SOURCE_DIR}/apm.yml" "${FAKE_HOME}/.apm/apm.yml"
-  cmp "${SOURCE_DIR}/apm.lock.yaml" "${FAKE_HOME}/.apm/apm.lock.yaml"
+  grep -Fxq 'existing-lockfile' "${FAKE_HOME}/.apm/apm.lock.yaml"
 }
 
 @test "restores canonical configuration without creating another backup" {
@@ -97,13 +99,13 @@ directory_mode() {
   cmp "${SOURCE_DIR}/apm.yml" "${FAKE_HOME}/.apm/apm.yml"
 }
 
-@test "fails before modifying state when a source file is missing" {
-  rm "${SOURCE_DIR}/apm.lock.yaml"
+@test "fails before modifying state when the manifest source is missing" {
+  rm "${SOURCE_DIR}/apm.yml"
 
   run invoke_apm_script
 
   [ "$status" -ne 0 ]
-  [[ "${output}" == *"APM lockfile source is missing"* ]]
+  [[ "${output}" == *"APM manifest source is missing"* ]]
   [ ! -e "${FAKE_HOME}/.apm" ]
 }
 
@@ -123,5 +125,15 @@ directory_mode() {
   run invoke_apm_script
 
   [ "$status" -eq 27 ]
-  grep -Fxq 'apm install --global --frozen' "${COMMAND_LOG}"
+  grep -Fxq 'apm install --global' "${COMMAND_LOG}"
+}
+
+@test "propagates a failed global APM compilation" {
+  FAKE_APM_COMPILE_STATUS=28
+
+  run invoke_apm_script
+
+  [ "$status" -eq 28 ]
+  grep -Fxq 'apm install --global' "${COMMAND_LOG}"
+  grep -Fxq 'apm compile --global' "${COMMAND_LOG}"
 }

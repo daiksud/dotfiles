@@ -74,8 +74,8 @@ Current coverage:
 
 - `tests/apm_global.bats` — `scripts/100-apm.sh` behavior, using a temporary
   repository, home directory, and stubbed APM binary: canonical global
-  manifest/lockfile copying, the frozen global install invocation, first-run
-  backup of unmanaged configuration, idempotent reruns, missing source
+  manifest copying, global install and compilation invocations, first-run
+  backup of the unmanaged manifest, idempotent reruns, missing source
   failures, path-collision rejection, and APM failure propagation.
 - `tests/gh_account.bats` — `dotfiles/zsh/gh-account.zsh` behavior, loaded in a
   non-interactive `zsh -c` subshell with a scratch mapping file

@@ -6,7 +6,6 @@ script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)"
 repo_root="$(cd -- "${script_dir}/.." && pwd -P)"
 source_dir="${repo_root}/dotfiles/apm"
 source_manifest="${source_dir}/apm.yml"
-source_lockfile="${source_dir}/apm.lock.yaml"
 
 if [[ -z "${HOME:-}" ]]; then
   echo "HOME must be set to install the global APM configuration" >&2
@@ -39,14 +38,8 @@ if [[ ! -f "${source_manifest}" ]]; then
   exit 1
 fi
 
-if [[ ! -f "${source_lockfile}" ]]; then
-  echo "APM lockfile source is missing: ${source_lockfile}" >&2
-  exit 1
-fi
-
 apm_home="${HOME}/.apm"
 manifest="${apm_home}/apm.yml"
-lockfile="${apm_home}/apm.lock.yaml"
 marker="${apm_home}/.dotfiles-apm-managed"
 backup_root="${apm_home}/backups"
 
@@ -57,12 +50,10 @@ fi
 
 mkdir -p "${apm_home}"
 
-for destination in "${manifest}" "${lockfile}"; do
-  if [[ -d "${destination}" && ! -L "${destination}" ]]; then
-    echo "APM configuration path must not be a directory: ${destination}" >&2
-    exit 1
-  fi
-done
+if [[ -d "${manifest}" && ! -L "${manifest}" ]]; then
+  echo "APM configuration path must not be a directory: ${manifest}" >&2
+  exit 1
+fi
 
 if [[ -L "${backup_root}" || ( -e "${backup_root}" && ! -d "${backup_root}" ) ]]; then
   echo "APM backup path must be a real directory: ${backup_root}" >&2
@@ -85,11 +76,9 @@ fi
 
 if [[ "${is_managed}" -eq 0 ]]; then
   existing_files=()
-  for destination in "${manifest}" "${lockfile}"; do
-    if [[ -e "${destination}" || -L "${destination}" ]]; then
-      existing_files+=("${destination}")
-    fi
-  done
+  if [[ -e "${manifest}" || -L "${manifest}" ]]; then
+    existing_files+=("${manifest}")
+  fi
 
   if [[ "${#existing_files[@]}" -gt 0 ]]; then
     (umask 077 && mkdir -p "${backup_root}")
@@ -127,11 +116,11 @@ copy_file_atomically() {
 }
 
 copy_file_atomically "${source_manifest}" "${manifest}"
-copy_file_atomically "${source_lockfile}" "${lockfile}"
 
 if [[ "${is_managed}" -eq 0 ]]; then
   (umask 077 && printf '%s\n' 'managed-by=daiksud/dotfiles' >"${marker}")
 fi
 
 echo "Installing global APM configuration"
-"${apm_bin}" install --global --frozen
+"${apm_bin}" install --global
+"${apm_bin}" compile --global

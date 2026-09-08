@@ -97,17 +97,9 @@ if [[ "${is_managed}" -eq 0 ]]; then
 fi
 
 if [[ -L "${manifest}" ]]; then
-  linked_source="$(readlink "${manifest}")"
-  if [[ "${linked_source}" != "${source_manifest}" ]]; then
-    rm -f "${manifest}"
-    ln -s "${source_manifest}" "${manifest}"
-  fi
-elif [[ -e "${manifest}" ]]; then
   rm -f "${manifest}"
-  ln -s "${source_manifest}" "${manifest}"
-else
-  ln -s "${source_manifest}" "${manifest}"
 fi
+cp -p "${source_manifest}" "${manifest}"
 
 if [[ "${is_managed}" -eq 0 ]]; then
   (umask 077 && printf '%s\n' 'managed-by=daiksud/dotfiles' >"${marker}")
@@ -119,9 +111,7 @@ echo "Installing global APM configuration"
 compile_global_apm() {
   local compile_status
 
-  rm -f "${manifest}"
   if ! cp -p "${source_manifest}" "${manifest}"; then
-    ln -s "${source_manifest}" "${manifest}"
     echo "Could not prepare APM manifest for compilation" >&2
     return 1
   fi
@@ -132,8 +122,6 @@ compile_global_apm() {
     compile_status=$?
   fi
 
-  rm -f "${manifest}"
-  ln -s "${source_manifest}" "${manifest}"
   return "${compile_status}"
 }
 

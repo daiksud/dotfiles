@@ -15,12 +15,12 @@ and OpenAI Codex CLI. Agent skills and instructions are authored in
 | Location | Owner | Purpose |
 | --- | --- | --- |
 | `dotfiles/apm/apm.yml` | This repository | Canonical global consumer manifest |
-| `~/.apm/apm.yml` | Bootstrap script | Symbolic link to the canonical manifest |
+| `~/.apm/apm.yml` | Bootstrap script | Copied global consumer manifest |
 | `~/.apm/apm.lock.yaml`, `config.json`, caches, modules, lifecycle files | APM | Local runtime state; not version controlled |
 | `daiksud/agents` | Its repository | APM package containing skills and instructions |
 
-`install.sh` links the canonical global manifest into `~/.apm/`.
-`scripts/100-apm.sh` verifies the link, then runs:
+`scripts/100-apm.sh` copies the canonical global manifest into `~/.apm/`,
+then runs:
 
 ```bash
 apm install --global
@@ -38,9 +38,10 @@ Do not add skills or instructions under `dotfiles/`. Add and version them in
 tree. After publishing a new commit there, update the pinned dependency in
 `dotfiles/apm/apm.yml`.
 
-`apm install --global` deploys primitives supported natively by each target.
-`apm compile --global` renders root-context files for unscoped package
-instructions on targets such as Codex.
+`apm install --global` and `apm compile --global` use the manifest's
+`targets` list, which is limited to GitHub Copilot CLI and OpenAI Codex CLI.
+The global compilation renders their user-scope root-context files from the
+installed global package modules.
 
 ## First-run migration
 
@@ -51,7 +52,7 @@ dotfiles setup, the script copies it to a private directory under:
 ~/.apm/backups/dotfiles-apm-*/
 ```
 
-It then activates the canonical manifest as a symbolic link and writes an
+It then activates the canonical manifest as a regular file and writes an
 ownership marker. Later runs replace only the managed manifest and do not
 create additional backups.
 The script never removes `config.json`, caches, modules, lifecycle state, or

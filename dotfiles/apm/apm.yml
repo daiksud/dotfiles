@@ -6,7 +6,7 @@ targets:
   - copilot
 dependencies:
   apm:
-    - "daiksud/agents#6d0d7691dce8f4d0fff04bbdee42b813b5b02a42"
+    - "daiksud/agents"
   mcp: []
 includes: auto
 scripts: {}

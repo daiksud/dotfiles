@@ -56,15 +56,17 @@ directory_mode() {
   fi
 }
 
-@test "links the canonical manifest and installs global agent packages" {
+@test "copies the canonical manifest and installs global agent packages" {
   run invoke_apm_script
 
   [ "$status" -eq 0 ]
-  [ -L "${FAKE_HOME}/.apm/apm.yml" ]
+  [ -f "${FAKE_HOME}/.apm/apm.yml" ]
+  [ ! -L "${FAKE_HOME}/.apm/apm.yml" ]
   cmp "${SOURCE_DIR}/apm.yml" "${FAKE_HOME}/.apm/apm.yml"
   grep -Fxq 'managed-by=daiksud/dotfiles' "${FAKE_HOME}/.apm/.dotfiles-apm-managed"
   grep -Fxq 'apm install --global' "${COMMAND_LOG}"
   grep -Fxq 'apm compile --global' "${COMMAND_LOG}"
+  ! grep -Fxq 'apm compile --target codex' "${COMMAND_LOG}"
   [ "$(backup_count)" = "0" ]
 }
 
@@ -97,7 +99,8 @@ directory_mode() {
 
   [ "$status" -eq 0 ]
   [ "$(backup_count)" = "1" ]
-  [ -L "${FAKE_HOME}/.apm/apm.yml" ]
+  [ -f "${FAKE_HOME}/.apm/apm.yml" ]
+  [ ! -L "${FAKE_HOME}/.apm/apm.yml" ]
   cmp "${SOURCE_DIR}/apm.yml" "${FAKE_HOME}/.apm/apm.yml"
 }
 
@@ -136,7 +139,8 @@ directory_mode() {
   run invoke_apm_script
 
   [ "$status" -eq 28 ]
-  [ -L "${FAKE_HOME}/.apm/apm.yml" ]
+  [ -f "${FAKE_HOME}/.apm/apm.yml" ]
+  [ ! -L "${FAKE_HOME}/.apm/apm.yml" ]
   grep -Fxq 'apm install --global' "${COMMAND_LOG}"
   grep -Fxq 'apm compile --global' "${COMMAND_LOG}"
 }

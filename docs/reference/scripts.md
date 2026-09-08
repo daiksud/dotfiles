@@ -71,7 +71,7 @@ Installs GitHub CLI extensions and adds related tools.
 Installs the version-controlled global APM consumer manifest after the `apm`
 Homebrew formula is available.
 
-- Copy the canonical `dotfiles/apm/apm.yml` into `~/.apm/`
+- Copy the canonical `dotfiles/apm/apm.yml` into `~/.apm/` as a regular file
 - On first run, back up an existing unmanaged manifest under
   `~/.apm/backups/` before replacing it
 - Run `apm install --global` and `apm compile --global` to install the

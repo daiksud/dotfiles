@@ -9,6 +9,7 @@ Node.js and Bun are managed by [Vite+](./vite-plus.md), not by `Brewfile`.
 | Package | Purpose |
 | ---------- | --------------------------------------------- |
 | `gcc` | Homebrew build dependency |
+| `apm` | Global AI agent package and skill manager |
 | `fish` | Fish shell (for subshell use) |
 | `fzf` | Fuzzy finder (file selection, history search) |
 | `gh` | GitHub CLI |

@@ -1,0 +1,12 @@
+name: dotfiles-global-apm
+version: 1.0.0
+description: Global AI agent configuration managed by daiksud/dotfiles
+targets:
+  - codex
+  - copilot
+dependencies:
+  apm:
+    - "anthropics/skills/skills/skill-creator#41bbe19d1a1a7eaab5e7bb9050a417e5c6cffc8f"
+  mcp: []
+includes: auto
+scripts: {}

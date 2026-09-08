@@ -46,7 +46,7 @@ fi
 
 is_brew_dependent_100_script() {
   case "$(basename "$1")" in
-  100-ghostty.sh | 100-lazyvim.sh | 100-sheldon.sh)
+  100-apm.sh | 100-ghostty.sh | 100-lazyvim.sh | 100-sheldon.sh)
     return 0
     ;;
   *)

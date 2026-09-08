@@ -72,6 +72,11 @@ them.
 
 Current coverage:
 
+- `tests/apm_global.bats` — `scripts/100-apm.sh` behavior, using a temporary
+  repository, home directory, and stubbed APM binary: canonical global
+  manifest/lockfile copying, the frozen global install invocation, first-run
+  backup of unmanaged configuration, idempotent reruns, missing source
+  failures, path-collision rejection, and APM failure propagation.
 - `tests/gh_account.bats` — `dotfiles/zsh/gh-account.zsh` behavior, loaded in a
   non-interactive `zsh -c` subshell with a scratch mapping file
   (`GH_ACCOUNT_MAP_FILE`) so no real `gh` account or credential is touched:
@@ -104,7 +109,8 @@ Current coverage:
   recovered services, restoring a stopped job after a query failure, and
   propagating a start failure.
 - `tests/install_symlinks.bats` — `install.sh`'s ordinary symlink-creation
-  logic, exercised against a copy of the real script in an isolated sandbox.
+  logic and its APM-before-independent-`100-*` scheduling, exercised against a
+  copy of the real script in an isolated sandbox.
 - `tests/install_map.bats` — every `links` source resolves to a real path under
   `dotfiles/`, and destination values have the supported string or
   string-array shape.

@@ -8,6 +8,7 @@ a detailed reference for the dotfiles configuration files, tool list, and struct
 
 ## Tool-specific settings
 
+- [APM](./apm.md) — Global AI agent package and skill management
 - [Ghostty](./ghostty.md) — Terminal emulator
 - [Git](./git.md) — Global Git settings
 - [herdr](./herdr.md) — Terminal multiplexer

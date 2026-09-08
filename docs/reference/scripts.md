@@ -66,6 +66,23 @@ Installs GitHub CLI extensions and adds related tools.
 - Install the `gh-infra` (`babarot/gh-infra`) extension (used for declarative repository settings with `.github/settings.yml`; see [gh-infra](./gh-infra.md) for details)
 - Install `fd` (a fast file search tool) with Homebrew
 
+### 100-apm.sh
+
+Installs the version-controlled global APM configuration after the `apm`
+Homebrew formula is available.
+
+- Copy the canonical `dotfiles/apm/apm.yml` and `apm.lock.yaml` into
+  `~/.apm/`; they are copied rather than linked because APM can rewrite its
+  runtime lockfile
+- On first run, back up existing unmanaged manifests and lockfiles under
+  `~/.apm/backups/` before replacing them
+- Run `apm install --global --frozen` to deploy the locked configuration
+- Leave APM runtime state such as `config.json`, caches, modules, lifecycle
+  locks, and unrelated skills unmanaged
+
+See [APM](./apm.md) for the managed package, deployment locations, and update
+procedure.
+
 ### 100-ghostty.sh
 
 Installs the Ghostty terminal emulator and configures terminfo (if not already installed).
@@ -123,6 +140,7 @@ Installs sheldon and starship with Homebrew, then sets up plugins according to t
 
 The following scripts depend on Homebrew packages, so they are run sequentially instead of in parallel:
 
+- `100-apm.sh`
 - `100-ghostty.sh`
 - `100-lazyvim.sh`
 - `100-sheldon.sh`

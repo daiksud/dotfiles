@@ -19,7 +19,7 @@ bash install.sh
 | Terminal | Ghostty + herdr |
 | Tool management | Homebrew + mise + Vite+ |
 | Git | Automatic owner-default account switching (gh-account) + SSH signing |
-| CLI | gh, gh-qw, fzf, ripgrep, lazygit, jq |
+| CLI | apm, gh, gh-qw, fzf, ripgrep, lazygit, jq |
 
 ## How it works
 

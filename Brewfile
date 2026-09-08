@@ -1,5 +1,6 @@
 brew "gcc"
 
+brew "apm"
 brew "fish"
 brew "fzf"
 brew "gh"

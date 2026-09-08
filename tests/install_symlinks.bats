@@ -45,3 +45,22 @@ run_install() {
   [ "$status" -eq 0 ]
   [ -L "${FAKE_HOME}/dst-a.txt" ]
 }
+
+@test "runs the APM setup before independent 100 scripts" {
+  ORDER_LOG="${SANDBOX}/order.log"
+  write_install_map '{}'
+
+  cat >"${SANDBOX}/scripts/100-apm.sh" <<'EOF'
+#!/bin/bash
+printf 'apm\n' >>"${ORDER_LOG}"
+EOF
+  cat >"${SANDBOX}/scripts/100-independent.sh" <<'EOF'
+#!/bin/bash
+printf 'independent\n' >>"${ORDER_LOG}"
+EOF
+
+  run env HOME="${FAKE_HOME}" ORDER_LOG="${ORDER_LOG}" /bin/bash "${SANDBOX}/install.sh"
+
+  [ "$status" -eq 0 ]
+  [ "$(cat "${ORDER_LOG}")" = $'apm\nindependent' ]
+}

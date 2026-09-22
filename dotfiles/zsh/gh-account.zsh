@@ -256,15 +256,27 @@ _gh_account_identity() {
   token="$(gh-account-token "$login" "$host")" || return 1
   [[ -n "$token" ]] || return 1
 
-  name="$(GH_TOKEN="$token" gh api user --jq '.name // ""' 2>/dev/null)"
-  email="$(GH_TOKEN="$token" gh api user/emails \
-    --jq 'map(select(.primary == true and .verified == true) | .email)[0] // empty' 2>/dev/null)"
-  if [[ -z "$email" ]]; then
-    email="$(GH_TOKEN="$token" gh api user/emails \
-      --jq 'map(select(.primary == true) | .email)[0] // empty' 2>/dev/null)"
+  # `gh api` can write a JSON error body to stdout before returning nonzero.
+  # Capture output only from successful calls so an API error is never stored
+  # as a name or email in the account mapping.
+  if ! name="$(GH_TOKEN="$token" gh api user --jq '.name // ""' 2>/dev/null)"; then
+    return 1
+  fi
+  email=""
+  if ! email="$(GH_TOKEN="$token" gh api user/emails \
+    --jq 'map(select(.primary == true and .verified == true) | .email)[0] // empty' 2>/dev/null)"; then
+    email=""
   fi
   if [[ -z "$email" ]]; then
-    email="$(GH_TOKEN="$token" gh api user --jq '.email // ""' 2>/dev/null)"
+    if ! email="$(GH_TOKEN="$token" gh api user/emails \
+      --jq 'map(select(.primary == true) | .email)[0] // empty' 2>/dev/null)"; then
+      email=""
+    fi
+  fi
+  if [[ -z "$email" ]]; then
+    if ! email="$(GH_TOKEN="$token" gh api user --jq '.email // ""' 2>/dev/null)"; then
+      return 1
+    fi
   fi
 
   printf '%s\t%s\n' "$name" "$email"

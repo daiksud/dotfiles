@@ -6,6 +6,7 @@
     "gitconfig": "~/.gitconfig",
     "ghostty": "~/.config/ghostty",
     "nvim": "~/.config/nvim",
+    "rumdl.toml": "~/.config/rumdl/rumdl.toml",
     "sheldon": "~/.config/sheldon",
     "starship.toml": "~/.config/starship.toml"
   }

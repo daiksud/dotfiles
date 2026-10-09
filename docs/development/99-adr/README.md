@@ -21,9 +21,10 @@ An ADR (Architecture Decision Record) is a document for recording important tech
 | [0015](./0015-herdr-terminal-multiplexer.md) | Adopt herdr as the terminal multiplexer | Accepted |
 | [0016](./0016-ghostty-herdr-autostart.md) | Auto-start herdr from Ghostty | Accepted |
 | [0017](./0017-herdr-prefix-ctrl-t.md) | Change herdr's prefix key to `ctrl+t` | Accepted |
-| [0026](./0026-vite-plus-toolchain.md) | Manage Node.js and Bun with Vite+ | Accepted |
+| [0026](./0026-vite-plus-toolchain.md) | Manage Node.js and Bun with Vite+ | Superseded |
 | [0029](./0029-owner-default-gh-account-mapping.md) | Use owner defaults with repository overrides for GitHub accounts | Accepted |
 | [0034](./0034-herdr-service-restart-on-upgrade.md) | Restart Herdr after an incompatible Homebrew upgrade | Accepted |
+| [0035](./0035-mise-repository-runtimes.md) | Manage repository runtimes with mise | Accepted |
 
 ## How to Write a New ADR
 

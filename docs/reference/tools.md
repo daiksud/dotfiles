@@ -3,7 +3,7 @@
 This is the list of CLI formulas managed in the Brewfile and their purposes.
 Homebrew Cask is not used.
 
-Node.js and Bun are managed by [Vite+](./vite-plus.md), not by `Brewfile`.
+Repository-local Node.js and Bun are managed by [mise](./mise.md), not by `Brewfile`.
 
 ## CLI tools
 

@@ -13,11 +13,9 @@ It eliminates manual setup steps and post-installation work as much as possible 
 - **Symbolic links** — Declare source → target in `install_map.json`
 - **Packages** — Declare general tools in `Brewfile`
 - **Plugins** — Declare Zsh plugins in `plugins.toml` (sheldon)
-- **JavaScript toolchain** — Let Vite+ manage Node.js and Bun
-- **Development tools** — Declare repository lint and test tools in `mise.toml`
+- **Development tools** — Declare repository runtimes (Node.js and Bun), lint, and test tools in `mise.toml`
 
-Everything about "what to install" is written in configuration files or the
-dedicated Vite+ setup script, and the scripts apply those declarations.
+Everything about "what to install" is written in configuration files, and the scripts apply those declarations.
 
 ## Use Tokyo Night Storm consistently as the theme
 

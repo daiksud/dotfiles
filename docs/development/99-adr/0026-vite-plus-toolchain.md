@@ -5,7 +5,8 @@ repository's non-JavaScript development tools.
 
 ## Status
 
-Accepted
+Superseded by [ADR 0035](./0035-mise-repository-runtimes.md). The decision below
+is retained as historical context.
 
 ## Context
 

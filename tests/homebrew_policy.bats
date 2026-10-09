@@ -26,17 +26,19 @@ teardown() {
   rm -rf "$TEST_TMP"
 }
 
-check_formula_upgrade() {
-  run env -i HOME="$TEST_TMP/home" PATH="$TEST_TMP/bin:/usr/bin:/bin" \
+execute_homebrew() {
+  env -i HOME="$TEST_TMP/home" PATH="$TEST_TMP/bin:/usr/bin:/bin" \
     BREW_LOG="$BREW_LOG" TEST_OS="$1" bash "$TEST_TMP/homebrew.sh"
-  [ "$status" -eq 0 ]
-  [ "$(cat "$BREW_LOG")" = $'install --quiet gcc\nupgrade --quiet --formula' ]
 }
 
 @test "macOS setup upgrades formulas without managing installed Casks" {
-  check_formula_upgrade Darwin
+  run execute_homebrew Darwin
+  [ "$status" -eq 0 ] || return 1
+  [ "$(cat "$BREW_LOG")" = $'install --quiet gcc\nupgrade --quiet --formula' ] || return 1
 }
 
 @test "Linux setup retains formula installation and upgrades" {
-  check_formula_upgrade Linux
+  run execute_homebrew Linux
+  [ "$status" -eq 0 ] || return 1
+  [ "$(cat "$BREW_LOG")" = $'install --quiet gcc\nupgrade --quiet --formula' ] || return 1
 }

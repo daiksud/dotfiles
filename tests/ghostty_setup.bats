@@ -30,39 +30,39 @@ teardown() {
   rm -rf "$TEST_TMP"
 }
 
-run_setup() {
-  run env -i HOME="$TEST_TMP/home" PATH="$TEST_TMP/bin:/usr/bin:/bin" \
+execute_setup() {
+  env -i HOME="$TEST_TMP/home" PATH="$TEST_TMP/bin:/usr/bin:/bin" \
     SETUP_LOG="$SETUP_LOG" TEST_OS="$1" bash "$TEST_TMP/ghostty.sh"
 }
 
 @test "macOS missing Ghostty gives manual installation instructions without package operations" {
-  run_setup Darwin
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"https://ghostty.org/download"* ]]
-  [ ! -s "$SETUP_LOG" ]
+  run execute_setup Darwin
+  [ "$status" -eq 0 ] || return 1
+  [[ "$output" == *"https://ghostty.org/download"* ]] || return 1
+  [ ! -s "$SETUP_LOG" ] || return 1
 }
 
 @test "macOS direct-download app provides terminfo without Homebrew" {
   mkdir -p "$TEST_TMP/Ghostty.app/Contents/Resources/terminfo/g"
   echo terminfo-fixture > "$TEST_TMP/Ghostty.app/Contents/Resources/terminfo/g/ghostty"
-  run_setup Darwin
-  [ "$status" -eq 0 ]
-  [ "$(cat "$TEST_TMP/home/.terminfo/g/ghostty")" = terminfo-fixture ]
-  [ ! -s "$SETUP_LOG" ]
+  run execute_setup Darwin
+  [ "$status" -eq 0 ] || return 1
+  [ "$(cat "$TEST_TMP/home/.terminfo/g/ghostty")" = terminfo-fixture ] || return 1
+  [ ! -s "$SETUP_LOG" ] || return 1
 }
 
 @test "Linux retains the existing Ghostty installer" {
-  run_setup Linux
-  [ "$status" -eq 0 ]
-  [ "$output" = linux-installer-stub ]
-  [ "$(cat "$SETUP_LOG")" = 'curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh' ]
+  run execute_setup Linux
+  [ "$status" -eq 0 ] || return 1
+  [ "$output" = linux-installer-stub ] || return 1
+  [ "$(cat "$SETUP_LOG")" = 'curl -fsSL https://raw.githubusercontent.com/mkasberg/ghostty-ubuntu/HEAD/install.sh' ] || return 1
 }
 
 @test "existing Ghostty command skips installation" {
   printf '#!/bin/bash\nexit 0\n' > "$TEST_TMP/bin/ghostty"
   chmod +x "$TEST_TMP/bin/ghostty"
-  run_setup Darwin
-  [ "$status" -eq 0 ]
-  [ "$output" = '' ]
-  [ ! -s "$SETUP_LOG" ]
+  run execute_setup Darwin
+  [ "$status" -eq 0 ] || return 1
+  [ "$output" = '' ] || return 1
+  [ ! -s "$SETUP_LOG" ] || return 1
 }

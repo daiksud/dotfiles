@@ -18,4 +18,4 @@ Linux)
 esac
 
 brew install --quiet gcc
-brew upgrade --quiet
+brew upgrade --quiet --formula

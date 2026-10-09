@@ -11,7 +11,8 @@ repository commands, CI, and Codespaces.
 | Global `bun` and `bunx` commands | Vite+ global packages |
 | Project Bun version | `devEngines.packageManager` resolved by Vite+ |
 | Lint and test tools | mise |
-| General CLI and GUI packages | Homebrew |
+| General CLI formulas | Homebrew |
+| macOS applications and fonts | Manual installation (no Homebrew Cask) |
 
 [`scripts/003-vite-plus.sh`](https://github.com/daiksud/dotfiles/blob/main/scripts/003-vite-plus.sh)
 installs the latest Vite+, enables managed mode, selects Node.js LTS as the

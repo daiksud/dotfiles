@@ -4,6 +4,8 @@ This is the shortest procedure for reproducing the development environment on a 
 
 By the end of this guide, your shell configuration, editor (Neovim), terminal (Ghostty), and various CLI tools will all be set up.
 
+On macOS, first [install Ghostty and the configured font manually](./02-installation.md#macos-applications-and-fonts). Homebrew Cask is not used.
+
 ## 1. Clone the repository
 
 ```bash

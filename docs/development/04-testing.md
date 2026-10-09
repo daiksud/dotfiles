@@ -72,6 +72,8 @@ them.
 
 Current coverage:
 
+- `tests/homebrew_policy.bats` — Formula installation and formula-only upgrades on macOS and Linux, with temporary Homebrew stubs.
+- `tests/ghostty_setup.bats` — Manual macOS installation guidance, terminfo copying from an existing app, the existing-command shortcut, and the unchanged Linux installer, using temporary application files and command stubs.
 - `tests/apm_global.bats` — `scripts/100-apm.sh` behavior, using a temporary
   repository, home directory, and stubbed APM binary: canonical global
   manifest copying, global install and compilation invocations, first-run

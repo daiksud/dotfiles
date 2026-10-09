@@ -9,6 +9,19 @@ This page explains how `install.sh` works and how to run it.
 | macOS | None in particular (`git` and `python3` are available by default) |
 | Ubuntu (Codespaces) | `build-essential`, `git` (`000-codespace.sh` installs them automatically) |
 
+### macOS applications and fonts
+
+Homebrew manages CLI formulas only. This repository does not install or update
+macOS applications or fonts through Homebrew Cask.
+
+- Download the official macOS disk image from [Ghostty](https://ghostty.org/download), open it, and drag `Ghostty.app` into `/Applications`. See the [official installation instructions](https://ghostty.org/docs/install/binary#macos).
+- Download the HW font archive from [Moralerspace releases](https://github.com/yuru7/moralerspace/releases) and install `Moralerspace Neon HW` with Font Book to match the Ghostty configuration.
+
+Run `install.sh` after installing Ghostty to configure the terminal and copy its
+terminfo. If Ghostty is missing, setup prints the download URL and continues
+with the CLI setup. Existing Cask-installed applications and fonts are left in
+place; manage their updates manually. The Ubuntu Ghostty installer is unchanged.
+
 ## How to run
 
 ```bash

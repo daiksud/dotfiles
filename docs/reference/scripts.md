@@ -39,7 +39,8 @@ Installs Homebrew if it is not already installed.
 - macOS: `/opt/homebrew/bin/brew`
 - Linux: `/home/linuxbrew/.linuxbrew/bin/brew`
 
-After installation, it installs `gcc` and upgrades all packages with `brew upgrade`.
+After installation, it installs `gcc` and upgrades formulas only with `brew upgrade --formula`.
+Existing Cask applications and fonts are not upgraded.
 When invoked through `install.sh`, the script and the other setup scripts
 inherit `HOMEBREW_NO_ASK=1`, so Homebrew keeps updating and installing packages
 without asking for confirmation. The Homebrew installer itself also receives
@@ -84,11 +85,11 @@ procedure.
 
 ### 100-ghostty.sh
 
-Installs the Ghostty terminal emulator and configures terminfo (if not already installed).
+Prepares Ghostty when its command is not already available.
 
-- macOS: Install from Homebrew cask
+- macOS: Use a manually installed `/Applications/Ghostty.app`; if missing, print the [official download URL](https://ghostty.org/download) and continue without installing it
 - Linux: Install with the installation script
-- On macOS, copy the terminfo from `/Applications/Ghostty.app` to `~/.terminfo/` (so `xterm-ghostty` is recognized)
+- On macOS, create `~/.terminfo/` and copy the terminfo from `/Applications/Ghostty.app` to `~/.terminfo/` (so `xterm-ghostty` is recognized)
 
 ### 100-herdr.sh
 

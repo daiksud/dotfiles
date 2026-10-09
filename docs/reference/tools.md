@@ -1,6 +1,7 @@
 # Tool list
 
-This is the list of tools managed in the Brewfile and their purposes.
+This is the list of CLI formulas managed in the Brewfile and their purposes.
+Homebrew Cask is not used.
 
 Node.js and Bun are managed by [Vite+](./vite-plus.md), not by `Brewfile`.
 
@@ -26,15 +27,16 @@ Node.js and Bun are managed by [Vite+](./vite-plus.md), not by `Brewfile`.
 | `starship` | Cross-shell prompt |
 | `wget` | HTTP downloader |
 
-## GUI applications (cask)
+## Manually installed macOS applications and fonts
 
-| Package | Purpose |
-| ---------------------- | ----------------------------- |
-| `font-moralerspace-hw` | Programming font (macOS only) |
+- [Ghostty](https://ghostty.org/download) — Terminal emulator
+- [Moralerspace releases](https://github.com/yuru7/moralerspace/releases) — Install `Moralerspace Neon HW` from the HW archive
+
+See the [installation guide](../guides/02-installation.md#macos-applications-and-fonts) for setup.
 
 ## Adding tools
 
-Add an entry to `Brewfile`, then rerun `install.sh` or run `brew bundle` directly.
+Add a CLI formula entry to `Brewfile`, then rerun `install.sh` or run `brew bundle` directly.
 
 ```bash
 echo 'brew "new-tool"' >> Brewfile

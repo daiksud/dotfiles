@@ -10,6 +10,10 @@ cd ~/.dotfiles
 bash install.sh
 ```
 
+Homebrew manages CLI formulas only; this repository does not use Homebrew Cask.
+On macOS, install Ghostty and the configured font manually as described in the
+[installation guide](./docs/guides/02-installation.md#macos-applications-and-fonts).
+
 ## Included
 
 | Category | Contents |

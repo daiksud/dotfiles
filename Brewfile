@@ -16,5 +16,3 @@ brew "ripgrep"
 brew "sheldon"
 brew "starship"
 brew "wget"
-
-cask "font-moralerspace-hw" if OS.mac?

@@ -7,7 +7,8 @@ Add `.github/workflows/ci.yml` covering static checks, a bats-core test suite, a
 Accepted
 
 The Bun provisioning portions are superseded by
-[ADR 0026](./0026-vite-plus-toolchain.md). The CI job split and use of mise for
+[ADR 0035](./0035-mise-repository-runtimes.md), following the intermediate
+[ADR 0026](./0026-vite-plus-toolchain.md) decision. The CI job split and use of mise for
 lint and test tools remain accepted.
 
 ## Context

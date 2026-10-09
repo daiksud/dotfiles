@@ -21,7 +21,7 @@ On macOS, install Ghostty and the configured font manually as described in the
 | Shell | Zsh + Starship prompt + sheldon plugins |
 | Editor | Neovim (LazyVim) |
 | Terminal | Ghostty + herdr |
-| Tool management | Homebrew + mise + Vite+ |
+| Tool management | Homebrew + mise |
 | Git | Automatic owner-default account switching (gh-account) + SSH signing |
 | CLI | apm, gh, gh-qw, fzf, ripgrep, lazygit, jq |
 

@@ -1,4 +1,6 @@
 [tools]
+node = "lts"
+bun = "latest"
 bats = "latest"
 shellcheck = "latest"
 python = "latest"

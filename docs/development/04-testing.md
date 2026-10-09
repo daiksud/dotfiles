@@ -19,16 +19,17 @@ real-install run).
 
 ## Running checks locally
 
-Lint and test tools are managed by [mise](../reference/mise.md). Node.js, Bun,
-and JavaScript dependencies are managed by
-[Vite+](../reference/vite-plus.md). Install both tool groups with:
+All repository development tools, including Node.js and Bun, are managed by
+[mise](../reference/mise.md). From the repository root:
 
 ```bash
 mise install
-bash scripts/003-vite-plus.sh
-. "$HOME/.vite-plus/env"
-vp run docs:install
+mise exec -- bun install --frozen-lockfile
+mise exec -- bun run docs:install
 ```
+
+The commands below assume mise shell activation is enabled. Otherwise prefix
+them with `mise exec --`.
 
 Then, from the repository root:
 
@@ -53,8 +54,8 @@ python3 -c "import tomllib; [tomllib.load(open(f, 'rb')) for f in ['.rumdl.toml'
 bats tests
 
 # Documentation build
-vp run docs:install
-vp run docs:build
+bun run docs:install
+bun run docs:build
 ```
 
 > [!NOTE]
@@ -72,6 +73,7 @@ them.
 
 Current coverage:
 
+- `tests/mise_setup.bats` — Repository-root runtime provisioning before frozen Bun dependency installation, including provisioning and dependency failure propagation, with isolated command stubs.
 - `tests/homebrew_policy.bats` — Formula installation and formula-only upgrades on macOS and Linux, with temporary Homebrew stubs.
 - `tests/ghostty_setup.bats` — Manual macOS installation guidance, terminfo copying from an existing app, the existing-command shortcut, and the unchanged Linux installer, using temporary application files and command stubs.
 - `tests/apm_global.bats` — `scripts/100-apm.sh` behavior, using a temporary

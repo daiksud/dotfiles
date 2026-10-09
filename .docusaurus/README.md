@@ -53,13 +53,14 @@ Build-time local search is implemented with [Pagefind](https://pagefind.app/).
 
 ## Commands
 
-Run all commands from the repository root.
+Run all commands from the repository root after `mise install`, with mise
+shell activation enabled (or prefix commands with `mise exec --`).
 
 ```bash
-vp run docs:install   # Install dependencies
-vp run docs:start     # Start development server (hot reload enabled)
-vp run docs:build     # Generate production static site
-vp run docs:serve     # Preview the built site
+bun run docs:install   # Install dependencies
+bun run docs:start     # Start development server (hot reload enabled)
+bun run docs:build     # Generate production static site
+bun run docs:serve     # Preview the built site
 ```
 
 ## Why this is separated into `.docusaurus`

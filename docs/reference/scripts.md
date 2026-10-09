@@ -18,7 +18,6 @@ Scripts are grouped by the numeric prefix in the file name.
 | `000-*` | Sequential | OS-specific initial setup |
 | `001-*` | Sequential | Homebrew installation |
 | `002-*` | Sequential | Brewfile package installation |
-| `003-*` | Sequential | Vite+ runtime and global Bun installation |
 | `100-*` (Brew-dependent) | Sequential | Configuration that depends on Homebrew packages |
 | `100-*` (others) | Parallel | Independent tool configuration |
 
@@ -49,15 +48,6 @@ without asking for confirmation. The Homebrew installer itself also receives
 ### 002-brewfile.sh
 
 Installs the packages defined in `Brewfile` with `brew bundle`.
-
-### 003-vite-plus.sh
-
-Installs the latest Vite+ through its official installer, enables managed
-Node.js mode, sets Node.js LTS as the global default, and installs the latest
-global Bun through Vite+.
-
-This script runs before every `100-*` script, so later setup can use `vp`,
-`node`, and `bun`.
 
 ### 100-gh-extensions.sh
 
@@ -121,13 +111,11 @@ Sets up dependencies for LazyVim (the Neovim configuration framework).
 
 ### 100-mise.sh
 
-Installs the tools managed by mise (`mise install`).
-
-### 100-vite-plus-project.sh
-
-Runs a frozen Vite+ dependency install from the repository root. It resolves
-the root from its own location, so it does not depend on the caller's working
-directory.
+Installs the tools declared in the repository's `mise.toml`, including Node.js
+and Bun, then runs `mise exec -- bun install --frozen-lockfile` for root
+dependencies. Both operations run from the repository root resolved from the
+script path, regardless of the caller's working directory. A provisioning
+failure stops dependency installation, and either failure fails the script.
 
 ### 100-sheldon.sh
 

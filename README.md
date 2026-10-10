@@ -7,6 +7,7 @@ Minimal macOS (Apple Silicon) development configuration, organized by applicatio
 Each application directory at the repository root is a [GNU Stow](https://www.gnu.org/software/stow/) package mirroring the path beneath `$HOME`:
 
 ```text
+chrome/install.sh                     # Google Chrome browser
 editorconfig/.editorconfig             # ~/.editorconfig (personal settings)
 fonts/install.sh                       # Moralerspace HW font
 homebrew/install.sh                   # Homebrew and CLI packages
@@ -23,7 +24,7 @@ zsh/.zshrc                            # ~/.zshrc
 zsh/.zsh/gh-account.zsh               # ~/.zsh/gh-account.zsh
 ```
 
-Stow packages: `editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`. The installer scripts are `homebrew/install.sh` (Homebrew and CLI packages), `ghostty/install.sh` (application), and `fonts/install.sh` (font). They are not Stow packages; `ghostty/.stow-local-ignore` excludes its installer from the `ghostty` configuration package. The root `.editorconfig` applies to this repository, independently of the personal `editorconfig/.editorconfig` linked to `~/.editorconfig`. Project-specific EditorConfig files can override the personal defaults. Project-level files such as `bootstrap.sh` and `.github/` stay at the root. The personal `rumdl/.config/rumdl/rumdl.toml` remains Stow-managed, but this repository no longer installs rumdl or runs Markdown lint.
+Stow packages: `editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`. The installer scripts are `homebrew/install.sh` (Homebrew and CLI packages), `chrome/install.sh` (browser), `ghostty/install.sh` (terminal), and `fonts/install.sh` (font). They are not Stow packages; `ghostty/.stow-local-ignore` excludes its installer from the `ghostty` configuration package. The root `.editorconfig` applies to this repository, independently of the personal `editorconfig/.editorconfig` linked to `~/.editorconfig`. Project-specific EditorConfig files can override the personal defaults. Project-level files such as `bootstrap.sh` and `.github/` stay at the root. The personal `rumdl/.config/rumdl/rumdl.toml` remains Stow-managed, but this repository no longer installs rumdl or runs Markdown lint.
 
 ## Install
 
@@ -33,7 +34,7 @@ On a fresh **Apple Silicon Mac**, open Terminal and run one command:
 curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/bootstrap.sh | bash
 ```
 
-Git must already be available on macOS (if macOS prompts to install Xcode Command Line Tools, complete that prompt). The bootstrap clones or fast-forwards `~/.dotfiles` **before** installing Homebrew through the local `homebrew/install.sh`. It runs the application installers in order: Homebrew formulas, **Ghostty**, and the **Moralerspace Neon HW** font, followed by Stow and global APM install/compile. Ghostty and the font are installed via Homebrew casks by their own scripts, without replacing manually installed copies.
+Git must already be available on macOS (if macOS prompts to install Xcode Command Line Tools, complete that prompt). The bootstrap clones or fast-forwards `~/.dotfiles` **before** installing Homebrew through the local `homebrew/install.sh`. It runs the application installers in order: Homebrew formulas, **Google Chrome**, **Ghostty**, and the **Moralerspace Neon HW** font, followed by Stow and global APM install/compile. Chrome, Ghostty and the font are installed via Homebrew casks by their own scripts, without replacing manually installed copies.
 
 macOS may ask for administrator approval or Xcode Command Line Tools installation. GitHub CLI authentication requires an interactive browser sign-in; these prompts happen **during** the same installation command. The flow assumes an already usable Git command. Internet access and a macOS administrator account are required.
 

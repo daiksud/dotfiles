@@ -23,11 +23,12 @@ jobs:
 
       - name: Bootstrap syntax check
         run: |
-          for script in bootstrap.sh bootstrap.test.sh homebrew/install.sh ghostty/install.sh fonts/install.sh; do
+          for script in bootstrap.sh bootstrap.test.sh homebrew/install.sh chrome/install.sh ghostty/install.sh fonts/install.sh; do
             bash -n "$script"
           done
           test -f homebrew/Brewfile
           test -x homebrew/install.sh
+          test -x chrome/install.sh
           test -x ghostty/install.sh
           test -x fonts/install.sh
           ! grep -q '^cask ' homebrew/Brewfile

@@ -1,9 +1,1 @@
-[global]
-disable = ["MD013", "MD033", "MD034"]
-
-[MD060]
-enabled = true
-style = "compact"
-
-[MD076]
-style = "tight"
+../home/.config/rumdl/rumdl.toml

@@ -20,35 +20,51 @@ jobs:
 
       - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
 
-      - name: Ensure zsh is available
-        run: command -v zsh >/dev/null || (sudo apt-get update && sudo apt-get install -y zsh)
+      - name: Install Zsh and Stow
+        run: sudo apt-get update && sudo apt-get install -y zsh stow
 
       - name: Markdown lint
         run: mise run markdown:lint
 
-      - name: Shellcheck (bash/sh scripts)
-        run: shellcheck install.sh scripts/*.sh dotfiles/ghostty/herdr-launch.sh
+      - name: Shellcheck
+        run: shellcheck home/.config/ghostty/herdr-launch.sh
 
       - name: Zsh syntax check (zsh plugins)
         run: |
           status=0
-          for f in dotfiles/zsh/*.zsh; do
+          for f in home/.zshrc home/.zsh/*.zsh; do
             zsh -n "$f" || status=1
           done
           exit "$status"
 
       - name: Validate JSON config files
         run: |
-          jq empty install_map.json
+          jq empty home/.config/nvim/lazyvim.json home/.config/nvim/lazy-lock.json home/.config/nvim/.neoconf.json
 
       - name: Validate TOML config files
         run: |
           python3 -c "
           import tomllib
-          for f in ['.rumdl.toml', 'mise.toml', 'dotfiles/starship.toml']:
+          for f in ['.rumdl.toml', 'mise.toml', 'home/.config/herdr/config.toml', 'home/.config/rumdl/rumdl.toml', 'home/.config/sheldon/plugins.toml', 'home/.config/starship.toml']:
               with open(f, 'rb') as fh:
                   tomllib.load(fh)
           "
+
+      - name: Stow smoke test
+        run: |
+          target="$(mktemp -d)"
+          stow --no-folding --dir="$PWD" --target="$target" home
+          test -L "$target/.zshrc"
+          test -L "$target/.zsh/gh-account.zsh"
+          test -L "$target/.config/ghostty/herdr-launch.sh"
+          test -L "$target/.config/herdr/config.toml"
+          test -L "$target/.config/nvim/init.lua"
+          test -L "$target/.config/sheldon/plugins.toml"
+          test -L "$target/.config/starship.toml"
+          stow --no-folding --dir="$PWD" --target="$target" home
+          test "$(readlink dotfiles/zshrc)" = "../home/.zshrc"
+          test "$(readlink dotfiles/ghostty)" = "../home/.config/ghostty"
+          rm -rf "$target"
 
   test:
     strategy:

@@ -1,8 +1,8 @@
 #!/usr/bin/env bats
 
-# Behavior coverage for dotfiles/zsh/repository-select.zsh.
+# Behavior coverage for home/.zsh/repository-select.zsh.
 
-PLUGIN="${BATS_TEST_DIRNAME}/../dotfiles/zsh/repository-select.zsh"
+PLUGIN="${BATS_TEST_DIRNAME}/../home/.zsh/repository-select.zsh"
 
 setup() {
   TEST_TMP="$(mktemp -d)"

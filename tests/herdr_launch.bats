@@ -1,5 +1,5 @@
 #!/usr/bin/env bats
-# Behavior tests for dotfiles/ghostty/herdr-launch.sh.
+# Behavior tests for home/.config/ghostty/herdr-launch.sh.
 #
 # Ghostty's GUI process starts with a minimal PATH (no Homebrew), so the
 # wrapper must resolve herdr from known Homebrew bin directories, fall back
@@ -8,7 +8,7 @@
 # shell under a temp directory (via HERDR_LAUNCH_BREW_BINS and SHELL) so no
 # real Homebrew installation or herdr binary is required.
 
-SCRIPT="${BATS_TEST_DIRNAME}/../dotfiles/ghostty/herdr-launch.sh"
+SCRIPT="${BATS_TEST_DIRNAME}/../home/.config/ghostty/herdr-launch.sh"
 
 setup() {
   TEST_TMP="$(mktemp -d)"

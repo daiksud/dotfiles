@@ -3,7 +3,7 @@ set -e
 
 plugin_dir="${0:A:h}"
 source "$plugin_dir/repository-select.zsh"
-source "$plugin_dir/go-to-repository.zsh"
+source "$plugin_dir/fzf-select-ghqw.zsh"
 
 tmpdir="$(mktemp -d)"
 trap 'rm -rf -- "$tmpdir"' EXIT
@@ -12,6 +12,13 @@ mkdir -p "$tmpdir/main repository" "$tmpdir/linked worktree"
 selected_spec=github.com/example/repo
 gh() {
   case "$*" in
+    "qw list --worktree --fzf")
+      case "$selected_spec" in
+        github.com/example/repo) print -r -- "$tmpdir/main repository" ;;
+        github.com/example/repo@feature/test) print -r -- "$tmpdir/linked worktree" ;;
+        canceled) return 130 ;;
+      esac
+      ;;
     "qw list --worktree")
       print -r -- "github.com/example/repo"
       print -r -- "github.com/example/repo@feature/test"
@@ -48,15 +55,39 @@ selected_spec=github.com/example/repo@feature/test
   print -u2 -- "FAIL: linked worktree was not resolved"
   exit 1
 }
-alias ggr | grep -q go-to-repository
-[[ "$(bindkey '^]')" == *go-to-repository* ]] || {
-  print -u2 -- "FAIL: Ctrl+] keybinding was not restored"
+alias fgq | grep -q fzf-select-ghqw
+[[ "$(bindkey '^]')" == *fzf-select-ghqw* ]] || {
+  print -u2 -- "FAIL: Ctrl+] keybinding must invoke fzf-select-ghqw"
   exit 1
 }
 cd "$tmpdir"
-go-to-repository
+fzf-select-ghqw
 [[ "$PWD" == "$tmpdir/linked worktree" ]] || {
-  print -u2 -- "FAIL: go-to-repository did not change directories"
+  print -u2 -- "FAIL: fzf-select-ghqw did not change directories"
+  exit 1
+}
+selected_spec=github.com/example/repo
+fzf-select-ghqw
+[[ "$PWD" == "$tmpdir/main repository" ]] || {
+  print -u2 -- "FAIL: fzf-select-ghqw did not select the main checkout"
+  exit 1
+}
+selected_spec=canceled
+if fzf-select-ghqw; then
+  print -u2 -- "FAIL: canceled native selector should fail"
+  exit 1
+fi
+[[ "$PWD" == "$tmpdir/main repository" ]] || {
+  print -u2 -- "FAIL: canceled selection must not change directories"
+  exit 1
+}
+selected_spec=github.com/example/unknown
+if fzf-select-ghqw; then
+  print -u2 -- "FAIL: empty native selection should fail"
+  exit 1
+fi
+[[ "$PWD" == "$tmpdir/main repository" ]] || {
+  print -u2 -- "FAIL: empty selection must not change directories"
   exit 1
 }
 selected_spec=github.com/example/unknown
@@ -64,4 +95,4 @@ if repository-select-path >/dev/null 2>&1; then
   print -u2 -- "FAIL: canceled selection must fail"
   exit 1
 fi
-print -r -- "ok - repository selection, worktrees, alias, and widget"
+print -r -- "ok - repository selection, native fzf gh-qw navigation, alias, and widget"

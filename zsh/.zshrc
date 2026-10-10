@@ -22,5 +22,5 @@ eval "$(mise activate zsh)"
 # Custom history search, repository navigation, and GitHub identities.
 [[ -f "$HOME/.zsh/fzf-select-history.zsh" ]] && source "$HOME/.zsh/fzf-select-history.zsh"
 [[ -f "$HOME/.zsh/repository-select.zsh" ]] && source "$HOME/.zsh/repository-select.zsh"
-[[ -f "$HOME/.zsh/go-to-repository.zsh" ]] && source "$HOME/.zsh/go-to-repository.zsh"
+[[ -f "$HOME/.zsh/fzf-select-ghqw.zsh" ]] && source "$HOME/.zsh/fzf-select-ghqw.zsh"
 [[ -f "$HOME/.zsh/gh-account.zsh" ]] && source "$HOME/.zsh/gh-account.zsh"

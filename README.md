@@ -33,9 +33,9 @@ On a fresh **Apple Silicon Mac**, open Terminal and run one command:
 curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/bootstrap.sh | bash
 ```
 
-No tools need to be installed beforehand. The bootstrap uses macOS's built-in Bash and curl to provision Homebrew through `homebrew/install.sh` (downloading that helper before cloning, when necessary), then clones or fast-forwards `~/.dotfiles`. It runs the application installers in order: Homebrew formulas, **Ghostty**, and the **Moralerspace Neon HW** font, followed by Stow and global APM install/compile. Ghostty and the font are installed via Homebrew casks by their own scripts, without replacing manually installed copies.
+Git must already be available on macOS (if macOS prompts to install Xcode Command Line Tools, complete that prompt). The bootstrap clones or fast-forwards `~/.dotfiles` **before** installing Homebrew through the local `homebrew/install.sh`. It runs the application installers in order: Homebrew formulas, **Ghostty**, and the **Moralerspace Neon HW** font, followed by Stow and global APM install/compile. Ghostty and the font are installed via Homebrew casks by their own scripts, without replacing manually installed copies.
 
-macOS may ask for administrator approval or Xcode Command Line Tools installation. GitHub CLI authentication requires an interactive browser sign-in; these prompts happen **during** the same installation command. Internet access and a macOS administrator account are required.
+macOS may ask for administrator approval or Xcode Command Line Tools installation. GitHub CLI authentication requires an interactive browser sign-in; these prompts happen **during** the same installation command. The flow assumes an already usable Git command. Internet access and a macOS administrator account are required.
 
 To rerun the installer from a checkout:
 

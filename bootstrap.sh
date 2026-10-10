@@ -6,23 +6,6 @@ if [[ "$(uname -s)" != Darwin || "$(uname -m)" != arm64 ]]; then
   exit 1
 fi
 
-if ! command -v brew >/dev/null 2>&1 && [[ ! -x /opt/homebrew/bin/brew ]]; then
-  if [[ -f "${BASH_SOURCE[0]:-}" && -f "$(dirname "${BASH_SOURCE[0]:-}")/homebrew/install.sh" ]]; then
-    bash "$(dirname "${BASH_SOURCE[0]:-}")/homebrew/install.sh" --bootstrap-only
-  else
-    curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/homebrew/install.sh | bash -s -- --bootstrap-only
-  fi
-fi
-brew_bin="$(command -v brew || true)"
-if [[ -z "$brew_bin" ]]; then
-  brew_bin=/opt/homebrew/bin/brew
-fi
-if [[ ! -x "$brew_bin" ]]; then
-  echo "Homebrew installation failed." >&2
-  exit 1
-fi
-eval "$("$brew_bin" shellenv)"
-
 if [[ -f "${BASH_SOURCE[0]:-}" && -f "$(dirname "${BASH_SOURCE[0]:-}")/homebrew/Brewfile" ]]; then
   cd "$(dirname "${BASH_SOURCE[0]:-}")"
 else
@@ -37,7 +20,8 @@ else
   cd "$HOME/.dotfiles"
 fi
 
-./homebrew/install.sh
+# Source Homebrew's shell environment for the other installers.
+source ./homebrew/install.sh
 ./ghostty/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh

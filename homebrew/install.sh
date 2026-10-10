@@ -15,8 +15,5 @@ if [[ ! -x "$brew_bin" ]]; then
   echo "Homebrew installation did not provide $brew_bin." >&2
   exit 1
 fi
-if [[ "${1:-}" == --bootstrap-only ]]; then
-  exit 0
-fi
 eval "$("$brew_bin" shellenv)"
 brew bundle --no-upgrade --file="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Brewfile"

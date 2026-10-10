@@ -83,19 +83,7 @@ grep -F 'stow --no-folding --target=' "$TRACE" | grep -q 'editorconfig git ghost
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
 
-# Simulate missing Homebrew on CI and verify bootstrap fetches the helper.
-if [[ ! -x /opt/homebrew/bin/brew ]]; then
-  mv "$tmp/bin/brew" "$tmp/brew-stub"
-  export BREW_MOCK_STUB="$tmp/brew-stub" MOCKED_BREW_DEST="$tmp/bin/brew"
-  cat >"$tmp/bin/curl" <<'SH'
-#!/usr/bin/env bash
-printf 'cp %q %q\n' "$BREW_MOCK_STUB" "$MOCKED_BREW_DEST"
-SH
-  chmod +x "$tmp/bin/curl"
-  mkdir -p "$tmp/clean-home"
-  (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | HOME="$tmp/clean-home" bash)
-  test -x "$tmp/bin/brew"
-  grep -Fx "git clone https://github.com/daiksud/dotfiles.git $tmp/clean-home/.dotfiles" "$TRACE"
-fi
+# Git is available before Homebrew; cloning precedes package installation.
+test "$(head -n 1 "$TRACE")" = "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles"
 
 echo 'Modular bootstrap and repeat-run smoke tests passed'

@@ -21,14 +21,14 @@ jobs:
       - name: Install Zsh and Stow
         run: sudo apt-get update && sudo apt-get install -y zsh stow
 
-      - name: Installer syntax check
+      - name: Bootstrap syntax check
         run: |
-          bash -n install.sh
-          bash -n install.test.sh
+          bash -n bootstrap.sh
+          bash -n bootstrap.test.sh
           test -f homebrew/Brewfile
 
       - name: Bootstrap smoke test
-        run: bash install.test.sh
+        run: bash bootstrap.test.sh
 
       - name: Zsh syntax check (zsh plugins)
         run: |
@@ -61,7 +61,7 @@ jobs:
           test -L "$target/.config/rumdl/rumdl.toml"
           test -L "$target/.config/sheldon/plugins.toml"
           test -L "$target/.config/starship.toml"
-          test -x install.sh
+          test -x bootstrap.sh
           stow --no-folding --dir="$PWD" --target="$target" "${packages[@]}"
           stow --delete --no-folding --dir="$PWD" --target="$target" "${packages[@]}"
           test ! -L "$target/.editorconfig"

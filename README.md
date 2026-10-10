@@ -20,14 +20,14 @@ zsh/.zshrc                            # ~/.zshrc
 zsh/.zsh/gh-account.zsh               # ~/.zsh/gh-account.zsh
 ```
 
-Stow packages: `editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`. The installer reads `homebrew/Brewfile` directly; it is not a Stow package. The root `.editorconfig` applies to this repository, independently of the personal `editorconfig/.editorconfig` linked to `~/.editorconfig`. Project-specific EditorConfig files can override the personal defaults. Project-level files such as `install.sh` and `.github/` stay at the root. The personal `rumdl/.config/rumdl/rumdl.toml` remains Stow-managed, but this repository no longer installs rumdl or runs Markdown lint.
+Stow packages: `editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`. The installer reads `homebrew/Brewfile` directly; it is not a Stow package. The root `.editorconfig` applies to this repository, independently of the personal `editorconfig/.editorconfig` linked to `~/.editorconfig`. Project-specific EditorConfig files can override the personal defaults. Project-level files such as `bootstrap.sh` and `.github/` stay at the root. The personal `rumdl/.config/rumdl/rumdl.toml` remains Stow-managed, but this repository no longer installs rumdl or runs Markdown lint.
 
 ## Install
 
 On a fresh **Apple Silicon Mac**, open Terminal and run one command:
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/bootstrap.sh | bash
 ```
 
 No tools need to be installed beforehand. The script uses macOS's built-in Bash and curl, installs Homebrew (and the Xcode Command Line Tools when required), clones or fast-forwards `~/.dotfiles`, then runs `brew bundle --no-upgrade`, Stow and global APM installation/compilation. The Brewfile also installs **Ghostty** and **Moralerspace Neon HW** via Homebrew casks. An existing manually installed Ghostty or font is left untouched.
@@ -38,7 +38,7 @@ To rerun the installer from a checkout:
 
 ```sh
 cd ~/.dotfiles
-./install.sh
+./bootstrap.sh
 ```
 
 Stow does not overwrite unmanaged configuration. Before installation, preview links with `stow --no-folding --simulate --verbose -t "$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`. Resolve conflicts explicitly; do **not** use `--adopt`. For a single app, run `stow --no-folding -t "$HOME" ghostty`, or `stow --delete --no-folding -t "$HOME" ghostty` to unlink it.
@@ -51,10 +51,10 @@ Stow does not overwrite unmanaged configuration. Before installation, preview li
 cd ~/.dotfiles
 stow --delete --no-folding -t "$HOME" home
 git pull --ff-only
-./install.sh
+./bootstrap.sh
 ```
 
-If you've **already pulled**, or used the older `install.sh` instead of Stow, inspect old symlinks first. Remove **only** links proven to point into this checkout's deleted `home/` or `dotfiles/` paths; never delete regular files or unrelated links. Stow will report conflicts if those links remain. Inspect with `ls -l ~/.zshrc ~/.gitconfig ~/.zsh ~/.config/ghostty` and other paths shown above. Avoid `stow --adopt`.
+If you've **already pulled**, or used the pre-Stow setup script, inspect old symlinks first. Remove **only** links proven to point into this checkout's deleted `home/` or `dotfiles/` paths; never delete regular files or unrelated links. Stow will report conflicts if those links remain. Inspect with `ls -l ~/.zshrc ~/.gitconfig ~/.zsh ~/.config/ghostty` and other paths shown above. Avoid `stow --adopt`.
 
 This reorganization does not change Git credentials, SSH signing keys or Herdr sessions.
 
@@ -62,7 +62,7 @@ This reorganization does not change Git credentials, SSH signing keys or Herdr s
 
 The installer runs `gh auth login` if needed and installs the `gh-qw` and `gh-infra` extensions. Additional GitHub accounts, account-to-repository mappings and SSH signing keys require your personal identity or authorization, so they are not generated automatically.
 
-`apm.yml` is not tracked here. During `./install.sh`, the APM CLI creates and manages the global manifest itself:
+`apm.yml` is not tracked here. During `./bootstrap.sh`, the APM CLI creates and manages the global manifest itself:
 
 ```sh
 apm install --global daiksud/agents --target codex,copilot
@@ -82,8 +82,8 @@ Ghostty launches Herdr directly, and Herdr manages its own persistent session se
 ## Checks
 
 ```sh
-bash -n install.sh
-bash install.test.sh
+bash -n bootstrap.sh
+bash bootstrap.test.sh
 zsh -f zsh/.zsh/gh-account.test.zsh
 ```
 

@@ -50,15 +50,15 @@ SH
 done
 chmod +x "$tmp/bin/"*
 
-# A streamed installer clones the checkout. Running it again pulls safely.
-(cd "$tmp" && cat "$SOURCE_DIR/install.sh" | bash)
-(cd "$tmp" && cat "$SOURCE_DIR/install.sh" | bash)
+# A streamed bootstrap clones the checkout. Running it again pulls safely.
+(cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | bash)
+(cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | bash)
 # A checkout-local execution does not clone or pull.
-(cd "$SOURCE_DIR" && bash ./install.sh)
+(cd "$SOURCE_DIR" && bash ./bootstrap.sh)
 
 # An unrelated existing directory is never overwritten by the remote installer.
 mkdir -p "$tmp/occupied/.dotfiles"
-if (cd "$tmp" && cat "$SOURCE_DIR/install.sh" | HOME="$tmp/occupied" bash) >/dev/null 2>&1; then
+if (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | HOME="$tmp/occupied" bash) >/dev/null 2>&1; then
   echo 'FAIL: existing unmanaged checkout was overwritten' >&2
   exit 1
 fi

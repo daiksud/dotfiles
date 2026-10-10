@@ -1,10 +1,10 @@
 #!/usr/bin/env bats
 
-# Regression coverage for home/.zsh/gh-account.zsh. Each test sources the
+# Regression coverage for zsh/.zsh/gh-account.zsh. Each test sources the
 # plugin outside a Git repository and uses shell functions to avoid real
 # credentials and network access.
 
-PLUGIN="${BATS_TEST_DIRNAME}/../home/.zsh/gh-account.zsh"
+PLUGIN="${BATS_TEST_DIRNAME}/../zsh/.zsh/gh-account.zsh"
 
 setup() {
   TEST_TMP="$(mktemp -d)"

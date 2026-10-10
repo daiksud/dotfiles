@@ -1,5 +1,4 @@
 [tools]
-bats = "latest"
 python = "latest"
 rumdl = "latest"
 

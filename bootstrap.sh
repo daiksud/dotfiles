@@ -22,6 +22,7 @@ fi
 
 # Source Homebrew's shell environment for the other installers.
 source ./homebrew/install.sh
+./chrome/install.sh
 ./ghostty/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh

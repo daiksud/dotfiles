@@ -1,6 +1,7 @@
 brew "gcc"
 
 brew "apm"
+brew "fd"
 brew "fish"
 brew "fzf"
 brew "gh"
@@ -15,4 +16,5 @@ brew "neovim"
 brew "ripgrep"
 brew "sheldon"
 brew "starship"
+brew "stow"
 brew "wget"

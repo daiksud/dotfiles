@@ -6,14 +6,11 @@ if [[ "$(uname -s)" != Darwin || "$(uname -m)" != arm64 ]]; then
   exit 1
 fi
 
-if [[ -f "${BASH_SOURCE[0]:-}" && -f "$(dirname "${BASH_SOURCE[0]:-}")/homebrew/Brewfile" ]]; then
-  cd "$(dirname "${BASH_SOURCE[0]:-}")"
+if [[ -f "${BASH_SOURCE[0]:-}" ]]; then
+  cd "$(dirname "${BASH_SOURCE[0]}")"
 else
-  if [[ -d "$HOME/.dotfiles/.git" ]]; then
+  if [[ -e "$HOME/.dotfiles" ]]; then
     git -C "$HOME/.dotfiles" pull --ff-only
-  elif [[ -e "$HOME/.dotfiles" ]]; then
-    echo "Cannot clone: $HOME/.dotfiles exists and is not a Git checkout." >&2
-    exit 1
   else
     git clone https://github.com/daiksud/dotfiles.git "$HOME/.dotfiles"
   fi
@@ -29,10 +26,7 @@ stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl she
 apm install --global daiksud/agents --target codex,copilot
 apm compile --global
 
-if ! gh auth status >/dev/null 2>&1; then
-  echo "Sign in to GitHub to finish CLI setup:"
-  gh auth login </dev/tty
-fi
+gh auth status >/dev/null 2>&1 || gh auth login </dev/tty
 gh extension install --force daiksud/gh-qw
 gh extension install --force babarot/gh-infra
 

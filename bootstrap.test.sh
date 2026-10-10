@@ -30,6 +30,9 @@ SH
 cat >"$tmp/bin/git" <<'SH'
 #!/usr/bin/env bash
 printf 'git %s\n' "$*" >>"$TRACE"
+if [[ "$1" == -C && ! -d "$2/.git" ]]; then
+  exit 128
+fi
 if [[ "$1" == clone ]]; then
   mkdir -p "$3/homebrew" "$3/chrome" "$3/ghostty" "$3/fonts" "$3/.git"
   cp "$SOURCE_DIR/homebrew/Brewfile" "$3/homebrew/Brewfile"
@@ -58,8 +61,8 @@ chmod +x "$tmp/bin/"*
 # A streamed bootstrap clones the checkout. Running it again pulls safely.
 (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | bash)
 (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | bash)
-# A checkout-local execution does not clone or pull.
-(cd "$SOURCE_DIR" && bash ./bootstrap.sh)
+# Executing the checkout script from a different directory uses its own location.
+(cd "$tmp" && bash "$SOURCE_DIR/bootstrap.sh")
 
 # An unrelated existing directory is never overwritten by the remote installer.
 mkdir -p "$tmp/occupied/.dotfiles"

@@ -26,6 +26,9 @@ jobs:
       - name: Markdown lint
         run: mise run markdown:lint
 
+      - name: Installer syntax check
+        run: bash -n install.sh
+
       - name: Zsh syntax check (zsh plugins)
         run: |
           status=0
@@ -62,7 +65,7 @@ jobs:
           test -L "$target/.config/rumdl/rumdl.toml"
           test -L "$target/.config/sheldon/plugins.toml"
           test -L "$target/.config/starship.toml"
-          test -f apm/apm.yml
+          test -x install.sh
           stow --no-folding --dir="$PWD" --target="$target" "${packages[@]}"
           stow --delete --no-folding --dir="$PWD" --target="$target" "${packages[@]}"
           test ! -L "$target/.gitconfig"

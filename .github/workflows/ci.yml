@@ -23,9 +23,14 @@ jobs:
 
       - name: Bootstrap syntax check
         run: |
-          bash -n bootstrap.sh
-          bash -n bootstrap.test.sh
+          for script in bootstrap.sh bootstrap.test.sh homebrew/install.sh ghostty/install.sh fonts/install.sh; do
+            bash -n "$script"
+          done
           test -f homebrew/Brewfile
+          test -x homebrew/install.sh
+          test -x ghostty/install.sh
+          test -x fonts/install.sh
+          ! grep -q '^cask ' homebrew/Brewfile
 
       - name: Bootstrap smoke test
         run: bash bootstrap.test.sh
@@ -55,6 +60,8 @@ jobs:
           test ! -L "$target/.zsh/gh-account.test.zsh"
           test ! -e "$target/.stow-local-ignore"
           test -L "$target/.config/ghostty/config"
+          test ! -e "$target/install.sh"
+          test ! -L "$target/install.sh"
           test -L "$target/.config/ghostty/hololive-en-advent.jpg"
           test -L "$target/.config/herdr/config.toml"
           test -L "$target/.config/nvim/init.lua"

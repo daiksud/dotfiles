@@ -1,4 +1,5 @@
 brew "apm"
+brew "editorconfig"
 brew "fd"
 brew "fzf"
 brew "gh"

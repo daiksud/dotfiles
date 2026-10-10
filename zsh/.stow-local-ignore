@@ -1,2 +1,3 @@
 ^/\.zsh/gh-account\.test\.zsh$
 ^/\.zsh/repository-select\.test\.zsh$
+^/\.zsh/fzf-select-history\.test\.zsh$

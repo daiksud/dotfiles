@@ -101,6 +101,16 @@ test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
 
+# Standalone installers also preserve manually installed applications and fonts.
+mkdir -p "$tmp/Applications/Google Chrome.app" "$tmp/Applications/Ghostty.app" "$HOME/Library/Fonts"
+touch "$HOME/Library/Fonts/MoralerspaceNeonHW-Regular.ttf"
+for app in chrome ghostty fonts; do
+  (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK= bash "$app/install.sh")
+done
+test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
+
 # Git is available before Homebrew; cloning precedes package installation.
 test "$(head -n 1 "$TRACE")" = "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles"
 

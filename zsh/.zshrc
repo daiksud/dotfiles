@@ -19,5 +19,7 @@ eval "$(sheldon source)"
 eval "$(starship init zsh)"
 eval "$(mise activate zsh)"
 
-# The only repo-specific shell extension left: scoped GitHub identities.
+# Custom repository navigation and GitHub identities.
+[[ -f "$HOME/.zsh/repository-select.zsh" ]] && source "$HOME/.zsh/repository-select.zsh"
+[[ -f "$HOME/.zsh/go-to-repository.zsh" ]] && source "$HOME/.zsh/go-to-repository.zsh"
 [[ -f "$HOME/.zsh/gh-account.zsh" ]] && source "$HOME/.zsh/gh-account.zsh"

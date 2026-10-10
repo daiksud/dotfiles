@@ -30,11 +30,12 @@ Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not 
 - Application directories — personal configuration linked into `$HOME` with Stow
 - `.editorconfig` — repository-specific rules, separate from `editorconfig/.editorconfig`
 
-GitHub account mappings and SSH signing keys require personal setup.
+Use `ggr` or `Ctrl+]` in Zsh to select a `gh qw` repository or worktree with `fzf`. GitHub account mappings and SSH signing keys require personal setup.
 
 ## Checks
 
 ```sh
 bash bootstrap.test.sh
 zsh -f zsh/.zsh/gh-account.test.zsh
+zsh -f zsh/.zsh/repository-select.test.zsh
 ```

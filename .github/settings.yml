@@ -5,7 +5,7 @@ metadata:
   owner: daiksud
 spec:
   description: ""
-  homepage: https://daiksud.github.io/dotfiles/
+  homepage: ""
   visibility: public
   archived: false
   labels:

@@ -16,4 +16,3 @@ fi
 mkdir -p ~/.config/mise
 mise settings set github.credential_command "gh auth token"
 mise install
-mise exec -- bun install --frozen-lockfile

@@ -67,7 +67,6 @@ apm compile --global
 
 Compilation is a separate step: installation deploys the package, while compilation generates global instruction files such as `~/.codex/AGENTS.md`.
 
-
 ## Daily environment
 
 Zsh uses Sheldon (Git aliases, autosuggestions and syntax highlighting), Starship and mise. Neovim uses LazyVim. Ghostty starts Herdr at `/opt/homebrew/bin/herdr`; install Herdr before launching Ghostty.

@@ -27,7 +27,9 @@ jobs:
         run: mise run markdown:lint
 
       - name: Installer syntax check
-        run: bash -n install.sh
+        run: |
+          bash -n install.sh
+          test -f homebrew/Brewfile
 
       - name: Zsh syntax check (zsh plugins)
         run: |

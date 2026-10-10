@@ -7,6 +7,7 @@ Minimal macOS (Apple Silicon) development configuration, organized by applicatio
 Each application directory at the repository root is a [GNU Stow](https://www.gnu.org/software/stow/) package mirroring the path beneath `$HOME`:
 
 ```text
+homebrew/Brewfile                      # CLI packages (not stowed)
 git/.gitconfig                        # ~/.gitconfig
 ghostty/.config/ghostty/config        # ~/.config/ghostty/config
 herdr/.config/herdr/config.toml       # ~/.config/herdr/config.toml
@@ -18,7 +19,7 @@ zsh/.zshrc                            # ~/.zshrc
 zsh/.zsh/gh-account.zsh               # ~/.zsh/gh-account.zsh
 ```
 
-Stow packages: `git ghostty herdr nvim rumdl sheldon starship zsh`. Project-level configuration such as `Brewfile`, `mise.toml` and `.github/` stays at the root.
+Stow packages: `git ghostty herdr nvim rumdl sheldon starship zsh`. The installer reads `homebrew/Brewfile` directly; it is not a Stow package. Project-level configuration such as `mise.toml` and `.github/` stays at the root.
 
 ## Install
 
@@ -30,7 +31,7 @@ cd ~/.dotfiles
 ./install.sh
 ```
 
-The installer runs `brew bundle`, links the eight application packages with Stow, then installs and compiles `daiksud/agents` globally for Codex and Copilot. It assumes Homebrew is already installed.
+The installer runs `brew bundle --file=homebrew/Brewfile`, links the eight application packages with Stow, then installs and compiles `daiksud/agents` globally for Codex and Copilot. It assumes Homebrew is already installed.
 
 Stow does not overwrite unmanaged configuration. Before installation, preview links with `stow --no-folding --simulate --verbose -t "$HOME" git ghostty herdr nvim rumdl sheldon starship zsh`. Resolve conflicts explicitly; do **not** use `--adopt`. For a single app, run `stow --no-folding -t "$HOME" ghostty`, or `stow --delete --no-folding -t "$HOME" ghostty` to unlink it.
 

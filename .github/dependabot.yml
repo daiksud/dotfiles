@@ -1,13 +1,6 @@
 version: 2
 
 updates:
-  - package-ecosystem: bun
-    directory: /
-    schedule:
-      interval: weekly
-    cooldown:
-      default-days: 2
-
   - package-ecosystem: github-actions
     directory: /
     schedule:

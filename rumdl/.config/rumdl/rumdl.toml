@@ -1,9 +1,9 @@
 [global]
-disable = ["MD013", "MD033", "MD034"]
+disable = ["line-length", "no-inline-html", "no-bare-urls"]
 
-[MD060]
+[table-format]
 enabled = true
 style = "compact"
 
-[MD076]
+[list-item-spacing]
 style = "tight"

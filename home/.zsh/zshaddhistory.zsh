@@ -1,3 +1,0 @@
-function zshaddhistory() {
-  [[ "$?" == 0 ]]
-}

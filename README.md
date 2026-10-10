@@ -1,14 +1,13 @@
 # dotfiles
 
-Personal development environment for macOS (Apple Silicon) and Ubuntu (GitHub Codespaces).
+Minimal personal development configuration for **macOS (Apple Silicon)**.
 
 ## Setup
 
-Install [Homebrew](https://brew.sh/) first. On macOS, install
-[Ghostty](https://ghostty.org/download) and the
-[Moralerspace Neon HW font](https://github.com/yuru7/moralerspace/releases)
-manually (no Homebrew Casks). Codespaces already installs the CLI packages
-from the Brewfile in its container image.
+Install [Homebrew](https://brew.sh/), [Ghostty](https://ghostty.org/download)
+and the [Moralerspace Neon HW font](https://github.com/yuru7/moralerspace/releases).
+Homebrew manages CLI tools only, not apps or fonts. Install the Xcode Command
+Line Tools if a C compiler is not already available for Neovim plugins.
 
 ```sh
 git clone https://github.com/daiksud/dotfiles.git ~/.dotfiles
@@ -18,17 +17,13 @@ stow --no-folding --simulate --verbose --target="$HOME" home
 stow --no-folding --target="$HOME" home
 ```
 
-Stow links the actual config files under `home/` into `$HOME`. It reports
-conflicts instead of overwriting existing personal files; review them and
-back up unmanaged files before retrying. Do **not** use `stow --adopt`, which
-can modify the repository's source files. `--no-folding` keeps shared
-configuration directories real so unrelated files can coexist.
+GNU Stow creates symlinks and refuses to overwrite unmanaged configuration.
+Review and back up any conflicts manually. Don't use `stow --adopt`.
 
-### Migrating from install.sh
+## Upgrading from the old installer
 
-After pulling these changes, existing `install.sh` links remain functional
-through compatibility symlinks under `dotfiles/`. To replace only the
-**old managed symlinks** with Stow links, from your local repository root run:
+Legacy links in `dotfiles/` remain so existing setups keep working after
+`git pull`. To migrate the *old managed symlinks* to Stow:
 
 ```sh
 cd ~/.dotfiles
@@ -47,23 +42,33 @@ stow --no-folding --simulate --verbose --target="$HOME" home
 stow --no-folding --target="$HOME" home
 ```
 
-This removes symlinks only when their destination is inside this checkout's
-old `dotfiles/` directory; it leaves regular files and unrelated symlinks
-untouched. If Stow reports a conflict, inspect and resolve it manually.
-The compatibility symlinks can be removed in a future cleanup **after**
-existing machines have migrated.
+Older Stow installations may leave links to **removed files** under
+`~/.zsh/` or `~/.config/ghostty/herdr-launch.sh`. They are no longer loaded,
+but inspect and remove any stale symlinks manually if desired. A subsequent
+`stow` invocation does not automatically remove retired source paths.
 
-### One-time tool setup
+## Daily environment
+
+- **Zsh:** native completion/history, Oh My Zsh Git aliases, autosuggestions,
+  syntax highlighting, Starship and mise.
+- **Neovim:** LazyVim with personal keymaps and Tokyo Night.
+- **Ghostty:** launches the Homebrew Herdr client directly at
+  `/opt/homebrew/bin/herdr`; this requires Herdr to be installed there.
+- **Git:** SSH commit signing and shell-scoped GitHub account selection.
+- **CLI:** gh (including gh-qw), fzf, lazygit, ripgrep and other Brewfile tools.
+- **AI agents:** an APM manifest tracking `daiksud/agents`.
+
+One-time services and tools:
 
 ```sh
 gh auth login
 gh extension install daiksud/gh-qw
 gh extension install babarot/gh-infra
+brew services start herdr
 ```
 
-The `apm` manifest is deliberately copied rather than symlinked because
-APM manages writable global state. If a manifest already exists, inspect
-and back it up before replacing it:
+The APM manifest cannot be managed as a regular link because APM writes
+global state. Inspect and back up an existing manifest first, then:
 
 ```sh
 mkdir -p ~/.apm
@@ -72,78 +77,38 @@ apm install --global
 apm compile --global
 ```
 
-On macOS, start Herdr's persistent server once with
-`brew services start herdr`; Ghostty will start its client through
-`~/.config/ghostty/herdr-launch.sh`. After changing terminal settings,
-reload Ghostty with `⌘⇧,` or restart the application.
+### GitHub identities and SSH signing
 
-The Zsh configuration initializes Sheldon plugins automatically on first
-use. Run `mise install` from this repository to provision its validation
-tools (Bats, ShellCheck, Python and rumdl).
+The existing `gh-account.zsh` remains because independent shells must be
+able to use different GitHub accounts without globally running
+`gh auth switch`. Log in to each account through `gh auth login`, then
+select the owner default using `ghu` or override a repository using
+`gh-account-select --repo`.
 
-## Included
+The mapping file is `~/.config/gh/repos.json`; it contains metadata, not
+tokens. SSH signing expects `~/.ssh/<login>.pub` for the selected account and
+maintains `~/.ssh/allowed_signers`. Global Git identity/signing settings
+must be configured separately for repositories without a mapped account.
 
-- **Shell:** Zsh, Sheldon, Starship, fzf and custom shortcuts
-- **Editor:** Neovim with LazyVim
-- **Terminal:** Ghostty and persistent Herdr sessions
-- **Tools:** Homebrew, mise, gh/gh-qw/gh-infra, lazygit, ripgrep, jq
-- **Git:** SSH commit signing and repository-aware GitHub account selection
-- **Agent configuration:** APM global manifest referencing `daiksud/agents`
+### Deliberately removed features
 
-## Configuration
+This repo no longer provisions Codespaces/Ubuntu, provides interactive
+`ggr`/`egr` repository jumpers or `bgn` notification browsing, or
+automatically falls back to a login shell when Herdr is missing. Use
+`gh qw list`, `gh`, `nvim` and `lazygit` directly instead. Shell
+shortcuts `esf`, `olg`, custom history search and related wrappers are gone.
+Ghostty keeps its Herdr-first behavior on the supported macOS installation.
 
-`home/` mirrors the filesystem locations under your home directory.
-Edit files there, then rerun `stow --no-folding -t "$HOME" home` to
-manage links. Updates to already-linked files take effect without reinstalling.
+Herdr persists its sessions via the Homebrew service. If an upgrade leaves
+an incompatible server, **save your panes** and restart the service from
+a plain shell outside Herdr; restarting can terminate processes in its panes.
 
-`Brewfile` is the single source of truth for Homebrew CLI formulas,
-including `stow` and `fd`. It does not manage applications or fonts.
-Homebrew tools are not upgraded or restarted by Stow.
-
-### GitHub accounts and SSH signing
-
-Authenticate each account with `gh auth login` (or `gh-account-login` in Zsh).
-The interactive shell selects a GitHub account per repository owner. Use
-`ghu` for the owner default or `gh-account-select --repo` for an override.
-Mappings live in `~/.config/gh/repos.json` without tokens; `gh` owns
-credentials. The selected token and Git identity apply only to the shell.
-
-Per-account SSH signing keys are expected at `~/.ssh/<login>.pub`;
-`gh-account.zsh` updates `~/.ssh/allowed_signers` for mapped identities.
-For a standalone global Git identity, configure `user.name`, `user.email`,
-and `user.signingkey` explicitly, and add its public key to
-`~/.ssh/allowed_signers` if signature verification is required.
-No installer generates signing configuration anymore.
-
-`gh qw` handles repository checkouts and worktrees. `ggr` selects a
-repository to `cd` into; `egr` opens it in Neovim.
-
-### Herdr recovery
-
-A Herdr server installed as a Homebrew service survives terminal windows
-closing. After an incompatible Herdr upgrade, first save work in its panes.
-From a **plain shell outside Herdr**, stop any stale server and restart the
-Homebrew service if needed. Stopping the server terminates running panes:
-
-```sh
-herdr status server --json
-brew services list
-# Only when a restart is necessary, outside an active Herdr pane:
-brew services restart herdr
-```
-
-Ghostty's launcher falls back to a login shell if Herdr is unavailable.
-Codespaces configures Zsh using its Dev Container features; its image also
-installs Homebrew tools and Ghostty.
-
-## Development checks
+## Checks
 
 ```sh
 mise install
 mise run markdown:lint
-shellcheck home/.config/ghostty/herdr-launch.sh
 bats tests
 ```
 
-CI validates the Stow layout and runs the remaining shell tests on Ubuntu
-and macOS.
+CI validates the Stow layout and tests the remaining GitHub identity logic.

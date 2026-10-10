@@ -6,23 +6,6 @@ if [[ "$(uname -s)" != Darwin || "$(uname -m)" != arm64 ]]; then
   exit 1
 fi
 
-brew_bin=/opt/homebrew/bin/brew
-if [[ ! -x "$brew_bin" ]]; then
-  brew_bin="$(command -v brew || true)"
-fi
-if [[ -z "$brew_bin" ]]; then
-  echo "Installing Homebrew (macOS may request administrator approval)..."
-  installer="$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  /bin/bash -c "$installer" </dev/tty
-  brew_bin=/opt/homebrew/bin/brew
-fi
-if [[ ! -x "$brew_bin" ]]; then
-  echo "Homebrew installation did not provide $brew_bin." >&2
-  exit 1
-fi
-brew_env="$("$brew_bin" shellenv)"
-eval "$brew_env"
-
 if [[ -f "${BASH_SOURCE[0]:-}" && -f "$(dirname "${BASH_SOURCE[0]:-}")/homebrew/Brewfile" ]]; then
   cd "$(dirname "${BASH_SOURCE[0]:-}")"
 else
@@ -37,15 +20,10 @@ else
   cd "$HOME/.dotfiles"
 fi
 
-# Preserve apps/fonts installed manually before Homebrew managed this machine.
-if [[ -d /Applications/Ghostty.app ]] && ! brew list --cask ghostty >/dev/null 2>&1; then
-  export HOMEBREW_BUNDLE_CASK_SKIP="${HOMEBREW_BUNDLE_CASK_SKIP:+$HOMEBREW_BUNDLE_CASK_SKIP }ghostty"
-fi
-if [[ -f "$HOME/Library/Fonts/MoralerspaceNeonHW-Regular.ttf" ]] && ! brew list --cask font-moralerspace-hw >/dev/null 2>&1; then
-  export HOMEBREW_BUNDLE_CASK_SKIP="${HOMEBREW_BUNDLE_CASK_SKIP:+$HOMEBREW_BUNDLE_CASK_SKIP }font-moralerspace-hw"
-fi
-
-brew bundle --no-upgrade --file=homebrew/Brewfile
+# Source Homebrew's shell environment for the other installers.
+source ./homebrew/install.sh
+./ghostty/install.sh
+./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh
 apm install --global daiksud/agents --target codex,copilot
 apm compile --global

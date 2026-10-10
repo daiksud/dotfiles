@@ -20,6 +20,8 @@ cat >"$tmp/bin/brew" <<'SH'
 #!/usr/bin/env bash
 if [[ "$1" == shellenv ]]; then
   echo 'export PATH="$PATH"'
+elif [[ "$1" == list && "$2" == --cask ]]; then
+  [[ "${BREW_INSTALLED_CASK:-}" == "$3" ]]
 else
   printf 'brew %s\n' "$*" >>"$TRACE"
 fi
@@ -29,8 +31,11 @@ cat >"$tmp/bin/git" <<'SH'
 #!/usr/bin/env bash
 printf 'git %s\n' "$*" >>"$TRACE"
 if [[ "$1" == clone ]]; then
-  mkdir -p "$3/homebrew" "$3/.git"
+  mkdir -p "$3/homebrew" "$3/ghostty" "$3/fonts" "$3/.git"
   cp "$SOURCE_DIR/homebrew/Brewfile" "$3/homebrew/Brewfile"
+  for app in homebrew ghostty fonts; do
+    cp -p "$SOURCE_DIR/$app/install.sh" "$3/$app/install.sh"
+  done
 fi
 SH
 
@@ -65,11 +70,20 @@ fi
 
 grep -Fx "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles" "$TRACE"
 grep -Fx "git -C $HOME/.dotfiles pull --ff-only" "$TRACE"
-test "$(grep -Fc 'brew bundle --no-upgrade --file=homebrew/Brewfile' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew bundle --no-upgrade --file=' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
 test "$(grep -Fc 'apm compile --global' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force daiksud/gh-qw' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force babarot/gh-infra' "$TRACE")" -eq 3
 grep -F 'stow --no-folding --target=' "$TRACE" | grep -q 'editorconfig git ghostty herdr nvim rumdl sheldon starship zsh'
-grep -Fx 'cask "ghostty"' "$SOURCE_DIR/homebrew/Brewfile"
-grep -Fx 'cask "font-moralerspace-hw"' "$SOURCE_DIR/homebrew/Brewfile"
-echo 'Bootstrap and repeat-run smoke tests passed'
+# Standalone installers do not reinstall casks already managed by Homebrew.
+(cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=ghostty bash ghostty/install.sh)
+(cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=font-moralerspace-hw bash fonts/install.sh)
+test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
+
+# Git is available before Homebrew; cloning precedes package installation.
+test "$(head -n 1 "$TRACE")" = "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles"
+
+echo 'Modular bootstrap and repeat-run smoke tests passed'

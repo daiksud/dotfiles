@@ -1,5 +1,4 @@
 [tools]
-python = "latest"
 rumdl = "latest"
 
 [tasks."markdown:format"]

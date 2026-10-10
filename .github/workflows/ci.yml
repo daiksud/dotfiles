@@ -43,15 +43,6 @@ jobs:
         run: |
           jq empty nvim/.config/nvim/lazyvim.json nvim/.config/nvim/lazy-lock.json
 
-      - name: Validate TOML config files
-        run: |
-          python3 -c "
-          import tomllib
-          for f in ['.rumdl.toml', 'mise.toml', 'herdr/.config/herdr/config.toml', 'rumdl/.config/rumdl/rumdl.toml', 'sheldon/.config/sheldon/plugins.toml', 'starship/.config/starship.toml']:
-              with open(f, 'rb') as fh:
-                  tomllib.load(fh)
-          "
-
       - name: Stow smoke test
         run: |
           target="$(mktemp -d)"

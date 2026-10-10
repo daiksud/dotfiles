@@ -3,9 +3,21 @@ set -euo pipefail
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-mkdir -p "$tmp/bin" "$tmp/home"
-export HOME="$tmp/home" TRACE="$tmp/trace" SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
+source_dir="$(cd "$(dirname "$0")" && pwd)"
+mkdir -p "$tmp/bin" "$tmp/home" "$tmp/source" "$tmp/Applications"
+export HOME="$tmp/home" TRACE="$tmp/trace" SOURCE_DIR="$tmp/source"
 export PATH="$tmp/bin:$PATH"
+
+# Isolate application detection without changing the production installers.
+cp -p "$source_dir/bootstrap.sh" "$SOURCE_DIR/bootstrap.sh"
+for app in homebrew chrome ghostty fonts; do
+  mkdir -p "$SOURCE_DIR/$app"
+  cp -p "$source_dir/$app/install.sh" "$SOURCE_DIR/$app/install.sh"
+done
+cp "$source_dir/homebrew/Brewfile" "$SOURCE_DIR/homebrew/Brewfile"
+for app in chrome ghostty; do
+  sed "s|/Applications/|$tmp/Applications/|g" "$source_dir/$app/install.sh" >"$SOURCE_DIR/$app/install.sh"
+done
 
 cat >"$tmp/bin/uname" <<'SH'
 #!/usr/bin/env bash

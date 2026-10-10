@@ -44,10 +44,6 @@ jobs:
           done
           exit "$status"
 
-      - name: Validate JSON config files
-        run: |
-          jq empty nvim/.config/nvim/lazyvim.json nvim/.config/nvim/lazy-lock.json
-
       - name: Stow smoke test
         run: |
           target="$(mktemp -d)"
@@ -66,6 +62,10 @@ jobs:
           test -L "$target/.config/ghostty/hololive-en-advent.jpg"
           test -L "$target/.config/herdr/config.toml"
           test -L "$target/.config/nvim/init.lua"
+          test -L "$target/.config/nvim/lua/config/keymaps.lua"
+          test -L "$target/.config/nvim/lua/plugins/tokyonight.lua"
+          test ! -e "$target/.config/nvim/lazyvim.json"
+          test ! -e "$target/.config/nvim/lazy-lock.json"
           test -L "$target/.config/rumdl/rumdl.toml"
           test -L "$target/.config/sheldon/plugins.toml"
           test -L "$target/.config/starship.toml"

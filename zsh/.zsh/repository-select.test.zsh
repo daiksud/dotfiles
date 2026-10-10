@@ -13,6 +13,10 @@ selected_spec=github.com/example/repo
 gh() {
   case "$*" in
     "qw list --worktree --fzf")
+      [[ "$FZF_DEFAULT_OPTS" == "--border --select-1 --reverse --height=20" ]] || {
+        print -u2 -- "FAIL: fzf options must preserve existing defaults"
+        return 1
+      }
       case "$selected_spec" in
         github.com/example/repo) print -r -- "$tmpdir/main repository" ;;
         github.com/example/repo@feature/test) print -r -- "$tmpdir/linked worktree" ;;
@@ -46,6 +50,7 @@ fzf() {
   return 1
 }
 
+FZF_DEFAULT_OPTS=--border
 [[ "$(repository-select-path)" == "$tmpdir/main repository" ]] || {
   print -u2 -- "FAIL: main checkout was not resolved"
   exit 1

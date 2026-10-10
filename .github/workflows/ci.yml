@@ -55,9 +55,11 @@ jobs:
           test -L "$target/.zsh/gh-account.zsh"
           test -L "$target/.zsh/go-to-repository.zsh"
           test -L "$target/.zsh/repository-select.zsh"
+          test -L "$target/.zsh/fzf-select-history.zsh"
           test ! -e "$target/.zsh/gh-account.test.zsh"
           test ! -L "$target/.zsh/gh-account.test.zsh"
           test ! -e "$target/.zsh/repository-select.test.zsh"
+          test ! -e "$target/.zsh/fzf-select-history.test.zsh"
           test ! -e "$target/.stow-local-ignore"
           test -L "$target/.config/ghostty/config"
           test ! -e "$target/install.sh"
@@ -90,4 +92,5 @@ jobs:
         run: |
           zsh -f zsh/.zsh/gh-account.test.zsh
           zsh -f zsh/.zsh/repository-select.test.zsh
+          zsh -f zsh/.zsh/fzf-select-history.test.zsh
 

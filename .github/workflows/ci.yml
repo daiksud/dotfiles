@@ -24,7 +24,11 @@ jobs:
       - name: Installer syntax check
         run: |
           bash -n install.sh
+          bash -n install.test.sh
           test -f homebrew/Brewfile
+
+      - name: Bootstrap smoke test
+        run: bash install.test.sh
 
       - name: Zsh syntax check (zsh plugins)
         run: |

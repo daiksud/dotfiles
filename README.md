@@ -24,15 +24,22 @@ Stow packages: `editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`.
 
 ## Install
 
-Install [Homebrew](https://brew.sh/), [Ghostty](https://ghostty.org/download) and the [Moralerspace Neon HW font](https://github.com/yuru7/moralerspace/releases) first. Homebrew manages CLI formulas, not apps or fonts. Install Xcode Command Line Tools if Neovim needs a C compiler.
+On a fresh **Apple Silicon Mac**, open Terminal and run one command:
 
 ```sh
-git clone https://github.com/daiksud/dotfiles.git ~/.dotfiles
+curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/install.sh | bash
+```
+
+No tools need to be installed beforehand. The script uses macOS's built-in Bash and curl, installs Homebrew (and the Xcode Command Line Tools when required), clones or fast-forwards `~/.dotfiles`, then runs `brew bundle --no-upgrade`, Stow and global APM installation/compilation. The Brewfile also installs **Ghostty** and **Moralerspace Neon HW** via Homebrew casks. An existing manually installed Ghostty or font is left untouched.
+
+macOS may ask for administrator approval or Xcode Command Line Tools installation. GitHub CLI authentication requires an interactive browser sign-in; these prompts happen **during** the same installation command. Internet access and a macOS administrator account are required.
+
+To rerun the installer from a checkout:
+
+```sh
 cd ~/.dotfiles
 ./install.sh
 ```
-
-The installer runs `brew bundle --file=homebrew/Brewfile`, links the nine application packages with Stow, then installs and compiles `daiksud/agents` globally for Codex and Copilot. It assumes Homebrew is already installed.
 
 Stow does not overwrite unmanaged configuration. Before installation, preview links with `stow --no-folding --simulate --verbose -t "$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`. Resolve conflicts explicitly; do **not** use `--adopt`. For a single app, run `stow --no-folding -t "$HOME" ghostty`, or `stow --delete --no-folding -t "$HOME" ghostty` to unlink it.
 
@@ -51,14 +58,9 @@ If you've **already pulled**, or used the older `install.sh` instead of Stow, in
 
 This reorganization does not change Git credentials, SSH signing keys or Herdr sessions.
 
-## One-time integrations
+## GitHub integrations
 
-```sh
-gh auth login
-gh extension install daiksud/gh-qw
-gh extension install babarot/gh-infra
-brew services start herdr
-```
+The installer runs `gh auth login` if needed and installs the `gh-qw` and `gh-infra` extensions. Additional GitHub accounts, account-to-repository mappings and SSH signing keys require your personal identity or authorization, so they are not generated automatically.
 
 `apm.yml` is not tracked here. During `./install.sh`, the APM CLI creates and manages the global manifest itself:
 
@@ -75,12 +77,13 @@ Zsh uses Sheldon (Git aliases, autosuggestions and syntax highlighting), Starshi
 
 The GitHub account plugin at `zsh/.zsh/gh-account.zsh` allows different shells to use different accounts. Authenticate via `gh auth login`, choose an owner default with `ghu`, or set a repository override with `gh-account-select --repo`. Account mappings live in `~/.config/gh/repos.json` without tokens. SSH signing expects `~/.ssh/<login>.pub` and maintains `~/.ssh/allowed_signers` for mapped identities.
 
-Herdr sessions persist through its Homebrew service. If an upgrade requires recovery, save running panes before restarting the service **from a plain shell outside Herdr**; restarting may terminate processes.
+Ghostty launches Herdr directly, and Herdr manages its own persistent session server. The current Homebrew `herdr` formula has no `brew services` definition. Save running panes before restarting Herdr; stopping the server may terminate running processes.
 
 ## Checks
 
 ```sh
 bash -n install.sh
+bash install.test.sh
 zsh -f zsh/.zsh/gh-account.test.zsh
 ```
 

@@ -41,8 +41,9 @@ jobs:
       - name: Stow smoke test
         run: |
           target="$(mktemp -d)"
-          packages=(git ghostty herdr nvim rumdl sheldon starship zsh)
+          packages=(editorconfig git ghostty herdr nvim rumdl sheldon starship zsh)
           stow --no-folding --dir="$PWD" --target="$target" "${packages[@]}"
+          test -L "$target/.editorconfig"
           test -L "$target/.gitconfig"
           test -L "$target/.zshrc"
           test -L "$target/.zsh/gh-account.zsh"
@@ -59,6 +60,7 @@ jobs:
           test -x install.sh
           stow --no-folding --dir="$PWD" --target="$target" "${packages[@]}"
           stow --delete --no-folding --dir="$PWD" --target="$target" "${packages[@]}"
+          test ! -L "$target/.editorconfig"
           test ! -L "$target/.gitconfig"
           test ! -L "$target/.zshrc"
           test ! -L "$target/.config/ghostty/config"

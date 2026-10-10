@@ -19,7 +19,7 @@ zsh/.zshrc                            # ~/.zshrc
 zsh/.zsh/gh-account.zsh               # ~/.zsh/gh-account.zsh
 ```
 
-Stow packages: `git ghostty herdr nvim rumdl sheldon starship zsh`. The installer reads `homebrew/Brewfile` directly; it is not a Stow package. Project-level configuration such as `mise.toml` and `.github/` stays at the root.
+Stow packages: `git ghostty herdr nvim rumdl sheldon starship zsh`. The installer reads `homebrew/Brewfile` directly; it is not a Stow package. Project-level files such as `install.sh` and `.github/` stay at the root. The personal `rumdl/.config/rumdl/rumdl.toml` remains Stow-managed, but this repository no longer installs rumdl or runs Markdown lint.
 
 ## Install
 
@@ -79,8 +79,7 @@ Herdr sessions persist through its Homebrew service. If an upgrade requires reco
 ## Checks
 
 ```sh
-mise install
-mise run markdown:lint
+bash -n install.sh
 zsh -f zsh/.zsh/gh-account.test.zsh
 ```
 

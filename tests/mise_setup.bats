@@ -16,8 +16,14 @@ exit 0
 STUB
   cat > "$TEST_TMP/bin/mise" <<'STUB'
 #!/bin/bash
-printf '%s|%s\n' "$PWD" "$*" >> "$SETUP_LOG"
-exit "${INSTALL_STATUS:-0}"
+case "$1" in
+  settings) exit 0 ;;
+  install)
+    printf '%s|%s\n' "$PWD" "$*" >> "$SETUP_LOG"
+    exit "${INSTALL_STATUS:-0}"
+    ;;
+  *) exit 99 ;;
+esac
 STUB
 
   chmod +x "$TEST_TMP/bin/"*

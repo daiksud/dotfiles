@@ -7,6 +7,7 @@ Minimal macOS (Apple Silicon) development configuration, organized by applicatio
 Each application directory at the repository root is a [GNU Stow](https://www.gnu.org/software/stow/) package mirroring the path beneath `$HOME`:
 
 ```text
+editorconfig/.editorconfig             # ~/.editorconfig (personal settings)
 homebrew/Brewfile                      # CLI packages (not stowed)
 git/.gitconfig                        # ~/.gitconfig
 ghostty/.config/ghostty/config        # ~/.config/ghostty/config
@@ -19,7 +20,7 @@ zsh/.zshrc                            # ~/.zshrc
 zsh/.zsh/gh-account.zsh               # ~/.zsh/gh-account.zsh
 ```
 
-Stow packages: `git ghostty herdr nvim rumdl sheldon starship zsh`. The installer reads `homebrew/Brewfile` directly; it is not a Stow package. Project-level files such as `install.sh` and `.github/` stay at the root. The personal `rumdl/.config/rumdl/rumdl.toml` remains Stow-managed, but this repository no longer installs rumdl or runs Markdown lint.
+Stow packages: `editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`. The installer reads `homebrew/Brewfile` directly; it is not a Stow package. The root `.editorconfig` applies to this repository, independently of the personal `editorconfig/.editorconfig` linked to `~/.editorconfig`. Project-specific EditorConfig files can override the personal defaults. Project-level files such as `install.sh` and `.github/` stay at the root. The personal `rumdl/.config/rumdl/rumdl.toml` remains Stow-managed, but this repository no longer installs rumdl or runs Markdown lint.
 
 ## Install
 
@@ -31,9 +32,9 @@ cd ~/.dotfiles
 ./install.sh
 ```
 
-The installer runs `brew bundle --file=homebrew/Brewfile`, links the eight application packages with Stow, then installs and compiles `daiksud/agents` globally for Codex and Copilot. It assumes Homebrew is already installed.
+The installer runs `brew bundle --file=homebrew/Brewfile`, links the nine application packages with Stow, then installs and compiles `daiksud/agents` globally for Codex and Copilot. It assumes Homebrew is already installed.
 
-Stow does not overwrite unmanaged configuration. Before installation, preview links with `stow --no-folding --simulate --verbose -t "$HOME" git ghostty herdr nvim rumdl sheldon starship zsh`. Resolve conflicts explicitly; do **not** use `--adopt`. For a single app, run `stow --no-folding -t "$HOME" ghostty`, or `stow --delete --no-folding -t "$HOME" ghostty` to unlink it.
+Stow does not overwrite unmanaged configuration. Before installation, preview links with `stow --no-folding --simulate --verbose -t "$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh`. Resolve conflicts explicitly; do **not** use `--adopt`. For a single app, run `stow --no-folding -t "$HOME" ghostty`, or `stow --delete --no-folding -t "$HOME" ghostty` to unlink it.
 
 ### Migrating from home/ and dotfiles/
 

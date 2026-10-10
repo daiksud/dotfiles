@@ -3,9 +3,21 @@ set -euo pipefail
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-mkdir -p "$tmp/bin" "$tmp/home"
-export HOME="$tmp/home" TRACE="$tmp/trace" SOURCE_DIR="$(cd "$(dirname "$0")" && pwd)"
+source_dir="$(cd "$(dirname "$0")" && pwd)"
+mkdir -p "$tmp/bin" "$tmp/home" "$tmp/source" "$tmp/Applications"
+export HOME="$tmp/home" TRACE="$tmp/trace" SOURCE_DIR="$tmp/source"
 export PATH="$tmp/bin:$PATH"
+
+# Isolate application detection without changing the production installers.
+cp -p "$source_dir/bootstrap.sh" "$SOURCE_DIR/bootstrap.sh"
+for app in homebrew chrome ghostty fonts; do
+  mkdir -p "$SOURCE_DIR/$app"
+  cp -p "$source_dir/$app/install.sh" "$SOURCE_DIR/$app/install.sh"
+done
+cp "$source_dir/homebrew/Brewfile" "$SOURCE_DIR/homebrew/Brewfile"
+for app in chrome ghostty; do
+  sed "s|/Applications/|$tmp/Applications/|g" "$source_dir/$app/install.sh" >"$SOURCE_DIR/$app/install.sh"
+done
 
 cat >"$tmp/bin/uname" <<'SH'
 #!/usr/bin/env bash
@@ -85,6 +97,16 @@ grep -F 'stow --no-folding --target=' "$TRACE" | grep -q 'editorconfig git ghost
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=google-chrome bash chrome/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=ghostty bash ghostty/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=font-moralerspace-hw bash fonts/install.sh)
+test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
+
+# Standalone installers also preserve manually installed applications and fonts.
+mkdir -p "$tmp/Applications/Google Chrome.app" "$tmp/Applications/Ghostty.app" "$HOME/Library/Fonts"
+touch "$HOME/Library/Fonts/MoralerspaceNeonHW-Regular.ttf"
+for app in chrome ghostty fonts; do
+  (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK= bash "$app/install.sh")
+done
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3

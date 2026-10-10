@@ -80,7 +80,7 @@ Herdr sessions persist through its Homebrew service. If an upgrade requires reco
 ```sh
 mise install
 mise run markdown:lint
-bats tests
+zsh -f zsh/.zsh/gh-account.test.zsh
 ```
 
-CI validates config syntax, Stow installation/reinstallation/removal, and GitHub account behavior.
+The GitHub account tests live beside the Zsh plugin. The `zsh/.stow-local-ignore` rule keeps the test file out of `~/.zsh`; only `gh-account.zsh` is installed. CI validates config syntax, Stow installation/reinstallation/removal, and GitHub account behavior.

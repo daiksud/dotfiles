@@ -7,7 +7,6 @@ Minimal macOS (Apple Silicon) development configuration, organized by applicatio
 Each application directory at the repository root is a [GNU Stow](https://www.gnu.org/software/stow/) package mirroring the path beneath `$HOME`:
 
 ```text
-apm/apm.yml                           # manually copied; not stowed
 git/.gitconfig                        # ~/.gitconfig
 ghostty/.config/ghostty/config        # ~/.config/ghostty/config
 herdr/.config/herdr/config.toml       # ~/.config/herdr/config.toml
@@ -28,12 +27,12 @@ Install [Homebrew](https://brew.sh/), [Ghostty](https://ghostty.org/download) an
 ```sh
 git clone https://github.com/daiksud/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-brew bundle
-stow --no-folding --simulate --verbose -t "$HOME" git ghostty herdr nvim rumdl sheldon starship zsh
-stow --no-folding -t "$HOME" git ghostty herdr nvim rumdl sheldon starship zsh
+./install.sh
 ```
 
-Stow does not overwrite unmanaged configuration. Resolve conflicts explicitly; do **not** use `--adopt`. For a single app, run `stow --no-folding -t "$HOME" ghostty`, or `stow --delete --no-folding -t "$HOME" ghostty` to unlink it.
+The installer runs `brew bundle`, links the eight application packages with Stow, then installs and compiles `daiksud/agents` globally for Codex and Copilot. It assumes Homebrew is already installed.
+
+Stow does not overwrite unmanaged configuration. Before installation, preview links with `stow --no-folding --simulate --verbose -t "$HOME" git ghostty herdr nvim rumdl sheldon starship zsh`. Resolve conflicts explicitly; do **not** use `--adopt`. For a single app, run `stow --no-folding -t "$HOME" ghostty`, or `stow --delete --no-folding -t "$HOME" ghostty` to unlink it.
 
 ### Migrating from home/ and dotfiles/
 
@@ -43,9 +42,7 @@ Stow does not overwrite unmanaged configuration. Resolve conflicts explicitly; d
 cd ~/.dotfiles
 stow --delete --no-folding -t "$HOME" home
 git pull --ff-only
-brew bundle
-stow --no-folding --simulate --verbose -t "$HOME" git ghostty herdr nvim rumdl sheldon starship zsh
-stow --no-folding -t "$HOME" git ghostty herdr nvim rumdl sheldon starship zsh
+./install.sh
 ```
 
 If you've **already pulled**, or used the older `install.sh` instead of Stow, inspect old symlinks first. Remove **only** links proven to point into this checkout's deleted `home/` or `dotfiles/` paths; never delete regular files or unrelated links. Stow will report conflicts if those links remain. Inspect with `ls -l ~/.zshrc ~/.gitconfig ~/.zsh ~/.config/ghostty` and other paths shown above. Avoid `stow --adopt`.
@@ -61,14 +58,14 @@ gh extension install babarot/gh-infra
 brew services start herdr
 ```
 
-`apm/apm.yml` is a source manifest, not an automatically stowed package: APM writes global state. Back up any existing `~/.apm/apm.yml` before updating it:
+`apm.yml` is not tracked here. During `./install.sh`, the APM CLI creates and manages the global manifest itself:
 
 ```sh
-mkdir -p ~/.apm
-cp -i apm/apm.yml ~/.apm/apm.yml
-apm install --global
+apm install --global daiksud/agents --target codex,copilot
 apm compile --global
 ```
+
+Compilation is a separate step: installation deploys the package, while compilation generates global instruction files such as `~/.codex/AGENTS.md`.
 
 ## Daily environment
 

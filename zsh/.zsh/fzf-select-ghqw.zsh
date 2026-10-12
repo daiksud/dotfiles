@@ -6,6 +6,6 @@ fzf-select-ghqw() {
   [[ -z "${WIDGET:-}" ]] || zle reset-prompt
 }
 
-alias fgq='fzf-select-ghqw'
+alias gg='fzf-select-ghqw'
 zle -N fzf-select-ghqw
 bindkey '^]' fzf-select-ghqw

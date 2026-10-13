@@ -86,7 +86,7 @@ fi
 grep -Fx "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles" "$TRACE"
 grep -Fx "git -C $HOME/.dotfiles pull --ff-only" "$TRACE"
 test "$(grep -Fc 'brew bundle --no-upgrade --file=' "$TRACE")" -eq 3
-test "$(grep -Fxc 'brew upgrade' "$TRACE")" -eq 3
+test "$(grep -Fxc 'brew upgrade --no-ask' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3

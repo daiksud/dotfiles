@@ -17,3 +17,4 @@ if [[ ! -x "$brew_bin" ]]; then
 fi
 eval "$("$brew_bin" shellenv)"
 brew bundle --no-upgrade --file="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/Brewfile"
+brew upgrade

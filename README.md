@@ -20,6 +20,8 @@ git pull --ff-only
 ./bootstrap.sh
 ```
 
+Re-running bootstrap also upgrades outdated Homebrew packages with `brew upgrade`.
+
 Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not use `--adopt`.
 
 ## Layout

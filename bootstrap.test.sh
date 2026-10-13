@@ -89,6 +89,7 @@ test "$(grep -Fc 'brew bundle --no-upgrade --file=' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
+test "$(grep -Fc 'apm update --global --yes' "$TRACE")" -eq 3
 test "$(grep -Fc 'apm compile --global' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force daiksud/gh-qw' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force babarot/gh-infra' "$TRACE")" -eq 3

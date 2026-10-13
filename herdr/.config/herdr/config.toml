@@ -5,3 +5,6 @@ name = "tokyo-night"
 
 [keys]
 prefix = "ctrl+t"
+
+[ui.sound]
+enabled = false

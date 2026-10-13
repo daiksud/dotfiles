@@ -26,7 +26,11 @@ gh() {
 }
 
 FZF_DEFAULT_OPTS=--border
-alias fgq | grep -q fzf-select-ghqw
+alias gg | grep -q fzf-select-ghqw
+if alias fgq >/dev/null 2>&1; then
+  print -u2 -- "FAIL: fgq alias should no longer exist"
+  exit 1
+fi
 [[ "$(bindkey '^]')" == *fzf-select-ghqw* ]] || {
   print -u2 -- "FAIL: Ctrl+] keybinding must invoke fzf-select-ghqw"
   exit 1

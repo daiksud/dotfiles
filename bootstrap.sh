@@ -24,6 +24,7 @@ source ./homebrew/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh
 apm install --global daiksud/agents --target codex,copilot
+apm update --global --yes
 apm compile --global
 
 gh auth status >/dev/null 2>&1 || gh auth login </dev/tty

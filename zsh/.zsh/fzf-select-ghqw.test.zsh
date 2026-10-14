@@ -26,6 +26,7 @@ gh() {
 }
 
 FZF_DEFAULT_OPTS=--border
+expected_fzf_opts='--border --select-1 --reverse --height=20'
 alias gg | grep -q fzf-select-ghqw
 if alias fgq >/dev/null 2>&1; then
   print -u2 -- "FAIL: fgq alias should no longer exist"
@@ -55,7 +56,7 @@ fzf-select-ghqw example
   print -u2 -- "FAIL: initial query should not affect directory selection"
   exit 1
 }
-expected_fzf_opts='--border --select-1 --reverse --height=20 --query=feature\\ test'
+expected_fzf_opts='--border --select-1 --reverse --height=20 --query=feature\ test'
 fzf-select-ghqw "feature test"
 fzf-select-ghqw feature test
 expected_fzf_opts='--border --select-1 --reverse --height=20'

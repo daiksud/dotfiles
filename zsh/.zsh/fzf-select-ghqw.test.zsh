@@ -14,7 +14,7 @@ gh() {
     print -u2 -- "unexpected gh arguments: $*"
     return 1
   }
-  [[ "$FZF_DEFAULT_OPTS" == "--border --select-1 --reverse --height=20" ]] || {
+  [[ "$FZF_DEFAULT_OPTS" == "$expected_fzf_opts" ]] || {
     print -u2 -- "FAIL: fzf options must preserve existing defaults"
     return 1
   }
@@ -26,6 +26,7 @@ gh() {
 }
 
 FZF_DEFAULT_OPTS=--border
+expected_fzf_opts='--border --select-1 --reverse --height=20'
 alias gg | grep -q fzf-select-ghqw
 if alias fgq >/dev/null 2>&1; then
   print -u2 -- "FAIL: fgq alias should no longer exist"
@@ -49,6 +50,16 @@ fzf-select-ghqw
   print -u2 -- "FAIL: fzf-select-ghqw did not select the main checkout"
   exit 1
 }
+expected_fzf_opts='--border --select-1 --reverse --height=20 --query=example'
+fzf-select-ghqw example
+[[ "$PWD" == "$tmpdir/main repository" ]] || {
+  print -u2 -- "FAIL: initial query should not affect directory selection"
+  exit 1
+}
+expected_fzf_opts='--border --select-1 --reverse --height=20 --query=feature\ test'
+fzf-select-ghqw "feature test"
+fzf-select-ghqw feature test
+expected_fzf_opts='--border --select-1 --reverse --height=20'
 [[ "$FZF_DEFAULT_OPTS" == --border ]] || {
   print -u2 -- "FAIL: fzf-select-ghqw modified global fzf options"
   exit 1

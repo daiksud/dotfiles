@@ -31,6 +31,7 @@ apm compile --global
 
 gh auth status >/dev/null 2>&1 || gh auth login </dev/tty
 gh extension install --force daiksud/gh-qw
+gh extension install --force daiksud/gh-settings
 gh extension install --force babarot/gh-infra
 
 echo "Setup complete. Open Ghostty to start your configured environment."

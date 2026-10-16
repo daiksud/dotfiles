@@ -95,6 +95,7 @@ test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
 test "$(grep -Fc 'apm update --global --yes' "$TRACE")" -eq 3
 test "$(grep -Fc 'apm compile --global' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force daiksud/gh-qw' "$TRACE")" -eq 3
+test "$(grep -Fxc 'gh extension install --force daiksud/gh-settings' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force babarot/gh-infra' "$TRACE")" -eq 3
 grep -F 'stow --no-folding --target=' "$TRACE" | grep -q 'editorconfig git ghostty herdr nvim rumdl sheldon starship zsh'
 # Standalone installers do not reinstall casks already managed by Homebrew.

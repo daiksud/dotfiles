@@ -10,7 +10,7 @@ curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/bootstrap.sh 
 
 Requires Git, internet access and administrator permissions. macOS may prompt for Xcode Command Line Tools; GitHub login may require browser authentication.
 
-The bootstrap clones this repository to `~/.dotfiles` and installs Homebrew, Chrome, Ghostty, Moralerspace Neon HW, CLI tools, and global [daiksud/agents](https://github.com/daiksud/agents) instructions for Codex and Copilot. It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
+The bootstrap clones this repository to `~/.dotfiles` and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Moralerspace Neon HW, CLI tools, and global [daiksud/agents](https://github.com/daiksud/agents) instructions for Codex and Copilot. It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
 
 ## Update
 
@@ -28,7 +28,7 @@ Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not 
 
 - `bootstrap.sh` — setup entry point
 - `homebrew/Brewfile` — CLI packages
-- `homebrew/install.sh`, `chrome/install.sh`, `ghostty/install.sh`, `fonts/install.sh` — application installers
+- `homebrew/install.sh`, `chrome/install.sh`, `chatgpt/install.sh`, `ghostty/install.sh`, `gitify/install.sh`, `fonts/install.sh` — application installers
 - Application directories — personal configuration linked into `$HOME` with Stow
 - `.editorconfig` — repository-specific rules, separate from `editorconfig/.editorconfig`
 

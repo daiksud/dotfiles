@@ -20,7 +20,9 @@ fi
 # Source Homebrew's shell environment for the other installers.
 source ./homebrew/install.sh
 ./chrome/install.sh
+./chatgpt/install.sh
 ./ghostty/install.sh
+./gitify/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh
 apm install --global daiksud/agents --target codex,copilot

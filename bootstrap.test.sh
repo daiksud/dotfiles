@@ -10,12 +10,12 @@ export PATH="$tmp/bin:$PATH"
 
 # Isolate application detection without changing the production installers.
 cp -p "$source_dir/bootstrap.sh" "$SOURCE_DIR/bootstrap.sh"
-for app in homebrew chrome ghostty fonts; do
+for app in homebrew chrome chatgpt ghostty gitify fonts; do
   mkdir -p "$SOURCE_DIR/$app"
   cp -p "$source_dir/$app/install.sh" "$SOURCE_DIR/$app/install.sh"
 done
 cp "$source_dir/homebrew/Brewfile" "$SOURCE_DIR/homebrew/Brewfile"
-for app in chrome ghostty; do
+for app in chrome chatgpt ghostty gitify; do
   sed "s|/Applications/|$tmp/Applications/|g" "$source_dir/$app/install.sh" >"$SOURCE_DIR/$app/install.sh"
 done
 
@@ -46,9 +46,9 @@ if [[ "$1" == -C && ! -d "$2/.git" ]]; then
   exit 128
 fi
 if [[ "$1" == clone ]]; then
-  mkdir -p "$3/homebrew" "$3/chrome" "$3/ghostty" "$3/fonts" "$3/.git"
+  mkdir -p "$3/homebrew" "$3/chrome" "$3/chatgpt" "$3/ghostty" "$3/gitify" "$3/fonts" "$3/.git"
   cp "$SOURCE_DIR/homebrew/Brewfile" "$3/homebrew/Brewfile"
-  for app in homebrew chrome ghostty fonts; do
+  for app in homebrew chrome chatgpt ghostty gitify fonts; do
     cp -p "$SOURCE_DIR/$app/install.sh" "$3/$app/install.sh"
   done
 fi
@@ -87,6 +87,8 @@ grep -Fx "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles" "$T
 grep -Fx "git -C $HOME/.dotfiles pull --ff-only" "$TRACE"
 test "$(grep -Fc 'brew bundle --no-upgrade --file=' "$TRACE")" -eq 3
 test "$(grep -Fxc 'brew upgrade --no-ask' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask gitify' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask chatgpt' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
@@ -96,22 +98,28 @@ test "$(grep -Fc 'gh extension install --force daiksud/gh-qw' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force babarot/gh-infra' "$TRACE")" -eq 3
 grep -F 'stow --no-folding --target=' "$TRACE" | grep -q 'editorconfig git ghostty herdr nvim rumdl sheldon starship zsh'
 # Standalone installers do not reinstall casks already managed by Homebrew.
+(cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=gitify bash gitify/install.sh)
+(cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=chatgpt bash chatgpt/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=google-chrome bash chrome/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=ghostty bash ghostty/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=font-moralerspace-hw bash fonts/install.sh)
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask chatgpt' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask gitify' "$TRACE")" -eq 3
 
 # Standalone installers also preserve manually installed applications and fonts.
-mkdir -p "$tmp/Applications/Google Chrome.app" "$tmp/Applications/Ghostty.app" "$HOME/Library/Fonts"
+mkdir -p "$tmp/Applications/Gitify.app" "$tmp/Applications/ChatGPT.app" "$tmp/Applications/Google Chrome.app" "$tmp/Applications/Ghostty.app" "$HOME/Library/Fonts"
 touch "$HOME/Library/Fonts/MoralerspaceNeonHW-Regular.ttf"
-for app in chrome ghostty fonts; do
+for app in chrome chatgpt ghostty gitify fonts; do
   (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK= bash "$app/install.sh")
 done
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask chatgpt' "$TRACE")" -eq 3
+test "$(grep -Fc 'brew install --cask gitify' "$TRACE")" -eq 3
 
 # Git is available before Homebrew; cloning precedes package installation.
 test "$(head -n 1 "$TRACE")" = "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles"

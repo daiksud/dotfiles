@@ -1,11 +1,10 @@
 fzf-select-ghqw() {
-  local dir query opts
-  opts="${FZF_DEFAULT_OPTS:+$FZF_DEFAULT_OPTS }--select-1 --reverse --height=20"
-  if (( $# )); then
-    query="$*"
-    opts+=" --query=${(q)query}"
-  fi
-  dir="$(FZF_DEFAULT_OPTS="$opts" gh qw list --worktree --fzf)" || return
+  setopt local_options pipefail
+  local dir
+  local -a fzf_args=(--select-1 --reverse --height=20)
+  (( $# )) && fzf_args+=(--query "$*")
+
+  dir="$(gh qw list --all --full-path | fzf "${fzf_args[@]}")" || return
   [[ -n "$dir" ]] || return 1
   cd -- "$dir" || return
   [[ -z "${WIDGET:-}" ]] || zle reset-prompt

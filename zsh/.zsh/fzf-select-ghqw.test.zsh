@@ -91,6 +91,13 @@ fzf-select-ghqw
   print -u2 -- "FAIL: fzf-select-ghqw did not select the main checkout"
   exit 1
 }
+selected_spec=other/repo
+fzf-select-ghqw
+[[ "$PWD" == "$tmpdir/other repository" ]] || {
+  print -u2 -- "FAIL: fzf-select-ghqw did not resolve a disambiguated name"
+  exit 1
+}
+selected_spec=example/repo
 expected_fzf_args='--select-1|--reverse|--height=20|--query|example'
 fzf-select-ghqw example
 [[ "$PWD" == "$tmpdir/main repository" ]] || {
@@ -116,11 +123,11 @@ fi
 }
 selected_spec=does-not-exist
 if fzf-select-ghqw; then
-  print -u2 -- "FAIL: empty external selection should fail"
+  print -u2 -- "FAIL: missing gh-qw identity should fail navigation"
   exit 1
 fi
 [[ "$PWD" == "$tmpdir/main repository" ]] || {
-  print -u2 -- "FAIL: empty selection must not change directories"
+  print -u2 -- "FAIL: missing identity must not change directories"
   exit 1
 }
 gh_mode=resolve_error

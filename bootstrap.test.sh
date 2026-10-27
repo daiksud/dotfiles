@@ -10,6 +10,7 @@ export PATH="$tmp/bin:$PATH"
 
 # Isolate application detection without changing the production installers.
 cp -p "$source_dir/bootstrap.sh" "$SOURCE_DIR/bootstrap.sh"
+mkdir -p "$SOURCE_DIR/.git"
 for app in homebrew chrome chatgpt ghostty gitify fonts; do
   mkdir -p "$SOURCE_DIR/$app"
   cp -p "$source_dir/$app/install.sh" "$SOURCE_DIR/$app/install.sh"
@@ -47,10 +48,15 @@ if [[ "$1" == -C && ! -d "$2/.git" ]]; then
 fi
 if [[ "$1" == clone ]]; then
   mkdir -p "$3/homebrew" "$3/chrome" "$3/chatgpt" "$3/ghostty" "$3/gitify" "$3/fonts" "$3/.git"
+  cp "$SOURCE_DIR/bootstrap.sh" "$3/bootstrap.sh"
   cp "$SOURCE_DIR/homebrew/Brewfile" "$3/homebrew/Brewfile"
   for app in homebrew chrome chatgpt ghostty gitify fonts; do
     cp -p "$SOURCE_DIR/$app/install.sh" "$3/$app/install.sh"
   done
+fi
+if [[ "$1" == -C && "$3" == pull && -n "${MOCK_UPDATED_BOOTSTRAP:-}" && "$2" == "$SOURCE_DIR" ]]; then
+  cp "$MOCK_UPDATED_BOOTSTRAP" "$2/bootstrap.sh.new"
+  mv "$2/bootstrap.sh.new" "$2/bootstrap.sh"
 fi
 SH
 
@@ -84,7 +90,8 @@ if (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | HOME="$tmp/occupied" bash) >/d
 fi
 
 grep -Fx "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles" "$TRACE"
-grep -Fx "git -C $HOME/.dotfiles pull --ff-only" "$TRACE"
+test "$(grep -Fxc "git -C $HOME/.dotfiles pull --ff-only" "$TRACE")" -eq 1
+test "$(grep -Fxc "git -C $SOURCE_DIR pull --ff-only" "$TRACE")" -eq 1
 test "$(grep -Fc 'brew bundle --no-upgrade --file=' "$TRACE")" -eq 3
 test "$(grep -Fxc 'brew upgrade --no-ask' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask gitify' "$TRACE")" -eq 3
@@ -92,8 +99,11 @@ test "$(grep -Fc 'brew install --cask chatgpt' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
-test "$(grep -Fc 'apm update --global --yes' "$TRACE")" -eq 3
-test "$(grep -Fc 'apm compile --global' "$TRACE")" -eq 3
+test "$(grep -Fxc 'apm install --global daiksud/agents' "$TRACE")" -eq 3
+test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 3
+test "$(grep -Fxc 'apm compile --global' "$TRACE")" -eq 3
+test "$(grep -Fxc 'apm outdated --global' "$TRACE")" -eq 3
+test "$(grep '^apm ' "$TRACE" | head -n 4)" = "$(printf 'apm install --global daiksud/agents\napm update --global --yes\napm compile --global\napm outdated --global\n')"
 test "$(grep -Fc 'gh extension install --force daiksud/gh-qw' "$TRACE")" -eq 3
 test "$(grep -Fxc 'gh extension install --force daiksud/gh-settings' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force babarot/gh-infra' "$TRACE")" -eq 3
@@ -124,5 +134,19 @@ test "$(grep -Fc 'brew install --cask gitify' "$TRACE")" -eq 3
 
 # Git is available before Homebrew; cloning precedes package installation.
 test "$(head -n 1 "$TRACE")" = "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles"
+
+# A local bootstrap must use the fetched script, not resume its stale contents.
+cp "$SOURCE_DIR/bootstrap.sh" "$tmp/updated-bootstrap.sh"
+printf '\nprintf "stale bootstrap continued\\n" >>"$TRACE"\n' >>"$SOURCE_DIR/bootstrap.sh"
+(cd "$tmp" && MOCK_UPDATED_BOOTSTRAP="$tmp/updated-bootstrap.sh" bash "$SOURCE_DIR/bootstrap.sh")
+test "$(grep -Fxc "git -C $SOURCE_DIR pull --ff-only" "$TRACE")" -eq 2
+test "$(grep -Fxc 'apm install --global daiksud/agents' "$TRACE")" -eq 4
+test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 4
+test "$(grep -Fxc 'apm compile --global' "$TRACE")" -eq 4
+test "$(grep -Fxc 'apm outdated --global' "$TRACE")" -eq 4
+if grep -Fq 'stale bootstrap continued' "$TRACE"; then
+  echo 'FAIL: bootstrap continued executing stale content after update' >&2
+  exit 1
+fi
 
 echo 'Modular bootstrap and repeat-run smoke tests passed'

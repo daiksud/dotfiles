@@ -7,15 +7,21 @@ if [[ "$(uname -s)" != Darwin || "$(uname -m)" != arm64 ]]; then
 fi
 
 if [[ -f "${BASH_SOURCE[0]:-}" ]]; then
-  cd "$(dirname "${BASH_SOURCE[0]}")"
-else
-  if [[ -e "$HOME/.dotfiles" ]]; then
-    git -C "$HOME/.dotfiles" pull --ff-only
-  else
-    git clone https://github.com/daiksud/dotfiles.git "$HOME/.dotfiles"
+  repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [[ "${DOTFILES_BOOTSTRAP_UPDATED:-}" != 1 ]]; then
+    git -C "$repo_dir" pull --ff-only
+    DOTFILES_BOOTSTRAP_UPDATED=1 exec bash "$repo_dir/bootstrap.sh"
   fi
-  cd "$HOME/.dotfiles"
+else
+  repo_dir="$HOME/.dotfiles"
+  if [[ -e "$repo_dir" ]]; then
+    git -C "$repo_dir" pull --ff-only
+  else
+    git clone https://github.com/daiksud/dotfiles.git "$repo_dir"
+  fi
+  DOTFILES_BOOTSTRAP_UPDATED=1 exec bash "$repo_dir/bootstrap.sh"
 fi
+cd "$repo_dir"
 
 # Source Homebrew's shell environment for the other installers.
 source ./homebrew/install.sh
@@ -28,6 +34,7 @@ stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl she
 apm install --global daiksud/agents --target codex,copilot
 apm update --global --yes
 apm compile --global
+apm outdated --global
 
 gh auth status >/dev/null 2>&1 || gh auth login </dev/tty
 gh extension install --force daiksud/gh-qw

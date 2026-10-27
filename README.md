@@ -15,12 +15,10 @@ The bootstrap clones this repository to `~/.dotfiles` and installs Homebrew, Chr
 ## Update
 
 ```sh
-cd ~/.dotfiles
-git pull --ff-only
-./bootstrap.sh
+~/.dotfiles/bootstrap.sh
 ```
 
-Re-running bootstrap also upgrades outdated Homebrew packages with `brew upgrade --no-ask` without a Homebrew confirmation prompt.
+Bootstrap clones the repository if needed, or fast-forward pulls it with `git pull --ff-only` on repeat runs. It then restarts from the updated script before installing or refreshing tools. It also upgrades Homebrew packages with `brew upgrade --no-ask`, refreshes global APM dependencies, compiles global instructions, and reports remaining outdated APM packages with `apm outdated --global`.
 
 Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not use `--adopt`.
 

@@ -31,7 +31,7 @@ source ./homebrew/install.sh
 ./gitify/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh
-apm install --global daiksud/agents
+apm install --global daiksud/agents --target codex,copilot
 apm update --global --yes
 apm compile --global
 apm outdated --global

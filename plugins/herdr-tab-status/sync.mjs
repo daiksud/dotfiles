@@ -111,9 +111,9 @@ export function nextTabLabel(tab, tabPanes, previous, legacyOwnedLabel, config, 
   const cwd = directoryLabel(focusedCwd(tabPanes), home, config.max_length);
   const previousMatches = previous?.lastLabel === currentLabel;
   const base = previousMatches ? previous.base : currentLabel.replace(MARKER_PREFIX, '');
-  const automatic = previousMatches ? previous.automatic
-    : config.overwrite_manual || DEFAULT_LABEL.test(currentLabel)
-      || (previous === undefined && (legacyOwnedLabel === currentLabel || cwd === base));
+  const automatic = config.overwrite_manual || (previousMatches ? previous.automatic
+    : DEFAULT_LABEL.test(currentLabel)
+      || (previous === undefined && (legacyOwnedLabel === currentLabel || cwd === base)));
   const nextBase = automatic && cwd ? cwd : base;
   const status = mostUrgentStatus(tabPanes);
   const marker = status === null ? null : STATUS_MARKER[status];

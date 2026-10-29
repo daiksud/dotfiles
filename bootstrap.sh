@@ -32,11 +32,20 @@ source ./homebrew/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh
 
-# Install the tab-label plugin once; it keeps tabs named for the focused pane.
-herdr_plugin_id=dev-shimada.auto-tab-name
+# Link our tracked directory-name + agent-status plugin before removing the
+# previous renamer, so a failed link leaves the existing plugin intact.
+herdr_plugin_id=daiksud.tab-agent-status
 herdr_plugins="$(herdr plugin list --plugin "$herdr_plugin_id" --json)"
 if ! jq -e --arg id "$herdr_plugin_id" '.result.plugins | any(.plugin_id == $id)' <<<"$herdr_plugins" >/dev/null; then
-  herdr plugin install dev-shimada/herdr-auto-tab-name --ref 1aa9f78d8748b75a9938cbd16114573ab198bd68 --yes
+  herdr plugin link "$repo_dir/plugins/herdr-tab-status"
+fi
+
+# Do not keep two tab-name writers active. Herdr retains the former plugin's
+# state after uninstall, allowing the replacement to adopt its owned labels.
+herdr_plugin_id=dev-shimada.auto-tab-name
+herdr_plugins="$(herdr plugin list --plugin "$herdr_plugin_id" --json)"
+if jq -e --arg id "$herdr_plugin_id" '.result.plugins | any(.plugin_id == $id)' <<<"$herdr_plugins" >/dev/null; then
+  herdr plugin uninstall "$herdr_plugin_id"
 fi
 
 # Equalize pane widths after splitting or closing panes.

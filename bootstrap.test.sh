@@ -16,6 +16,8 @@ for app in homebrew chrome chatgpt ghostty gitify fonts; do
   cp -p "$source_dir/$app/install.sh" "$SOURCE_DIR/$app/install.sh"
 done
 cp "$source_dir/homebrew/Brewfile" "$SOURCE_DIR/homebrew/Brewfile"
+mkdir -p "$SOURCE_DIR/plugins/herdr-tab-status"
+cp "$source_dir/plugins/herdr-tab-status/herdr-plugin.toml" "$SOURCE_DIR/plugins/herdr-tab-status/herdr-plugin.toml"
 for app in chrome chatgpt ghostty gitify; do
   sed "s|/Applications/|$tmp/Applications/|g" "$source_dir/$app/install.sh" >"$SOURCE_DIR/$app/install.sh"
 done
@@ -53,6 +55,8 @@ if [[ "$1" == clone ]]; then
   for app in homebrew chrome chatgpt ghostty gitify fonts; do
     cp -p "$SOURCE_DIR/$app/install.sh" "$3/$app/install.sh"
   done
+  mkdir -p "$3/plugins/herdr-tab-status"
+  cp "$SOURCE_DIR/plugins/herdr-tab-status/herdr-plugin.toml" "$3/plugins/herdr-tab-status/herdr-plugin.toml"
 fi
 if [[ "$1" == -C && "$3" == pull && -n "${MOCK_UPDATED_BOOTSTRAP:-}" && "$2" == "$SOURCE_DIR" ]]; then
   cp "$MOCK_UPDATED_BOOTSTRAP" "$2/bootstrap.sh.new"
@@ -75,7 +79,7 @@ case "$1 $2" in
   'plugin list')
     [[ "$3" == --plugin && "$5" == --json ]] || exit 2
     case "$4" in
-      dev-shimada.auto-tab-name|shibayu36.equalize-panes) ;;
+      dev-shimada.auto-tab-name|daiksud.tab-agent-status|shibayu36.equalize-panes) ;;
       *) exit 2 ;;
     esac
     if [[ -f "$HOME/.mock-herdr-$4" ]]; then
@@ -84,18 +88,18 @@ case "$1 $2" in
       printf '%s\n' '{"result":{"plugins":[]}}'
     fi
     ;;
+  'plugin link')
+    [[ "$3" == "$SOURCE_DIR/plugins/herdr-tab-status" || "$3" == "$HOME/.dotfiles/plugins/herdr-tab-status" ]] || exit 2
+    [[ -f "$3/herdr-plugin.toml" ]] || exit 2
+    touch "$HOME/.mock-herdr-daiksud.tab-agent-status"
+    ;;
+  'plugin uninstall')
+    [[ "$3" == dev-shimada.auto-tab-name ]] || exit 2
+    rm -f "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
+    ;;
   'plugin install')
-    case "$3" in
-      dev-shimada/herdr-auto-tab-name)
-        [[ "$4" == --ref && "$5" == 1aa9f78d8748b75a9938cbd16114573ab198bd68 && "$6" == --yes ]] || exit 2
-        touch "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
-        ;;
-      shibayu36/herdr-equalize-panes)
-        [[ "$4" == --ref && "$5" == 0c1d940e9af09c632a48a5b179753ef25056ff13 && "$6" == --yes ]] || exit 2
-        touch "$HOME/.mock-herdr-shibayu36.equalize-panes"
-        ;;
-      *) exit 2 ;;
-    esac
+    [[ "$3" == shibayu36/herdr-equalize-panes && "$4" == --ref && "$5" == 0c1d940e9af09c632a48a5b179753ef25056ff13 && "$6" == --yes ]] || exit 2
+    touch "$HOME/.mock-herdr-shibayu36.equalize-panes"
     ;;
   *) exit 2 ;;
 esac
@@ -108,6 +112,8 @@ printf '%s %s\n' "${0##*/}" "$*" >>"$TRACE"
 SH
 done
 chmod +x "$tmp/bin/"*
+# Simulate a previously installed remote tab-name plugin for upgrade coverage.
+touch "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
 
 # A streamed bootstrap clones the checkout. Running it again pulls safely.
 (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | bash)
@@ -132,8 +138,12 @@ test "$(grep -Fc 'brew install --cask chatgpt' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
-test "$(grep -Fxc 'herdr plugin install dev-shimada/herdr-auto-tab-name --ref 1aa9f78d8748b75a9938cbd16114573ab198bd68 --yes' "$TRACE")" -eq 1
+test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 3
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 3
+test ! -f "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
+test -f "$HOME/.mock-herdr-daiksud.tab-agent-status"
 test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 3
 test "$(grep -Fxc 'apm install --global daiksud/agents --target codex,copilot' "$TRACE")" -eq 3
@@ -177,7 +187,9 @@ cp "$SOURCE_DIR/bootstrap.sh" "$tmp/updated-bootstrap.sh"
 printf '\nprintf "stale bootstrap continued\\n" >>"$TRACE"\n' >>"$SOURCE_DIR/bootstrap.sh"
 (cd "$tmp" && MOCK_UPDATED_BOOTSTRAP="$tmp/updated-bootstrap.sh" bash "$SOURCE_DIR/bootstrap.sh")
 test "$(grep -Fxc "git -C $SOURCE_DIR pull --ff-only" "$TRACE")" -eq 2
-test "$(grep -Fxc 'herdr plugin install dev-shimada/herdr-auto-tab-name --ref 1aa9f78d8748b75a9938cbd16114573ab198bd68 --yes' "$TRACE")" -eq 1
+test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 4
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 4
 test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 4
@@ -189,5 +201,12 @@ if grep -Fq 'stale bootstrap continued' "$TRACE"; then
   echo 'FAIL: bootstrap continued executing stale content after update' >&2
   exit 1
 fi
+
+# A fresh install links the local plugin without attempting to remove a legacy one.
+mkdir -p "$tmp/fresh-home"
+(cd "$tmp" && HOME="$tmp/fresh-home" bash "$SOURCE_DIR/bootstrap.sh")
+test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
+test -f "$tmp/fresh-home/.mock-herdr-daiksud.tab-agent-status"
 
 echo 'Modular bootstrap and repeat-run smoke tests passed'

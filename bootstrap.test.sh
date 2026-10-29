@@ -80,7 +80,7 @@ case "$1 $2" in
     fi
     ;;
   'plugin install')
-    [[ "$3" == dev-shimada/herdr-auto-tab-name && "$4" == --yes ]] || exit 2
+    [[ "$3" == dev-shimada/herdr-auto-tab-name && "$4" == --ref && "$5" == 1aa9f78d8748b75a9938cbd16114573ab198bd68 && "$6" == --yes ]] || exit 2
     touch "$HOME/.mock-herdr-auto-tab-name"
     ;;
   *) exit 2 ;;
@@ -118,7 +118,7 @@ test "$(grep -Fc 'brew install --cask chatgpt' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
-test "$(grep -Fxc 'herdr plugin install dev-shimada/herdr-auto-tab-name --yes' "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin install dev-shimada/herdr-auto-tab-name --ref 1aa9f78d8748b75a9938cbd16114573ab198bd68 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 3
 test "$(grep -Fxc 'apm install --global daiksud/agents --target codex,copilot' "$TRACE")" -eq 3
 test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 3
@@ -161,7 +161,7 @@ cp "$SOURCE_DIR/bootstrap.sh" "$tmp/updated-bootstrap.sh"
 printf '\nprintf "stale bootstrap continued\\n" >>"$TRACE"\n' >>"$SOURCE_DIR/bootstrap.sh"
 (cd "$tmp" && MOCK_UPDATED_BOOTSTRAP="$tmp/updated-bootstrap.sh" bash "$SOURCE_DIR/bootstrap.sh")
 test "$(grep -Fxc "git -C $SOURCE_DIR pull --ff-only" "$TRACE")" -eq 2
-test "$(grep -Fxc 'herdr plugin install dev-shimada/herdr-auto-tab-name --yes' "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin install dev-shimada/herdr-auto-tab-name --ref 1aa9f78d8748b75a9938cbd16114573ab198bd68 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm install --global daiksud/agents --target codex,copilot' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 4

@@ -73,15 +73,29 @@ cat >"$tmp/bin/herdr" <<'SH'
 printf 'herdr %s\n' "$*" >>"$TRACE"
 case "$1 $2" in
   'plugin list')
-    if [[ -f "$HOME/.mock-herdr-auto-tab-name" ]]; then
-      printf '%s\n' '{"result":{"plugins":[{"plugin_id":"dev-shimada.auto-tab-name","enabled":true}]}}'
+    [[ "$3" == --plugin && "$5" == --json ]] || exit 2
+    case "$4" in
+      dev-shimada.auto-tab-name|shibayu36.equalize-panes) ;;
+      *) exit 2 ;;
+    esac
+    if [[ -f "$HOME/.mock-herdr-$4" ]]; then
+      printf '{"result":{"plugins":[{"plugin_id":"%s","enabled":true}]}}\n' "$4"
     else
       printf '%s\n' '{"result":{"plugins":[]}}'
     fi
     ;;
   'plugin install')
-    [[ "$3" == dev-shimada/herdr-auto-tab-name && "$4" == --ref && "$5" == 1aa9f78d8748b75a9938cbd16114573ab198bd68 && "$6" == --yes ]] || exit 2
-    touch "$HOME/.mock-herdr-auto-tab-name"
+    case "$3" in
+      dev-shimada/herdr-auto-tab-name)
+        [[ "$4" == --ref && "$5" == 1aa9f78d8748b75a9938cbd16114573ab198bd68 && "$6" == --yes ]] || exit 2
+        touch "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
+        ;;
+      shibayu36/herdr-equalize-panes)
+        [[ "$4" == --ref && "$5" == 0c1d940e9af09c632a48a5b179753ef25056ff13 && "$6" == --yes ]] || exit 2
+        touch "$HOME/.mock-herdr-shibayu36.equalize-panes"
+        ;;
+      *) exit 2 ;;
+    esac
     ;;
   *) exit 2 ;;
 esac
@@ -120,6 +134,8 @@ test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
 test "$(grep -Fxc 'herdr plugin install dev-shimada/herdr-auto-tab-name --ref 1aa9f78d8748b75a9938cbd16114573ab198bd68 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 3
+test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 3
 test "$(grep -Fxc 'apm install --global daiksud/agents --target codex,copilot' "$TRACE")" -eq 3
 test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 3
 test "$(grep -Fxc 'apm compile --global' "$TRACE")" -eq 3
@@ -163,6 +179,8 @@ printf '\nprintf "stale bootstrap continued\\n" >>"$TRACE"\n' >>"$SOURCE_DIR/boo
 test "$(grep -Fxc "git -C $SOURCE_DIR pull --ff-only" "$TRACE")" -eq 2
 test "$(grep -Fxc 'herdr plugin install dev-shimada/herdr-auto-tab-name --ref 1aa9f78d8748b75a9938cbd16114573ab198bd68 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 4
+test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm install --global daiksud/agents --target codex,copilot' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm compile --global' "$TRACE")" -eq 4

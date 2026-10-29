@@ -5,6 +5,12 @@ name = "tokyo-night"
 
 [keys]
 prefix = "ctrl+t"
+# Keep workspaces internal; navigate tabs instead.
+new_workspace = ""
+previous_tab = ["prefix+p", "ctrl+alt+h"]
+next_tab = ["prefix+n", "ctrl+alt+l"]
+cycle_pane_previous = ["prefix+shift+tab", "ctrl+alt+j"]
+cycle_pane_next = ["prefix+tab", "ctrl+alt+k"]
 
 [ui]
 sidebar_start_collapsed = true

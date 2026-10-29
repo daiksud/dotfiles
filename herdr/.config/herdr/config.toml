@@ -8,7 +8,6 @@ prefix = "ctrl+t"
 
 # Use tabs and panes for navigation, not workspace or worktree shortcuts.
 workspace_picker = ""
-goto = ""
 new_workspace = ""
 rename_workspace = ""
 close_workspace = ""

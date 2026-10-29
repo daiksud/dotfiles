@@ -95,6 +95,17 @@ test('preserves manual names while updating agent status and directory', async (
   assert.deepEqual(fx.labels(), ['manually renamed']);
 });
 
+test('honors overwrite_manual after a manual tab was already synchronized', async (t) => {
+  const fx = createFixture(t, { tabs: [{ tab_id: 'w1:t1', label: 'manually chosen' }], panes: [
+    pane({ cwd: '/repo/selected-directory' }),
+  ] });
+  await fx.sync();
+  assert.deepEqual(fx.labels(), ['manually chosen']);
+  fs.writeFileSync(path.join(fx.configDir, 'config.json'), '{"overwrite_manual":true}');
+  await fx.sync();
+  assert.deepEqual(fx.labels(), ['selected-directory']);
+});
+
 test('adopts the former auto-tab-name plugin ownership during migration', async (t) => {
   const fx = createFixture(t, { tabs: [{ tab_id: 'w1:t1', label: 'old-project' }], panes: [
     pane({ agent: 'codex', agent_status: 'blocked', foreground_cwd: '/repo/new-project' }),

@@ -6,5 +6,12 @@ name = "tokyo-night"
 [keys]
 prefix = "ctrl+t"
 
+[ui]
+sidebar_start_collapsed = true
+sidebar_collapsed_mode = "hidden"
+tab_bar_position = "top"
+hide_tab_bar_when_single_tab = true
+prompt_new_tab_name = false
+
 [ui.sound]
 enabled = false

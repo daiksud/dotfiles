@@ -5,8 +5,22 @@ name = "tokyo-night"
 
 [keys]
 prefix = "ctrl+t"
-# Keep workspaces internal; navigate tabs instead.
+
+# Use tabs and panes for navigation, not workspace or worktree shortcuts.
+workspace_picker = ""
+goto = ""
 new_workspace = ""
+rename_workspace = ""
+close_workspace = ""
+previous_workspace = ""
+next_workspace = ""
+switch_workspace = ""
+navigate_workspace_up = ""
+navigate_workspace_down = ""
+new_worktree = ""
+open_worktree = ""
+remove_worktree = ""
+
 previous_tab = ["prefix+p", "ctrl+alt+h"]
 next_tab = ["prefix+n", "ctrl+alt+l"]
 cycle_pane_previous = ["prefix+shift+tab", "ctrl+alt+j"]

@@ -31,6 +31,13 @@ source ./homebrew/install.sh
 ./gitify/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh
+
+# Install the tab-label plugin once; it keeps tabs named for the focused pane.
+herdr_plugin_id=dev-shimada.auto-tab-name
+herdr_plugins="$(herdr plugin list --plugin "$herdr_plugin_id" --json)"
+if ! jq -e --arg id "$herdr_plugin_id" '.result.plugins | any(.plugin_id == $id)' <<<"$herdr_plugins" >/dev/null; then
+  herdr plugin install dev-shimada/herdr-auto-tab-name --ref 1aa9f78d8748b75a9938cbd16114573ab198bd68 --yes
+fi
 apm install --global daiksud/agents --target codex,copilot
 apm update --global --yes
 apm compile --global

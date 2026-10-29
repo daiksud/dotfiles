@@ -6,5 +6,31 @@ name = "tokyo-night"
 [keys]
 prefix = "ctrl+t"
 
+# Use tabs and panes for navigation, not workspace or worktree shortcuts.
+workspace_picker = ""
+new_workspace = ""
+rename_workspace = ""
+close_workspace = ""
+previous_workspace = ""
+next_workspace = ""
+switch_workspace = ""
+navigate_workspace_up = ""
+navigate_workspace_down = ""
+new_worktree = ""
+open_worktree = ""
+remove_worktree = ""
+
+previous_tab = ["prefix+p", "ctrl+alt+h"]
+next_tab = ["prefix+n", "ctrl+alt+l"]
+cycle_pane_previous = ["prefix+shift+tab", "ctrl+alt+j"]
+cycle_pane_next = ["prefix+tab", "ctrl+alt+k"]
+
+[ui]
+sidebar_start_collapsed = true
+sidebar_collapsed_mode = "hidden"
+tab_bar_position = "top"
+hide_tab_bar_when_single_tab = true
+prompt_new_tab_name = false
+
 [ui.sound]
 enabled = false

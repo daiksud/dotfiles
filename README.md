@@ -12,7 +12,7 @@ Requires Git, internet access and administrator permissions. macOS may prompt fo
 
 The bootstrap clones this repository to `~/.dotfiles` and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Moralerspace Neon HW, CLI tools, and global [daiksud/agents](https://github.com/daiksud/agents) instructions for Codex and Copilot. It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
 
-It also installs Herdr's [auto tab name plugin](https://github.com/dev-shimada/herdr-auto-tab-name) (with Node.js) on the first run. Herdr starts with its sidebar hidden, places tabs at the top when there are multiple tabs, and names tabs after the focused pane's working directory. Tab names refresh on Herdr events (such as switching panes); plain `cd` does not trigger an immediate update.
+It also installs a revision-pinned [Herdr auto tab name plugin](https://github.com/dev-shimada/herdr-auto-tab-name) (with Node.js) on the first run. Herdr starts with its sidebar hidden, places tabs at the top when there are multiple tabs, and names tabs after the focused pane's working directory. Use `Ctrl+Option+H/L` for previous/next tab and `Ctrl+Option+J/K` for previous/next pane. The default workspace stays available internally, but new-workspace keyboard creation is disabled; tabs are the primary navigation unit. Tab names refresh on Herdr events (such as switching panes); plain `cd` does not trigger an immediate update.
 
 ## Update
 

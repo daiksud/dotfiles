@@ -148,11 +148,11 @@ test ! -f "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
 test -f "$HOME/.mock-herdr-daiksud.tab-agent-status"
 test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 3
-test "$(grep -Fxc 'apm install --global daiksud/agents --target codex,copilot' "$TRACE")" -eq 3
+! grep -Eq '^apm install( |$)' "$TRACE"
 test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 3
 test "$(grep -Fxc 'apm compile --global' "$TRACE")" -eq 3
 test "$(grep -Fxc 'apm outdated --global' "$TRACE")" -eq 3
-test "$(grep '^apm ' "$TRACE" | head -n 4)" = "$(printf 'apm install --global daiksud/agents --target codex,copilot\napm update --global --yes\napm compile --global\napm outdated --global\n')"
+test "$(grep '^apm ' "$TRACE" | head -n 3)" = "$(printf 'apm update --global --yes\napm compile --global\napm outdated --global\n')"
 test "$(grep -Fc 'gh extension install --force daiksud/gh-qw' "$TRACE")" -eq 3
 test "$(grep -Fxc 'gh extension install --force daiksud/gh-settings' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force babarot/gh-infra' "$TRACE")" -eq 3
@@ -196,7 +196,7 @@ test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 4
 test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 4
-test "$(grep -Fxc 'apm install --global daiksud/agents --target codex,copilot' "$TRACE")" -eq 4
+! grep -Eq '^apm install( |$)' "$TRACE"
 test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm compile --global' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm outdated --global' "$TRACE")" -eq 4

@@ -10,11 +10,18 @@ curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/bootstrap.sh 
 
 Requires Git, internet access and administrator permissions. macOS may prompt for Xcode Command Line Tools; GitHub login may require browser authentication.
 
-The bootstrap clones this repository to `~/.dotfiles` and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Moralerspace Neon HW, CLI tools, and global [daiksud/agents](https://github.com/daiksud/agents) instructions for Codex and Copilot. It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
+The bootstrap clones this repository to `~/.dotfiles` and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Moralerspace Neon HW, CLI tools (including APM). It does not automatically install [daiksud/agents](https://github.com/daiksud/agents). It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
 
 It links the checked-in [Herdr Tab Directory and Agent Status plugin](plugins/herdr-tab-status/README.md) (using macOS system Perl), replacing the old auto-tab-name plugin. Herdr starts with its sidebar hidden and places tabs at the top when there are multiple tabs. Tab names track the focused pane's directory with the most urgent Agent status in the tab: 🔴 blocked, 🟢 done, ⚪ idle/unknown, 🟡 working. Manual tab names are preserved. Use `Ctrl+Option+H/L` for previous/next tab and `Ctrl+Option+J/K` for previous/next pane. The default workspace remains available internally, but workspace and worktree shortcuts are disabled; tabs are the primary navigation unit (create with `Ctrl+T`, then `C`; close with `Ctrl+T`, then `Shift+X`). The general Goto picker (`Ctrl+T`, then `G`) remains available. Tab names update on Herdr events; plain `cd` does not trigger an immediate update.
 
 The revision-pinned [Equalize Panes plugin](https://github.com/shibayu36/herdr-equalize-panes) also automatically balances pane widths when panes are created or closed. Manual resizing persists until the next pane change. Run `herdr plugin action invoke shibayu36.equalize-panes.equalize` inside Herdr to equalize the current tab on demand.
+
+To opt in to the global Codex and Copilot instructions, install them explicitly:
+
+```sh
+apm install --global daiksud/agents --target codex,copilot
+apm compile --global
+```
 
 ## Update
 

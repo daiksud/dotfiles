@@ -5,55 +5,58 @@ min_herdr_version = "0.7.0"
 description = "Keep tab names in sync with the focused pane's directory and the most urgent agent status."
 platforms = ["macos"]
 
+[[startup]]
+command = ["/usr/bin/perl", "sync.pl"]
+
 [[actions]]
 id = "sync"
 title = "Synchronize tab directories and agent statuses"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "tab.created"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "tab.focused"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "tab.moved"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "pane.created"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "pane.closed"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "pane.exited"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "pane.focused"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "pane.moved"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "pane.agent_detected"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "pane.agent_status_changed"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "workspace.focused"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]
 
 [[events]]
 on = "worktree.opened"
-command = ["node", "sync.mjs"]
+command = ["/usr/bin/perl", "sync.pl"]

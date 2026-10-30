@@ -32,13 +32,10 @@ source ./homebrew/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh
 
-# Link our tracked directory-name + agent-status plugin before removing the
-# previous renamer, so a failed link leaves the existing plugin intact.
-herdr_plugin_id=daiksud.tab-agent-status
-herdr_plugins="$(herdr plugin list --plugin "$herdr_plugin_id" --json)"
-if ! jq -e --arg id "$herdr_plugin_id" '.result.plugins | any(.plugin_id == $id)' <<<"$herdr_plugins" >/dev/null; then
-  herdr plugin link "$repo_dir/plugins/herdr-tab-status"
-fi
+# Re-link on every run to refresh Herdr's registered plugin manifest. Simply
+# editing a linked manifest does not update the already registered commands.
+# Do this before removing the previous renamer so failures keep it available.
+herdr plugin link "$repo_dir/plugins/herdr-tab-status"
 
 # Do not keep two tab-name writers active. Herdr retains the former plugin's
 # state after uninstall, allowing the replacement to adopt its owned labels.

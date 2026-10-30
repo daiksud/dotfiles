@@ -95,5 +95,5 @@ jobs:
           zsh -f zsh/.zsh/fzf-select-history.test.zsh
 
       - name: Test Herdr tab status plugin
-        run: node --test plugins/herdr-tab-status/sync.test.mjs
+        run: /usr/bin/perl plugins/herdr-tab-status/sync.t
 

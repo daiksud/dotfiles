@@ -28,11 +28,14 @@ is configured to hide when there is one tab, its marker is also hidden.
 then uninstalls the previous naming plugin if present. Herdr keeps the old
 plugin's state and config files; this plugin adopts its previously owned labels
 and defaults to its former `overwrite_manual` and `max_length` settings.
-It stays linked across bootstrap reruns. Requires Node.js (provided by the
-Homebrew Brewfile) and Herdr 0.7.0 or later.
+Bootstrap re-links this plugin on every run to refresh the registered command
+manifest. It uses only macOS system Perl (including the core JSON::PP module),
+and requires Herdr 0.7.0 or later.
 
 Changes to the plugin code in the dotfiles checkout become available to the
-next Herdr event; no plugin build is necessary.
+next Herdr event; no plugin build is necessary. A server startup hook
+synchronizes restored tabs. Run Bootstrap after upgrading to refresh the
+registered runtime command before invoking the action.
 
 Manually sync any existing tabs:
 
@@ -63,7 +66,7 @@ only the directory portion of the label, not the Agent marker.
 ## Tests
 
 ```sh
-node --test plugins/herdr-tab-status/sync.test.mjs
+/usr/bin/perl plugins/herdr-tab-status/sync.t
 ```
 
 The directory-labeling behavior is adapted from

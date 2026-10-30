@@ -14,6 +14,13 @@ theme = TokyoNight Storm
 window-inherit-working-directory = false
 window-padding-y = 0
 
+# Toggle Quick Terminal globally with Cmd+backquote.
+keybind = global:cmd+backquote=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-size = 40%
+quick-terminal-screen = mouse
+quick-terminal-autohide = true
+
 # Disable tab-related keybinds
 keybind = super+t=unbind
 keybind = super+shift+left_bracket=unbind

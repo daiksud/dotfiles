@@ -140,7 +140,7 @@ test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
 test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 2
-test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 3
+test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 0
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 3
@@ -208,7 +208,7 @@ fi
 # A fresh install links the local plugin without attempting to remove a legacy one.
 mkdir -p "$tmp/fresh-home"
 (cd "$tmp" && HOME="$tmp/fresh-home" bash "$SOURCE_DIR/bootstrap.sh")
-test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 1
+test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 3
 test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
 test -f "$tmp/fresh-home/.mock-herdr-daiksud.tab-agent-status"
 

@@ -91,6 +91,7 @@ case "$1 $2" in
   'plugin link')
     [[ "$3" == "$SOURCE_DIR/plugins/herdr-tab-status" || "$3" == "$HOME/.dotfiles/plugins/herdr-tab-status" ]] || exit 2
     [[ -f "$3/herdr-plugin.toml" ]] || exit 2
+    grep -Fq 'command = ["/usr/bin/perl", "sync.pl"]' "$3/herdr-plugin.toml" || exit 2
     touch "$HOME/.mock-herdr-daiksud.tab-agent-status"
     ;;
   'plugin uninstall')
@@ -138,9 +139,9 @@ test "$(grep -Fc 'brew install --cask chatgpt' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
-test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 1
+test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 3
 test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
-test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 3
+test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 0
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 3
 test ! -f "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
 test -f "$HOME/.mock-herdr-daiksud.tab-agent-status"
@@ -187,9 +188,9 @@ cp "$SOURCE_DIR/bootstrap.sh" "$tmp/updated-bootstrap.sh"
 printf '\nprintf "stale bootstrap continued\\n" >>"$TRACE"\n' >>"$SOURCE_DIR/bootstrap.sh"
 (cd "$tmp" && MOCK_UPDATED_BOOTSTRAP="$tmp/updated-bootstrap.sh" bash "$SOURCE_DIR/bootstrap.sh")
 test "$(grep -Fxc "git -C $SOURCE_DIR pull --ff-only" "$TRACE")" -eq 2
-test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 1
+test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 4
 test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
-test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 4
+test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 0
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 4
 test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 4

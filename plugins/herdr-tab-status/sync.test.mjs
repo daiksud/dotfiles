@@ -66,7 +66,13 @@ test('aggregates all agents in the tab, not just the focused pane', async (t) =>
   assert.deepEqual(fx.labels(), ['🟢 gh-settings'], 'done outranks working and idle');
   fx.state.panes[2].agent_status = 'working';
   await fx.sync();
-  assert.deepEqual(fx.labels(), ['🟡 gh-settings']);
+  assert.deepEqual(fx.labels(), ['⚪ gh-settings'], 'idle outranks working');
+  fx.state.panes[1].agent_status = 'working';
+  await fx.sync();
+  assert.deepEqual(fx.labels(), ['🟡 gh-settings'], 'all Agents working');
+  fx.state.panes[1].agent_status = 'unknown';
+  await fx.sync();
+  assert.deepEqual(fx.labels(), ['⚪ gh-settings'], 'unknown outranks working');
   fx.state.panes[2].agent_status = 'idle';
   fx.state.panes[0].agent_status = 'idle';
   await fx.sync();
@@ -74,6 +80,22 @@ test('aggregates all agents in the tab, not just the focused pane', async (t) =>
   fx.state.panes = [pane({ cwd: '/repo/gh-settings' })];
   await fx.sync();
   assert.deepEqual(fx.labels(), ['gh-settings'], 'agent removed clears status');
+});
+
+test('idle and unknown outrank working independent of pane order', () => {
+  const working = pane({ agent: 'codex', agent_status: 'working' });
+  const idle = pane({ agent: 'codex', agent_status: 'idle' });
+  const unknown = pane({ agent: 'codex', agent_status: 'unknown' });
+  const done = pane({ agent: 'codex', agent_status: 'done' });
+  const blocked = pane({ agent: 'codex', agent_status: 'blocked' });
+
+  assert.equal(mostUrgentStatus([working]), 'working');
+  assert.equal(mostUrgentStatus([working, idle]), 'idle');
+  assert.equal(mostUrgentStatus([idle, working]), 'idle');
+  assert.equal(mostUrgentStatus([working, unknown]), 'unknown');
+  assert.equal(mostUrgentStatus([unknown, working]), 'unknown');
+  assert.equal(mostUrgentStatus([unknown, working, done]), 'done');
+  assert.equal(mostUrgentStatus([idle, working, done, blocked]), 'blocked');
 });
 
 test('preserves manual names while updating agent status and directory', async (t) => {

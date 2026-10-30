@@ -8,8 +8,8 @@ urgent Agent in any pane of the tab.
 | --- | --- | --- |
 | Blocked (input/approval needed) | 🔴 gh-settings | 1 |
 | Done (unread completion) | 🟢 gh-settings | 2 |
-| Working | 🟡 gh-settings | 3 |
-| Idle or unknown | ⚪ gh-settings | 4 |
+| Idle or unknown | ⚪ gh-settings | 3 |
+| Working | 🟡 gh-settings | 4 |
 | No detected Agent | gh-settings | No marker |
 
 Names use the focused pane's foreground working directory when available,

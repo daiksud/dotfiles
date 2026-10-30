@@ -15,7 +15,8 @@ const STATUS_MARKER = Object.freeze({
   idle: '⚪',
   unknown: '⚪',
 });
-const STATUS_PRIORITY = Object.freeze({ unknown: 0, idle: 1, working: 2, done: 3, blocked: 4 });
+// Treat idle and unknown equally; both demand attention before a working Agent.
+const STATUS_PRIORITY = Object.freeze({ working: 1, idle: 2, unknown: 2, done: 3, blocked: 4 });
 const MARKER_PREFIX = /^(?:🔴|🟢|🟡|⚪) /u;
 
 function readJson(file, fallback) {

@@ -1,7 +1,7 @@
 fzf-select-ghqw() {
   setopt local_options pipefail
   local dir selected
-  local -a fzf_args=(--select-1 --reverse --height=20)
+  local -a fzf_args=(--select-1)
   (( $# )) && fzf_args+=(--query "$*")
 
   selected="$(gh qw list --all --unique | fzf "${fzf_args[@]}")" || return

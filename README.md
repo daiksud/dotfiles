@@ -37,6 +37,7 @@ Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not 
 
 - `bootstrap.sh` — setup entry point
 - `homebrew/Brewfile` — CLI packages
+- `fzf/.config/fzf/options` — shared fzf display options (`FZF_DEFAULT_OPTS_FILE`)
 - `homebrew/install.sh`, `chrome/install.sh`, `chatgpt/install.sh`, `ghostty/install.sh`, `gitify/install.sh`, `fonts/install.sh` — application installers
 - Application directories — personal configuration linked into `$HOME` with Stow
 - `.editorconfig` — repository-specific rules, separate from `editorconfig/.editorconfig`

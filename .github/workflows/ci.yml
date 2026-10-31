@@ -46,6 +46,7 @@ jobs:
 
       - name: Stow smoke test
         run: |
+          trap 'echo "Stow smoke test failed: $BASH_COMMAND" >&2' ERR
           target="$(mktemp -d)"
           packages=(editorconfig fzf git ghostty herdr nvim rumdl sheldon starship zsh)
           stow --no-folding --dir="$PWD" --target="$target" "${packages[@]}"

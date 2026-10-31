@@ -110,9 +110,14 @@ for tool in stow apm; do
   cat >"$tmp/bin/$tool" <<'SH'
 #!/usr/bin/env bash
 printf '%s %s\n' "${0##*/}" "$*" >>"$TRACE"
+if [[ "${0##*/}" == apm && ! -f "$HOME/.apm/apm.yml" ]]; then
+  exit 1
+fi
 SH
 done
 chmod +x "$tmp/bin/"*
+mkdir -p "$HOME/.apm"
+touch "$HOME/.apm/apm.yml"
 # Simulate a previously installed remote tab-name plugin for upgrade coverage.
 touch "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
 
@@ -205,11 +210,15 @@ if grep -Fq 'stale bootstrap continued' "$TRACE"; then
   exit 1
 fi
 
-# A fresh install links the local plugin without attempting to remove a legacy one.
+# A fresh install without APM configuration still completes the remaining setup.
 mkdir -p "$tmp/fresh-home"
 (cd "$tmp" && HOME="$tmp/fresh-home" bash "$SOURCE_DIR/bootstrap.sh")
 test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 3
 test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
 test -f "$tmp/fresh-home/.mock-herdr-daiksud.tab-agent-status"
+test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 4
+test "$(grep -Fxc 'apm compile --global' "$TRACE")" -eq 4
+test "$(grep -Fxc 'apm outdated --global' "$TRACE")" -eq 4
+test "$(grep -Fxc 'gh extension install --force daiksud/gh-settings' "$TRACE")" -eq 5
 
 echo 'Modular bootstrap and repeat-run smoke tests passed'

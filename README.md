@@ -29,7 +29,7 @@ apm compile --global
 ~/.dotfiles/bootstrap.sh
 ```
 
-Bootstrap clones the repository if needed, or fast-forward pulls it with `git pull --ff-only` on repeat runs. It then restarts from the updated script before installing or refreshing tools. It also upgrades Homebrew packages with `brew upgrade --no-ask`, refreshes global APM dependencies, compiles global instructions, and reports remaining outdated APM packages with `apm outdated --global`.
+Bootstrap clones the repository if needed, or fast-forward pulls it with `git pull --ff-only` on repeat runs. It then restarts from the updated script before installing or refreshing tools. It also upgrades Homebrew packages with `brew upgrade --no-ask`. When `~/.apm/apm.yml` exists, it refreshes global APM dependencies, compiles global instructions, and reports remaining outdated APM packages with `apm outdated --global`.
 
 Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not use `--adopt`.
 

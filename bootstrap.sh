@@ -51,9 +51,13 @@ herdr_plugins="$(herdr plugin list --plugin "$herdr_plugin_id" --json)"
 if ! jq -e --arg id "$herdr_plugin_id" '.result.plugins | any(.plugin_id == $id)' <<<"$herdr_plugins" >/dev/null; then
   herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes
 fi
-apm update --global --yes
-apm compile --global
-apm outdated --global
+if [[ -f "$HOME/.apm/apm.yml" ]]; then
+  apm update --global --yes
+  apm compile --global
+  apm outdated --global
+else
+  echo "Skipping global APM: $HOME/.apm/apm.yml does not exist."
+fi
 
 gh auth status >/dev/null 2>&1 || gh auth login </dev/tty
 gh extension install --force daiksud/gh-qw

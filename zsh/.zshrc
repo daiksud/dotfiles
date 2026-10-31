@@ -14,6 +14,7 @@ setopt ignore_eof hist_ignore_all_dups hist_ignore_space share_history auto_cd
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z-_}={A-Za-z_-}'
 
 export EDITOR=nvim
+export FZF_DEFAULT_OPTS_FILE="$HOME/.config/fzf/options"
 
 eval "$(sheldon source)"
 eval "$(starship init zsh)"

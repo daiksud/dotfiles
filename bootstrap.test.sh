@@ -161,7 +161,7 @@ test "$(grep '^apm ' "$TRACE" | head -n 3)" = "$(printf 'apm update --global --y
 test "$(grep -Fc 'gh extension install --force daiksud/gh-qw' "$TRACE")" -eq 3
 test "$(grep -Fxc 'gh extension install --force daiksud/gh-settings' "$TRACE")" -eq 3
 test "$(grep -Fc 'gh extension install --force babarot/gh-infra' "$TRACE")" -eq 3
-grep -F 'stow --no-folding --target=' "$TRACE" | grep -q 'editorconfig git ghostty herdr nvim rumdl sheldon starship zsh'
+grep -F 'stow --no-folding --target=' "$TRACE" | grep -q 'editorconfig fzf git ghostty herdr nvim rumdl sheldon starship zsh'
 # Standalone installers do not reinstall casks already managed by Homebrew.
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=gitify bash gitify/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=chatgpt bash chatgpt/install.sh)

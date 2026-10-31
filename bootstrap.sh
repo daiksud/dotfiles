@@ -30,7 +30,7 @@ source ./homebrew/install.sh
 ./ghostty/install.sh
 ./gitify/install.sh
 ./fonts/install.sh
-stow --no-folding --target="$HOME" editorconfig git ghostty herdr nvim rumdl sheldon starship zsh
+stow --no-folding --target="$HOME" editorconfig fzf git ghostty herdr nvim rumdl sheldon starship zsh
 
 # Re-link on every run to refresh Herdr's registered plugin manifest. Simply
 # editing a linked manifest does not update the already registered commands.

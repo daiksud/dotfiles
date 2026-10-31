@@ -14,7 +14,7 @@ history() {
   print -r -- "git log --oneline"
 }
 fzf() {
-  [[ "$*" == "--query gh --height 20% --layout reverse --border --no-sort" ]] || return 1
+  [[ "$*" == "--query gh --no-sort" ]] || return 1
   local first
   IFS= read -r first
   [[ "$first" == "git status" ]] || return 1

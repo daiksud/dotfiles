@@ -50,6 +50,48 @@ Use `Ctrl+R` to search Zsh history with `fzf`, or `gg` / `Ctrl+]` to select a `g
 bash bootstrap.test.sh
 /usr/bin/perl plugins/herdr-tab-status/sync.t
 zsh -f zsh/.zsh/gh-account.test.zsh
-zsh -f zsh/.zsh/repository-select.test.zsh
+zsh -f zsh/.zsh/fzf-select-ghqw.test.zsh
 zsh -f zsh/.zsh/fzf-select-history.test.zsh
+python3 -m unittest discover -s .github/tests -v
 ```
+
+## Codex automatic approval
+
+The [approval workflow](.github/workflows/approve-codex-review.yml) follows
+[gh-settings at `7204c5e`](https://github.com/daiksud/gh-settings/blob/7204c5e466a4640be7c5b10194880dcdb2024d2a/.github/workflows/approve-codex-review.yml)
+(after PRs #553 and #554). Its only repository adaptation is the `workflow_run`
+name: `CI` here instead of `ci-pr`. Keep the approval logic in sync with that source.
+
+On a Codex Summary comment creation/edit or a completed CI run associated with a
+PR, it reads the latest Summary from `chatgpt-codex-connector[bot]`. Approval
+requires that bot's PR thumbs-up, **Completed** for both Code Review and Security
+Review in the Summary table, and both full `commit_sha` values in its single
+`codex-review-state:v1` metadata object matching the current PR HEAD. Missing or
+ambiguous evidence withholds approval. The short wait for the thumbs-up is only
+polling; elapsed time is not approval evidence. There are no additional file-diff,
+CI-result, or elapsed-time approval conditions.
+
+Approval history is paginated and includes both `APPROVED` and `DISMISSED` reviews
+by `github-actions[bot]`. Either state for the same PR and HEAD prevents another
+automatic approval, including restoration after dismissal. Runs are serialized by
+PR, and each approval is pinned to the verified commit. A later push requires both
+reviews to identify the new HEAD. A push between verification and submission can
+leave an approval on the previous commit; it does not approve the new commit.
+
+The job uses only `pull-requests: write`, with no checkout or execution of PR code.
+GitHub CLI and Python 3 must be available on `ubuntu-slim`. The workflow must be
+present on the default branch for these events. The Actions setting **Allow GitHub
+Actions to create and approve pull requests** must also permit approvals.
+
+Read-only inspection on 2026-11-02 confirmed that the owner enabled that setting.
+The checked-in `.github/settings.yml` still has `can_approve_pull_requests: false`;
+reconciling that manifest requires a separately authorized settings change, and
+applying it as-is could disable automatic approvals again. The live `main` branch
+had no protection/rules or required status checks; the existing `CI` workflow runs
+`lint` and `test`. Approval does not merge a PR or configure/bypass protection.
+No repository settings are changed by this workflow.
+
+For troubleshooting, inspect the workflow step log and **Codex automatic
+approval** job summary (`Approved`, `Withheld`, or `Failed`). Local regression
+tests mock GitHub API responses and never submit real reviews; run the Python
+command above before updating the workflow.

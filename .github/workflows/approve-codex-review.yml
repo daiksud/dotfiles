@@ -1,0 +1,197 @@
+name: approve-codex-review
+
+on:
+  issue_comment: {types: [created, edited]}
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+
+permissions: {}
+defaults:
+  run:
+    shell: bash
+concurrency:
+  group: codex-approval-${{ github.repository }}-${{ github.event.issue.number || github.event.workflow_run.pull_requests[0].number }}
+  cancel-in-progress: false
+
+jobs:
+  approve:
+    if: >-
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       github.event.comment.user.login == 'chatgpt-codex-connector[bot]' &&
+       startsWith(github.event.comment.body, '<!-- codex-pull-request-review-summary -->')) ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.pull_requests[0].number != null)
+    runs-on: ubuntu-slim
+    timeout-minutes: 5
+    permissions: {pull-requests: write}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.issue.number || github.event.workflow_run.pull_requests[0].number }}
+    steps:
+      - name: Approve when Codex reviewed the current HEAD and reacted
+        run: |
+          python3 - <<'PYTHON'
+          import json
+          import os
+          import re
+          import subprocess
+          import sys
+
+          ROOT = "repos/" + os.environ["GITHUB_REPOSITORY"]
+          NUMBER = os.environ["PR_NUMBER"]
+          BOT = "chatgpt-codex-connector[bot]"
+          APPROVER = "github-actions[bot]"
+          PREFIX = "<!-- codex-pull-request-review-summary -->"
+
+
+          def api(endpoint, *args):
+              result = subprocess.run(["gh", "api", endpoint, *args], capture_output=True, text=True)
+              if result.returncode:
+                  raise RuntimeError("GitHub API request failed; no approval confirmed")
+              try:
+                  return json.loads(result.stdout)
+              except ValueError:
+                  raise RuntimeError("GitHub API returned invalid JSON") from None
+
+
+          def pages(endpoint):
+              data = api(endpoint + "?per_page=100", "--paginate", "--slurp")
+              if not isinstance(data, list) or not all(isinstance(page, list) for page in data):
+                  raise RuntimeError("GitHub pagination returned an invalid collection")
+              rows = [item for page in data for item in page]
+              if not all(isinstance(row, dict) for row in rows):
+                  raise RuntimeError("GitHub pagination returned an invalid item")
+              return rows
+
+
+          def codex(item):
+              return (item.get("user") or {}).get("login") == BOT
+
+
+          def completed(body):
+              # Read only the two status cells in Codex's observed Summary table.
+              rows = [line.strip().split("|")[1:-1] for line in body.splitlines()
+                      if line.strip().startswith("|") and line.strip().endswith("|")]
+              for label in ("Code Review", "Security Review"):
+                  matches = [cells for cells in rows if len(cells) >= 2 and f"**{label}**" in cells[0]]
+                  if len(matches) != 1 or not re.search(r"\*\*Completed\*\*", matches[0][1]):
+                      return False
+              return True
+
+
+          def report(outcome, detail):
+              print(f"Codex approval: {outcome}\n{detail}")
+              path = os.environ.get("GITHUB_STEP_SUMMARY")
+              if path:
+                  try:
+                      with open(path, "a", encoding="utf-8") as output:
+                          output.write(f"## Codex automatic approval\n\n**Result: {outcome}**\n\n{detail}\n")
+                  except OSError:
+                      print("::warning title=Codex approval summary unavailable::See the step log")
+
+
+          def full_sha(value):
+              return isinstance(value, str) and re.fullmatch(r"[0-9a-fA-F]{40}", value) is not None
+
+
+          def current_head():
+              pr = api(f"{ROOT}/pulls/{NUMBER}")
+              branch = pr.get("head") if isinstance(pr, dict) else None
+              head = branch.get("sha") if isinstance(branch, dict) else None
+              if not full_sha(head):
+                  raise RuntimeError("GitHub returned a missing or invalid PR HEAD SHA")
+              return head.lower()
+
+
+          def unique_object(pairs):
+              value = {}
+              for key, item in pairs:
+                  if key in value:
+                      raise ValueError("duplicate review metadata field")
+                  value[key] = item
+              return value
+
+
+          def reviewed_head(body, head):
+              # The table abbreviates commits. Bind both reviews using the Summary's
+              # full commit_sha fields; missing/ambiguous metadata cannot prove equality.
+              markers = re.findall(r"^<!-- codex-review-state:v1 (.*) -->$", body, re.M)
+              if len(markers) != 1:
+                  return False
+              try:
+                  state = json.loads(markers[0], object_pairs_hook=unique_object)
+              except ValueError:
+                  return False
+              if not isinstance(state, dict):
+                  return False
+              for kind in ("code_review", "security_review"):
+                  review = state.get(kind)
+                  sha = review.get("commit_sha") if isinstance(review, dict) else None
+                  if not full_sha(sha) or sha.lower() != head:
+                      return False
+              return True
+
+
+          def latest_summary():
+              summaries = [c for c in pages(f"{ROOT}/issues/{NUMBER}/comments")
+                           if codex(c) and c.get("body", "").startswith(PREFIX)]
+              summary = max(summaries, key=lambda c: c["id"]) if summaries else None
+              return summary["body"] if summary is not None else None
+
+
+          def thumbs_up():
+              return any(codex(r) and r.get("content") == "+1"
+                         for r in pages(f"{ROOT}/issues/{NUMBER}/reactions"))
+
+
+          def already_approved(head):
+              # Include dismissed and pre-existing approvals, without requiring a
+              # new body marker. Never restore a dismissed approval for this SHA.
+              return any((r.get("user") or {}).get("login") == APPROVER
+                         and r.get("state") in ("APPROVED", "DISMISSED")
+                         and isinstance(r.get("commit_id"), str)
+                         and r["commit_id"].lower() == head
+                         for r in pages(f"{ROOT}/pulls/{NUMBER}/reviews"))
+
+
+          def run():
+              # Summary updates can arrive before the thumbs-up. Poll only these same
+              # conditions plus HEAD equality; polling duration is not review evidence.
+              for attempt in range(7):
+                  body = latest_summary()
+                  if body is None or not completed(body):
+                      report("Withheld", "No approval submitted: both Codex reviews must be Completed.")
+                      return
+                  if thumbs_up():
+                      # Read HEAD and compare both reviewed SHAs once, after the signals.
+                      head = current_head()
+                      if not reviewed_head(body, head):
+                          report("Withheld", "No approval submitted: both full reviewed SHAs must match PR HEAD.")
+                          return
+                      if already_approved(head):
+                          report("Withheld", f"No approval submitted: automatic approval history already exists for `{head}` (APPROVED or DISMISSED).")
+                          return
+                      # Pin the write to the verified commit even if HEAD advances after
+                      # this read. Verification and the POST are separate operations.
+                      result = api("--method", "POST", f"{ROOT}/pulls/{NUMBER}/reviews", "-f", "event=APPROVE", "-f", f"commit_id={head}")
+                      if not isinstance(result, dict) or result.get("state") != "APPROVED" or result.get("commit_id") != head:
+                          raise RuntimeError("GitHub did not confirm approval")
+                      report("Approved", f"Approved reviewed commit `{head}` with both reviews Completed and Codex thumbs-up.")
+                      return
+                  if attempt < 6:
+                      print("Waiting for a Codex thumbs-up", flush=True)
+                      subprocess.run(["sleep", "30"], check=True)
+              report("Withheld", "No approval submitted: Codex thumbs-up is missing.")
+
+
+          try:
+              run()
+          except Exception as error:
+              # Never print untrusted API response bodies or credentials.
+              reason = str(error) if isinstance(error, RuntimeError) else "Invalid API data or execution failure"
+              report("Failed", reason)
+              print(reason, file=sys.stderr)
+              sys.exit(1)
+          PYTHON

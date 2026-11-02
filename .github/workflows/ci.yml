@@ -36,6 +36,9 @@ jobs:
       - name: Bootstrap smoke test
         run: bash bootstrap.test.sh
 
+      - name: Codex approval workflow tests
+        run: python3 -m unittest discover -s .github/tests -v
+
       - name: Zsh syntax check (zsh plugins)
         run: |
           status=0

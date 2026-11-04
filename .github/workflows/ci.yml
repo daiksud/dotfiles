@@ -36,6 +36,42 @@ jobs:
       - name: Bootstrap smoke test
         run: bash bootstrap.test.sh
 
+      - name: Verify Herdr workspace-first config
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import tomllib
+
+          config = tomllib.loads(Path("herdr/.config/herdr/config.toml").read_text())
+          keys = config["keys"]
+          expected = {
+              "prefix": "ctrl+t",
+              "workspace_picker": "prefix+w",
+              "new_workspace": "prefix+c",
+              "rename_workspace": "prefix+shift+t",
+              "close_workspace": "prefix+shift+x",
+              "previous_workspace": ["prefix+p", "ctrl+alt+h"],
+              "next_workspace": ["prefix+n", "ctrl+alt+l"],
+              "switch_workspace": "prefix+1..9",
+              "cycle_pane_previous": ["prefix+shift+tab", "ctrl+alt+j"],
+              "cycle_pane_next": ["prefix+tab", "ctrl+alt+k"],
+          }
+          for action, binding in expected.items():
+              assert keys.get(action) == binding, action
+          for action in (
+              "new_tab", "rename_tab", "close_tab", "previous_tab",
+              "next_tab", "switch_tab", "move_tab_previous", "move_tab_next",
+              "new_worktree", "open_worktree", "remove_worktree",
+          ):
+              assert keys.get(action) == "", action
+          ui = config["ui"]
+          assert ui["sidebar_start_collapsed"] is True
+          assert ui["sidebar_collapsed_mode"] == "hidden"
+          assert ui["hide_tab_bar_when_single_tab"] is True
+          assert config["theme"]["name"] == "tokyo-night"
+          assert not Path("plugins/herdr-tab-status").exists()
+          PY
+
       - name: Codex approval workflow tests
         run: python3 -m unittest discover -s .github/tests -v
 
@@ -101,7 +137,4 @@ jobs:
           zsh -f zsh/.zsh/gh-account.test.zsh
           zsh -f zsh/.zsh/fzf-select-ghqw.test.zsh
           zsh -f zsh/.zsh/fzf-select-history.test.zsh
-
-      - name: Test Herdr tab status plugin
-        run: /usr/bin/perl plugins/herdr-tab-status/sync.t
 

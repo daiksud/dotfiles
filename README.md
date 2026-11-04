@@ -12,9 +12,11 @@ Requires Git, internet access and administrator permissions. macOS may prompt fo
 
 The bootstrap clones this repository to `~/.dotfiles` and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Moralerspace Neon HW, CLI tools (including APM). It does not automatically install [daiksud/agents](https://github.com/daiksud/agents). It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
 
-It links the checked-in [Herdr Tab Directory and Agent Status plugin](plugins/herdr-tab-status/README.md) (using macOS system Perl), replacing the old auto-tab-name plugin. Herdr starts with its sidebar hidden and places tabs at the top when there are multiple tabs. Tab names track the focused pane's directory with the most urgent Agent status in the tab: 🔴 blocked, 🟢 done, ⚪ idle/unknown, 🟡 working. Manual tab names are preserved. Use `Ctrl+Option+H/L` for previous/next tab and `Ctrl+Option+J/K` for previous/next pane. The default workspace remains available internally, but workspace and worktree shortcuts are disabled; tabs are the primary navigation unit (create with `Ctrl+T`, then `C`; close with `Ctrl+T`, then `Shift+X`). The general Goto picker (`Ctrl+T`, then `G`) remains available. Tab names update on Herdr events; plain `cd` does not trigger an immediate update.
+Herdr uses **workspaces** for navigation and **panes** for splits, keeping its sidebar fully hidden. Tabs are not used as a navigation unit: tab shortcuts are disabled, and the tab bar stays hidden when a workspace has one (internal) tab. Use `Ctrl+Option+H/L` for previous/next workspace and `Ctrl+Option+J/K` for previous/next pane. Press `Ctrl+T`, then `C` to create a workspace, `Shift+T` to rename it, `Shift+X` to close it, `W` to open the workspace picker, or `1–9` to jump to a workspace. The general Goto picker (`Ctrl+T`, then `G`) remains available. Worktree shortcuts remain disabled. Workspace names are managed manually through Herdr; there is no directory-derived naming or custom Agent status indicator.
 
-The revision-pinned [Equalize Panes plugin](https://github.com/shibayu36/herdr-equalize-panes) also automatically balances pane widths when panes are created or closed. Manual resizing persists until the next pane change. Run `herdr plugin action invoke shibayu36.equalize-panes.equalize` inside Herdr to equalize the current tab on demand.
+Bootstrap unregisters the old `daiksud.tab-agent-status` and `dev-shimada.auto-tab-name` plugins, if installed. Existing workspaces with multiple tabs are **not** automatically converted: move their panes into separate workspaces or close unused tabs before expecting the tab bar to remain hidden.
+
+The revision-pinned [Equalize Panes plugin](https://github.com/shibayu36/herdr-equalize-panes) also automatically balances pane widths when panes are created or closed. Manual resizing persists until the next pane change. Run `herdr plugin action invoke shibayu36.equalize-panes.equalize` inside Herdr to equalize the current pane layout on demand.
 
 To opt in to the global Codex and Copilot instructions, install them explicitly:
 
@@ -48,7 +50,6 @@ Use `Ctrl+R` to search Zsh history with `fzf`, or `gg` / `Ctrl+]` to select a `g
 
 ```sh
 bash bootstrap.test.sh
-/usr/bin/perl plugins/herdr-tab-status/sync.t
 zsh -f zsh/.zsh/gh-account.test.zsh
 zsh -f zsh/.zsh/fzf-select-ghqw.test.zsh
 zsh -f zsh/.zsh/fzf-select-history.test.zsh

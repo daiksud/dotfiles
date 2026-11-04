@@ -16,8 +16,6 @@ for app in homebrew chrome chatgpt ghostty gitify fonts; do
   cp -p "$source_dir/$app/install.sh" "$SOURCE_DIR/$app/install.sh"
 done
 cp "$source_dir/homebrew/Brewfile" "$SOURCE_DIR/homebrew/Brewfile"
-mkdir -p "$SOURCE_DIR/plugins/herdr-tab-status"
-cp "$source_dir/plugins/herdr-tab-status/herdr-plugin.toml" "$SOURCE_DIR/plugins/herdr-tab-status/herdr-plugin.toml"
 for app in chrome chatgpt ghostty gitify; do
   sed "s|/Applications/|$tmp/Applications/|g" "$source_dir/$app/install.sh" >"$SOURCE_DIR/$app/install.sh"
 done
@@ -55,8 +53,6 @@ if [[ "$1" == clone ]]; then
   for app in homebrew chrome chatgpt ghostty gitify fonts; do
     cp -p "$SOURCE_DIR/$app/install.sh" "$3/$app/install.sh"
   done
-  mkdir -p "$3/plugins/herdr-tab-status"
-  cp "$SOURCE_DIR/plugins/herdr-tab-status/herdr-plugin.toml" "$3/plugins/herdr-tab-status/herdr-plugin.toml"
 fi
 if [[ "$1" == -C && "$3" == pull && -n "${MOCK_UPDATED_BOOTSTRAP:-}" && "$2" == "$SOURCE_DIR" ]]; then
   cp "$MOCK_UPDATED_BOOTSTRAP" "$2/bootstrap.sh.new"
@@ -88,15 +84,13 @@ case "$1 $2" in
       printf '%s\n' '{"result":{"plugins":[]}}'
     fi
     ;;
-  'plugin link')
-    [[ "$3" == "$SOURCE_DIR/plugins/herdr-tab-status" || "$3" == "$HOME/.dotfiles/plugins/herdr-tab-status" ]] || exit 2
-    [[ -f "$3/herdr-plugin.toml" ]] || exit 2
-    grep -Fq 'command = ["/usr/bin/perl", "sync.pl"]' "$3/herdr-plugin.toml" || exit 2
-    touch "$HOME/.mock-herdr-daiksud.tab-agent-status"
-    ;;
   'plugin uninstall')
-    [[ "$3" == dev-shimada.auto-tab-name ]] || exit 2
-    rm -f "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
+    case "$3" in
+      daiksud.tab-agent-status|dev-shimada.auto-tab-name)
+        rm -f "$HOME/.mock-herdr-$3"
+        ;;
+      *) exit 2 ;;
+    esac
     ;;
   'plugin install')
     [[ "$3" == shibayu36/herdr-equalize-panes && "$4" == --ref && "$5" == 0c1d940e9af09c632a48a5b179753ef25056ff13 && "$6" == --yes ]] || exit 2
@@ -118,8 +112,8 @@ done
 chmod +x "$tmp/bin/"*
 mkdir -p "$HOME/.apm"
 touch "$HOME/.apm/apm.yml"
-# Simulate a previously installed remote tab-name plugin for upgrade coverage.
-touch "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
+# Simulate both old tab-label plugins for upgrade coverage.
+touch "$HOME/.mock-herdr-dev-shimada.auto-tab-name" "$HOME/.mock-herdr-daiksud.tab-agent-status"
 
 # A streamed bootstrap clones the checkout. Running it again pulls safely.
 (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | bash)
@@ -144,13 +138,13 @@ test "$(grep -Fc 'brew install --cask chatgpt' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask google-chrome' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask ghostty' "$TRACE")" -eq 3
 test "$(grep -Fc 'brew install --cask font-moralerspace-hw' "$TRACE")" -eq 3
-test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 2
-test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 1
+! grep -Fq 'herdr plugin link ' "$TRACE"
 test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
-test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 0
+test "$(grep -Fxc 'herdr plugin uninstall daiksud.tab-agent-status' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 3
+test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 3
 test ! -f "$HOME/.mock-herdr-dev-shimada.auto-tab-name"
-test -f "$HOME/.mock-herdr-daiksud.tab-agent-status"
+test ! -f "$HOME/.mock-herdr-daiksud.tab-agent-status"
 test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 3
 ! grep -Eq '^apm install( |$)' "$TRACE"
@@ -194,11 +188,11 @@ cp "$SOURCE_DIR/bootstrap.sh" "$tmp/updated-bootstrap.sh"
 printf '\nprintf "stale bootstrap continued\\n" >>"$TRACE"\n' >>"$SOURCE_DIR/bootstrap.sh"
 (cd "$tmp" && MOCK_UPDATED_BOOTSTRAP="$tmp/updated-bootstrap.sh" bash "$SOURCE_DIR/bootstrap.sh")
 test "$(grep -Fxc "git -C $SOURCE_DIR pull --ff-only" "$TRACE")" -eq 2
-test "$(grep -Fxc "herdr plugin link $HOME/.dotfiles/plugins/herdr-tab-status" "$TRACE")" -eq 2
-test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 2
+! grep -Fq 'herdr plugin link ' "$TRACE"
 test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
-test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 0
+test "$(grep -Fxc 'herdr plugin uninstall daiksud.tab-agent-status' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 4
+test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 4
 test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 1
 test "$(grep -Fxc 'herdr plugin list --plugin shibayu36.equalize-panes --json' "$TRACE")" -eq 4
 ! grep -Eq '^apm install( |$)' "$TRACE"
@@ -213,9 +207,13 @@ fi
 # A fresh install without APM configuration still completes the remaining setup.
 mkdir -p "$tmp/fresh-home"
 (cd "$tmp" && HOME="$tmp/fresh-home" bash "$SOURCE_DIR/bootstrap.sh")
-test "$(grep -Fxc "herdr plugin link $SOURCE_DIR/plugins/herdr-tab-status" "$TRACE")" -eq 3
+! grep -Fq 'herdr plugin link ' "$TRACE"
 test "$(grep -Fxc 'herdr plugin uninstall dev-shimada.auto-tab-name' "$TRACE")" -eq 1
-test -f "$tmp/fresh-home/.mock-herdr-daiksud.tab-agent-status"
+test "$(grep -Fxc 'herdr plugin uninstall daiksud.tab-agent-status' "$TRACE")" -eq 1
+test "$(grep -Fxc 'herdr plugin list --plugin dev-shimada.auto-tab-name --json' "$TRACE")" -eq 5
+test "$(grep -Fxc 'herdr plugin list --plugin daiksud.tab-agent-status --json' "$TRACE")" -eq 5
+test ! -f "$tmp/fresh-home/.mock-herdr-dev-shimada.auto-tab-name"
+test ! -f "$tmp/fresh-home/.mock-herdr-daiksud.tab-agent-status"
 test "$(grep -Fxc 'apm update --global --yes' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm compile --global' "$TRACE")" -eq 4
 test "$(grep -Fxc 'apm outdated --global' "$TRACE")" -eq 4

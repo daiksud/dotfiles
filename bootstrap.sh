@@ -32,18 +32,14 @@ source ./homebrew/install.sh
 ./fonts/install.sh
 stow --no-folding --target="$HOME" editorconfig fzf git ghostty herdr nvim rumdl sheldon starship zsh
 
-# Re-link on every run to refresh Herdr's registered plugin manifest. Simply
-# editing a linked manifest does not update the already registered commands.
-# Do this before removing the previous renamer so failures keep it available.
-herdr plugin link "$repo_dir/plugins/herdr-tab-status"
-
-# Do not keep two tab-name writers active. Herdr retains the former plugin's
-# state after uninstall, allowing the replacement to adopt its owned labels.
-herdr_plugin_id=dev-shimada.auto-tab-name
-herdr_plugins="$(herdr plugin list --plugin "$herdr_plugin_id" --json)"
-if jq -e --arg id "$herdr_plugin_id" '.result.plugins | any(.plugin_id == $id)' <<<"$herdr_plugins" >/dev/null; then
-  herdr plugin uninstall "$herdr_plugin_id"
-fi
+# Retire the old tab-label plugins; Herdr's workspace/pane navigation needs neither.
+# Keep their saved plugin configuration and state untouched.
+for herdr_plugin_id in daiksud.tab-agent-status dev-shimada.auto-tab-name; do
+  herdr_plugins="$(herdr plugin list --plugin "$herdr_plugin_id" --json)"
+  if jq -e --arg id "$herdr_plugin_id" '.result.plugins | any(.plugin_id == $id)' <<<"$herdr_plugins" >/dev/null; then
+    herdr plugin uninstall "$herdr_plugin_id"
+  fi
+done
 
 # Equalize pane widths after splitting or closing panes.
 herdr_plugin_id=shibayu36.equalize-panes

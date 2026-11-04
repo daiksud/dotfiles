@@ -6,31 +6,37 @@ name = "tokyo-night"
 [keys]
 prefix = "ctrl+t"
 
-# Use tabs and panes for navigation, not workspace or worktree shortcuts.
-workspace_picker = ""
-new_workspace = ""
-rename_workspace = ""
-close_workspace = ""
-previous_workspace = ""
-next_workspace = ""
-switch_workspace = ""
-navigate_workspace_up = ""
-navigate_workspace_down = ""
+# Workspaces are the navigation unit; keep the sidebar hidden.
+workspace_picker = "prefix+w"
+new_workspace = "prefix+c"
+rename_workspace = "prefix+shift+t"
+close_workspace = "prefix+shift+x"
+previous_workspace = ["prefix+p", "ctrl+alt+h"]
+next_workspace = ["prefix+n", "ctrl+alt+l"]
+switch_workspace = "prefix+1..9"
+
+# Worktree management is intentionally not bound in Herdr.
 new_worktree = ""
 open_worktree = ""
 remove_worktree = ""
 
-previous_tab = ["prefix+p", "ctrl+alt+h"]
-next_tab = ["prefix+n", "ctrl+alt+l"]
+# Keep a single (internal) tab per workspace.
+new_tab = ""
+rename_tab = ""
+close_tab = ""
+previous_tab = ""
+next_tab = ""
+switch_tab = ""
+move_tab_previous = ""
+move_tab_next = ""
+
 cycle_pane_previous = ["prefix+shift+tab", "ctrl+alt+j"]
 cycle_pane_next = ["prefix+tab", "ctrl+alt+k"]
 
 [ui]
 sidebar_start_collapsed = true
 sidebar_collapsed_mode = "hidden"
-tab_bar_position = "top"
 hide_tab_bar_when_single_tab = true
-prompt_new_tab_name = false
 
 [ui.sound]
 enabled = false

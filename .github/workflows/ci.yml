@@ -53,8 +53,8 @@ jobs:
               "previous_workspace": ["prefix+p", "ctrl+alt+h"],
               "next_workspace": ["prefix+n", "ctrl+alt+l"],
               "switch_workspace": "prefix+1..9",
-              "cycle_pane_previous": ["prefix+shift+tab", "ctrl+alt+j"],
-              "cycle_pane_next": ["prefix+tab", "ctrl+alt+k"],
+              "cycle_pane_previous": ["prefix+shift+tab", "ctrl+alt+k"],
+              "cycle_pane_next": ["prefix+tab", "ctrl+alt+j"],
           }
           for action, binding in expected.items():
               assert keys.get(action) == binding, action

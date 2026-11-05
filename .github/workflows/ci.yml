@@ -65,7 +65,7 @@ jobs:
           ):
               assert keys.get(action) == "", action
           ui = config["ui"]
-          assert ui["sidebar_start_collapsed"] is True
+          assert ui["sidebar_start_collapsed"] is False
           assert ui["sidebar_collapsed_mode"] == "hidden"
           assert ui["hide_tab_bar_when_single_tab"] is True
           assert config["theme"]["name"] == "tokyo-night"

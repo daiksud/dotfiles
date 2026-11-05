@@ -6,7 +6,7 @@ name = "tokyo-night"
 [keys]
 prefix = "ctrl+t"
 
-# Workspaces are the navigation unit; keep the sidebar hidden.
+# Workspaces are the navigation unit; show the sidebar by default.
 workspace_picker = "prefix+w"
 new_workspace = "prefix+c"
 rename_workspace = "prefix+shift+t"
@@ -34,7 +34,7 @@ cycle_pane_previous = ["prefix+shift+tab", "ctrl+alt+k"]
 cycle_pane_next = ["prefix+tab", "ctrl+alt+j"]
 
 [ui]
-sidebar_start_collapsed = true
+sidebar_start_collapsed = false
 sidebar_collapsed_mode = "hidden"
 hide_tab_bar_when_single_tab = true
 

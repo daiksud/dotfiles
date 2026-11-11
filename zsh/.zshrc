@@ -19,6 +19,7 @@ export FZF_DEFAULT_OPTS_FILE="$HOME/.config/fzf/options"
 eval "$(sheldon source)"
 eval "$(starship init zsh)"
 eval "$(mise activate zsh)"
+eval "$(gh qw shell-init zsh)"
 
 # Custom history search, repository navigation, and GitHub identities.
 [[ -f "$HOME/.zsh/fzf-select-history.zsh" ]] && source "$HOME/.zsh/fzf-select-history.zsh"

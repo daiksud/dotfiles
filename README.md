@@ -46,11 +46,14 @@ Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not 
 
 Use `Ctrl+R` to search Zsh history with `fzf`, or `gg` / `Ctrl+]` to select a `gh qw` repository or worktree. GitHub account mappings and SSH signing keys require personal setup.
 
+Open a new Zsh session after bootstrap to load the official [gh-qw shell integration](https://github.com/daiksud/gh-qw#install). Use `gh qw add --cd /path/to/repository` to register and enter an existing checkout, or `gh qw add --worktree --cd -b feature/example main` from a registered repository to create and enter a worktree. Other `gh` commands continue to use the normal GitHub CLI.
+
 ## Checks
 
 ```sh
 bash bootstrap.test.sh
 zsh -f zsh/.zsh/gh-account.test.zsh
+zsh -f zsh/.zsh/gh-qw-shell.test.zsh
 zsh -f zsh/.zsh/fzf-select-ghqw.test.zsh
 zsh -f zsh/.zsh/fzf-select-history.test.zsh
 python3 -m unittest discover -s .github/tests -v

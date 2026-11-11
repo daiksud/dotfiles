@@ -1,3 +1,4 @@
 ^/\.zsh/gh-account\.test\.zsh$
+^/\.zsh/gh-qw-shell\.test\.zsh$
 ^/\.zsh/fzf-select-ghqw\.test\.zsh$
 ^/\.zsh/fzf-select-history\.test\.zsh$

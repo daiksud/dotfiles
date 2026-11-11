@@ -53,11 +53,16 @@ jobs:
               "previous_workspace": ["prefix+p", "ctrl+alt+h"],
               "next_workspace": ["prefix+n", "ctrl+alt+l"],
               "switch_workspace": "prefix+1..9",
-              "cycle_pane_previous": ["prefix+shift+tab", "ctrl+alt+k"],
-              "cycle_pane_next": ["prefix+tab", "ctrl+alt+j"],
+              "cycle_pane_previous": "prefix+shift+tab",
+              "cycle_pane_next": "prefix+tab",
           }
           for action, binding in expected.items():
               assert keys.get(action) == binding, action
+          commands = {command["key"]: command for command in keys["command"]}
+          for key, direction in (("ctrl+alt+j", "next"), ("ctrl+alt+k", "previous")):
+              command = commands[key]
+              assert command["type"] == "shell"
+              assert command["command"] == f'python3 "$HOME/.config/herdr/cycle-pane.py" {direction}'
           for action in (
               "new_tab", "rename_tab", "close_tab", "previous_tab",
               "next_tab", "switch_tab", "move_tab_previous", "move_tab_next",
@@ -72,7 +77,7 @@ jobs:
           assert not Path("plugins/herdr-tab-status").exists()
           PY
 
-      - name: Codex approval workflow tests
+      - name: Python tests (Codex approval and Herdr navigation)
         run: python3 -m unittest discover -s .github/tests -v
 
       - name: Zsh syntax check (zsh plugins)
@@ -109,6 +114,7 @@ jobs:
           test ! -L "$target/install.sh"
           test -L "$target/.config/ghostty/hololive-en-advent.jpg"
           test -L "$target/.config/herdr/config.toml"
+          test -L "$target/.config/herdr/cycle-pane.py"
           test -L "$target/.config/nvim/init.lua"
           test -L "$target/.config/nvim/lua/config/keymaps.lua"
           test -L "$target/.config/nvim/lua/plugins/tokyonight.lua"
@@ -131,6 +137,9 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Herdr navigation tests
+        run: python3 -m unittest discover -s .github/tests -p 'test_herdr_cycle_pane.py' -v
 
       - name: Run Zsh tests
         run: |

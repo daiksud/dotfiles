@@ -24,6 +24,7 @@ fi
 cd "$repo_dir"
 
 # Source Homebrew's shell environment for the other installers.
+export HOMEBREW_NO_AUTO_UPDATE=1
 source ./homebrew/install.sh
 ./chrome/install.sh
 ./chatgpt/install.sh
@@ -39,8 +40,9 @@ if ! jq -e --arg id "$herdr_plugin_id" '.result.plugins | any(.plugin_id == $id)
   herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes
 fi
 gh auth status >/dev/null 2>&1 || gh auth login </dev/tty
+installed_extensions="$(gh extension list)"
 for extension in daiksud/gh-qw daiksud/gh-settings babarot/gh-infra; do
-  if ! gh extension list | grep -Fq "$extension"; then
+  if ! grep -Fq "$extension" <<<"$installed_extensions"; then
     gh extension install "$extension"
   fi
 done

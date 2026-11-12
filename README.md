@@ -10,7 +10,7 @@ curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/bootstrap.sh 
 
 Requires Git, internet access and administrator permissions. macOS may prompt for Xcode Command Line Tools; GitHub login may require browser authentication.
 
-The bootstrap clones this repository to `~/.dotfiles` and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Moralerspace Neon HW, CLI tools (including APM). It does not automatically install [daiksud/agents](https://github.com/daiksud/agents). It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
+The bootstrap clones this repository to `~/.dotfiles` when missing and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Moralerspace Neon HW, CLI tools (including APM). It does not automatically install [daiksud/agents](https://github.com/daiksud/agents). It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
 
 Herdr uses **workspaces** for navigation and **panes** for splits, with its sidebar visible by default. Tabs are not used as a navigation unit: tab shortcuts are disabled, and the tab bar stays hidden when a workspace has one (internal) tab. Use `Ctrl+Option+H/L` for previous/next workspace. `Ctrl+Option+J` selects the next pane across all workspaces; `Ctrl+Option+K` selects the previous pane. Both wrap around the complete pane list, in workspace, internal tab, then layout order. For example, J cycles `A1 → A2 → B1 → B2 → A1`. `Ctrl+T`, then `Tab` / `Shift+Tab` still cycles within the current tab.
 
@@ -18,7 +18,7 @@ Global pane cycling requires Python 3 and uses `cycle-pane.py`, installed alongs
 
 Press `Ctrl+T`, then `C` to create a workspace, `Shift+T` to rename it, `Shift+X` to close it, `W` to open the workspace picker, or `1–9` to jump to a workspace. The general Goto picker (`Ctrl+T`, then `G`) remains available. Worktree shortcuts remain disabled. Workspace names are managed manually through Herdr; there is no directory-derived naming or custom Agent status indicator.
 
-Bootstrap unregisters the old `daiksud.tab-agent-status` and `dev-shimada.auto-tab-name` plugins, if installed. Existing workspaces with multiple tabs are **not** automatically converted: move their panes into separate workspaces or close unused tabs before expecting the tab bar to remain hidden.
+The updater unregisters the old `daiksud.tab-agent-status` and `dev-shimada.auto-tab-name` plugins, if installed. Existing workspaces with multiple tabs are **not** automatically converted: move their panes into separate workspaces or close unused tabs before expecting the tab bar to remain hidden.
 
 The revision-pinned [Equalize Panes plugin](https://github.com/shibayu36/herdr-equalize-panes) also automatically balances pane widths when panes are created or closed. Manual resizing persists until the next pane change. Run `herdr plugin action invoke shibayu36.equalize-panes.equalize` inside Herdr to equalize the current pane layout on demand.
 
@@ -32,16 +32,19 @@ apm compile --global
 ## Update
 
 ```sh
-~/.dotfiles/bootstrap.sh
+~/.dotfiles/update.sh
 ```
 
-Bootstrap clones the repository if needed, or fast-forward pulls it with `git pull --ff-only` on repeat runs. It then restarts from the updated script before installing or refreshing tools. It also upgrades Homebrew packages with `brew upgrade --no-ask`. When `~/.apm/apm.yml` exists, it refreshes global APM dependencies, compiles global instructions, and reports remaining outdated APM packages with `apm outdated --global`.
+Bootstrap only installs missing components. Re-running it does not pull repository changes or explicitly upgrade installed tools.
+
+The updater fast-forward pulls the repository with `git pull --ff-only` and restarts from the updated script. It reruns the install-only setup to install newly declared dependencies and refresh Stow links, then upgrades Homebrew packages and the three configured GitHub CLI extensions. When `~/.apm/apm.yml` exists, it refreshes global APM dependencies, compiles global instructions, and reports remaining outdated APM packages with `apm outdated --global`.
 
 Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not use `--adopt`.
 
 ## Layout
 
-- `bootstrap.sh` — setup entry point
+- `bootstrap.sh` — install-only setup entry point
+- `update.sh` — update repository and installed tools
 - `homebrew/Brewfile` — CLI packages
 - `fzf/.config/fzf/options` — shared fzf display options (`FZF_DEFAULT_OPTS_FILE`)
 - `homebrew/install.sh`, `chrome/install.sh`, `chatgpt/install.sh`, `ghostty/install.sh`, `gitify/install.sh`, `fonts/install.sh` — application installers

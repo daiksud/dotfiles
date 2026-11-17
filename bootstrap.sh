@@ -31,6 +31,7 @@ source ./homebrew/install.sh
 ./ghostty/install.sh
 ./gitify/install.sh
 ./fonts/install.sh
+./herdr-app/install.sh
 stow --no-folding --target="$HOME" editorconfig fzf git ghostty herdr nvim rumdl sheldon starship zsh
 
 # Equalize pane widths after splitting or closing panes.

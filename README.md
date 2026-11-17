@@ -10,7 +10,27 @@ curl -fsSL https://raw.githubusercontent.com/daiksud/dotfiles/main/bootstrap.sh 
 
 Requires Git, internet access and administrator permissions. macOS may prompt for Xcode Command Line Tools; GitHub login may require browser authentication.
 
-The bootstrap clones this repository to `~/.dotfiles` when missing and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Moralerspace Neon HW, CLI tools (including APM). It does not automatically install [daiksud/agents](https://github.com/daiksud/agents). It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
+The bootstrap clones this repository to `~/.dotfiles` when missing and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Herdr App, Moralerspace HW fonts, and CLI tools (including APM). It does not automatically install [daiksud/agents](https://github.com/daiksud/agents). It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
+
+### Herdr App
+
+Herdr App is separate from the Herdr terminal application described below. Bootstrap installs the app if needed and links the exported `daiksud` layout, Tokyo Night Storm theme, background, keys, settings and custom mods into `~/.config/herdr-app`. It preserves an existing app in `/Applications` or `~/Applications`.
+
+The `daiksud` layout and the `tabs-no-padding` and `workspace-status-auto-tabs` mods are modified from [Herdr App 0.1.16](https://github.com/herdrdev/herdr-app/tree/v0.1.16), licensed under [Apache License 2.0](herdr-app/LICENSE).
+
+**The installer replaces existing files at those specific configuration paths, including both custom mod directories, without a backup.** Other Herdr App files, including session and window state, are left in place. Before the first run, save any settings you want to retain. Herdr App uses `Moralerspace Argon HW`; the font installer checks for both Argon and Neon.
+
+On first setup, bootstrap checks both mods, starts Herdr App if necessary, and selects the custom layout and theme. Subsequent runs leave the selected layout and theme alone. To select them manually while the app is running:
+
+```sh
+herdr-app do layout.switch --name daiksud
+herdr-app do app.theme --name tokyo-night-storm
+herdr-app status
+```
+
+To repeat first-run activation, remove `~/.local/state/dotfiles/herdr-app-initialized` and rerun bootstrap. The exported layout and mods were built with Herdr App 0.1.16; after app updates, check the display and keyboard shortcuts. Editing `keys.json` prevents Herdr from automatically adding new default shortcuts. The tab bar hides when the active space has one tab and reappears with multiple tabs; while hidden, its buttons are unavailable.
+
+### Herdr TUI
 
 Herdr uses **workspaces** for navigation and **panes** for splits, with its sidebar visible by default. Tabs are not used as a navigation unit: tab shortcuts are disabled, and the tab bar stays hidden when a workspace has one (internal) tab. Use `Ctrl+Option+H/L` for previous/next workspace. `Ctrl+Option+J` selects the next pane across all workspaces; `Ctrl+Option+K` selects the previous pane. Both wrap around the complete pane list, in workspace, internal tab, then layout order. For example, J cycles `A1 → A2 → B1 → B2 → A1`. `Ctrl+T`, then `Tab` / `Shift+Tab` still cycles within the current tab.
 
@@ -39,7 +59,7 @@ Bootstrap only installs missing components. Re-running it does not pull reposito
 
 The updater fast-forward pulls the repository with `git pull --ff-only` and restarts from the updated script. It reruns the install-only setup to install newly declared dependencies and refresh Stow links, then upgrades Homebrew packages and the three configured GitHub CLI extensions. When `~/.apm/apm.yml` exists, it refreshes global APM dependencies, compiles global instructions, and reports remaining outdated APM packages with `apm outdated --global`.
 
-Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not use `--adopt`.
+Apart from the Herdr App paths described above, Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not use `--adopt`.
 
 ## Layout
 
@@ -47,7 +67,8 @@ Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not 
 - `update.sh` — update repository and installed tools
 - `homebrew/Brewfile` — CLI packages
 - `fzf/.config/fzf/options` — shared fzf display options (`FZF_DEFAULT_OPTS_FILE`)
-- `homebrew/install.sh`, `chrome/install.sh`, `chatgpt/install.sh`, `ghostty/install.sh`, `gitify/install.sh`, `fonts/install.sh` — application installers
+- `homebrew/install.sh`, `chrome/install.sh`, `chatgpt/install.sh`, `ghostty/install.sh`, `gitify/install.sh`, `herdr-app/install.sh`, `fonts/install.sh` — application installers
+- `herdr-app/.config/herdr-app` — Herdr App settings and custom layout
 - Application directories — personal configuration linked into `$HOME` with Stow
 - `.editorconfig` — repository-specific rules, separate from `editorconfig/.editorconfig`
 

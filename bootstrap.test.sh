@@ -4,22 +4,26 @@ set -euo pipefail
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 source_dir="$(cd "$(dirname "$0")" && pwd)"
+real_stow="$(command -v stow)"
 mkdir -p "$tmp/bin" "$tmp/home" "$tmp/source" "$tmp/Applications"
-export HOME="$tmp/home" TRACE="$tmp/trace" SOURCE_DIR="$tmp/source"
+export HOME="$tmp/home" TRACE="$tmp/trace" SOURCE_DIR="$tmp/source" REAL_STOW="$real_stow"
 export PATH="$tmp/bin:$PATH"
 
 # Isolate application detection without changing the production installers.
 cp -p "$source_dir/bootstrap.sh" "$SOURCE_DIR/bootstrap.sh"
 cp -p "$source_dir/update.sh" "$SOURCE_DIR/update.sh"
 mkdir -p "$SOURCE_DIR/.git"
-for app in homebrew chrome chatgpt ghostty gitify fonts; do
+for app in homebrew chrome chatgpt ghostty gitify fonts herdr-app; do
   mkdir -p "$SOURCE_DIR/$app"
   cp -p "$source_dir/$app/install.sh" "$SOURCE_DIR/$app/install.sh"
 done
+cp -R "$source_dir/herdr-app/.config" "$SOURCE_DIR/herdr-app/.config"
+cp "$source_dir/herdr-app/.stow-local-ignore" "$SOURCE_DIR/herdr-app/.stow-local-ignore"
 cp "$source_dir/homebrew/Brewfile" "$SOURCE_DIR/homebrew/Brewfile"
 for app in chrome chatgpt ghostty gitify; do
   sed "s|/Applications/|$tmp/Applications/|g" "$source_dir/$app/install.sh" >"$SOURCE_DIR/$app/install.sh"
 done
+sed "s|app=/Applications/Herdr.app|app=$tmp/Applications/Herdr.app|" "$source_dir/herdr-app/install.sh" >"$SOURCE_DIR/herdr-app/install.sh"
 
 cat >"$tmp/bin/uname" <<'SH'
 #!/usr/bin/env bash
@@ -38,6 +42,9 @@ elif [[ "$1" == list && "$2" == --cask ]]; then
   [[ "${BREW_INSTALLED_CASK:-}" == "$3" ]]
 else
   printf 'brew %s\n' "$*" >>"$TRACE"
+  if [[ "$*" == 'install --cask --adopt font-moralerspace-hw' && "${MOCK_FONT_CONFLICT:-}" == 1 ]]; then
+    exit 1
+  fi
 fi
 SH
 
@@ -48,18 +55,31 @@ if [[ "$1" == -C && ! -d "$2/.git" ]]; then
   exit 128
 fi
 if [[ "$1" == clone ]]; then
-  mkdir -p "$3/homebrew" "$3/chrome" "$3/chatgpt" "$3/ghostty" "$3/gitify" "$3/fonts" "$3/.git"
+  mkdir -p "$3/homebrew" "$3/chrome" "$3/chatgpt" "$3/ghostty" "$3/gitify" "$3/fonts" "$3/herdr-app" "$3/.git"
   cp "$SOURCE_DIR/bootstrap.sh" "$3/bootstrap.sh"
   cp "$SOURCE_DIR/update.sh" "$3/update.sh"
   cp "$SOURCE_DIR/homebrew/Brewfile" "$3/homebrew/Brewfile"
-  for app in homebrew chrome chatgpt ghostty gitify fonts; do
+  for app in homebrew chrome chatgpt ghostty gitify fonts herdr-app; do
     cp -p "$SOURCE_DIR/$app/install.sh" "$3/$app/install.sh"
   done
+  cp -R "$SOURCE_DIR/herdr-app/.config" "$3/herdr-app/.config"
+  cp "$SOURCE_DIR/herdr-app/.stow-local-ignore" "$3/herdr-app/.stow-local-ignore"
 fi
 if [[ "$1" == -C && "$3" == pull && -n "${MOCK_UPDATED_UPDATE:-}" && "$2" == "$SOURCE_DIR" ]]; then
   cp "$MOCK_UPDATED_UPDATE" "$2/update.sh.new"
   mv "$2/update.sh.new" "$2/update.sh"
 fi
+SH
+
+cat >"$tmp/bin/herdr-app" <<'SH'
+#!/usr/bin/env bash
+printf 'herdr-app %s\n' "$*" >>"$TRACE"
+if [[ "${MOCK_HERDR_APP_FAIL:-}" == "$1" ]]; then exit 1; fi
+if [[ "$1" == status ]]; then printf '%s\n' '{"errors":[]}'; fi
+SH
+cat >"$tmp/bin/open" <<'SH'
+#!/usr/bin/env bash
+printf 'open %s\n' "$*" >>"$TRACE"
 SH
 
 cat >"$tmp/bin/gh" <<'SH'
@@ -117,6 +137,9 @@ for tool in stow apm; do
   cat >"$tmp/bin/$tool" <<'SH'
 #!/usr/bin/env bash
 printf '%s %s\n' "${0##*/}" "$*" >>"$TRACE"
+if [[ "${0##*/}" == stow && "${USE_REAL_STOW:-}" == 1 ]]; then
+  exec "$REAL_STOW" "$@"
+fi
 if [[ "${0##*/}" == apm && ! -f "$HOME/.apm/apm.yml" ]]; then
   exit 1
 fi
@@ -206,16 +229,67 @@ test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=google-chrome bash chrome/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=ghostty bash ghostty/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=font-moralerspace-hw bash fonts/install.sh)
+(cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=herdr-app bash herdr-app/install.sh)
 
 # Standalone installers also preserve manually installed applications and fonts.
-mkdir -p "$tmp/Applications/Gitify.app" "$tmp/Applications/ChatGPT.app" "$tmp/Applications/Google Chrome.app" "$tmp/Applications/Ghostty.app" "$HOME/Library/Fonts"
-touch "$HOME/Library/Fonts/MoralerspaceNeonHW-Regular.ttf"
-for app in chrome chatgpt ghostty gitify fonts; do
+mkdir -p "$tmp/Applications/Gitify.app" "$tmp/Applications/ChatGPT.app" "$tmp/Applications/Google Chrome.app" "$tmp/Applications/Ghostty.app" "$tmp/Applications/Herdr.app" "$HOME/Library/Fonts"
+touch "$HOME/Library/Fonts/MoralerspaceNeonHW-Regular.ttf" "$HOME/Library/Fonts/MoralerspaceArgonHW-Regular.ttf"
+for app in chrome chatgpt ghostty gitify fonts herdr-app; do
   (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK= bash "$app/install.sh")
 done
-for cask in gitify chatgpt google-chrome ghostty font-moralerspace-hw; do
+for cask in gitify chatgpt google-chrome ghostty; do
   test "$(grep -Fxc "brew install --cask $cask" "$TRACE")" -eq 6
 done
+test "$(grep -Fxc 'brew install --cask --adopt font-moralerspace-hw' "$TRACE")" -eq 6
+
+# With just one manually installed font, ask Homebrew to adopt identical
+# artifacts; a differing artifact must abort and leave that file intact.
+partial_home="$tmp/partial-font-home"
+mkdir -p "$partial_home/Library/Fonts"
+printf 'manual font\n' >"$partial_home/Library/Fonts/MoralerspaceNeonHW-Regular.ttf"
+if (cd "$SOURCE_DIR" && HOME="$partial_home" MOCK_FONT_CONFLICT=1 bash fonts/install.sh); then
+  echo 'FAIL: conflicting manual font was accepted' >&2
+  exit 1
+fi
+test "$(cat "$partial_home/Library/Fonts/MoralerspaceNeonHW-Regular.ttf")" = 'manual font'
+(cd "$SOURCE_DIR" && HOME="$partial_home" bash fonts/install.sh)
+test "$(grep -Fxc 'brew install --cask --adopt font-moralerspace-hw' "$TRACE")" -eq 8
+
+# Real Stow validates replacement, preservation and repeatability in an isolated home.
+app_home="$tmp/herdr-app-home"
+mkdir -p "$app_home/.config/herdr-app/mods/tabs-no-padding" "$app_home/Applications/Herdr.app"
+mkdir -p "$app_home/.config/herdr-app/layouts"
+ln -s "$SOURCE_DIR/herdr-app/.config/herdr-app/layouts/main-background.json" "$app_home/.config/herdr-app/layouts/main-background.json"
+printf 'old settings\n' >"$app_home/.config/herdr-app/settings.json"
+printf 'old mod\n' >"$app_home/.config/herdr-app/mods/tabs-no-padding/main.js"
+printf 'retained\n' >"$app_home/.config/herdr-app/shared.json"
+if (cd "$SOURCE_DIR" && HOME="$app_home" USE_REAL_STOW=1 MOCK_HERDR_APP_FAIL=check bash herdr-app/install.sh); then
+  echo 'FAIL: failed mod check was ignored' >&2
+  exit 1
+fi
+test ! -e "$app_home/.local/state/dotfiles/herdr-app-initialized"
+(cd "$SOURCE_DIR" && HOME="$app_home" USE_REAL_STOW=1 bash herdr-app/install.sh)
+test -L "$app_home/.config/herdr-app/settings.json"
+test -L "$app_home/.config/herdr-app/layouts/daiksud.json"
+test ! -L "$app_home/.config/herdr-app/layouts/main-background.json"
+test -L "$app_home/.config/herdr-app/mods/tabs-no-padding/main.js"
+test "$(cat "$app_home/.config/herdr-app/shared.json")" = retained
+test -e "$app_home/.local/state/dotfiles/herdr-app-initialized"
+activation_count="$(grep -Fc 'herdr-app do layout.switch' "$TRACE")"
+(cd "$SOURCE_DIR" && HOME="$app_home" USE_REAL_STOW=1 bash herdr-app/install.sh)
+test "$(grep -Fc 'herdr-app do layout.switch' "$TRACE")" -eq "$activation_count"
+test -f "$SOURCE_DIR/herdr-app/.config/herdr-app/settings.json"
+
+# Never traverse a symlinked parent when deleting destinations.
+unsafe_home="$tmp/unsafe-home"
+mkdir -p "$unsafe_home/.config" "$tmp/external-herdr"
+printf 'keep\n' >"$tmp/external-herdr/settings.json"
+ln -s "$tmp/external-herdr" "$unsafe_home/.config/herdr-app"
+if (cd "$SOURCE_DIR" && HOME="$unsafe_home" USE_REAL_STOW=1 bash herdr-app/install.sh); then
+  echo 'FAIL: symlinked configuration directory was accepted' >&2
+  exit 1
+fi
+test "$(cat "$tmp/external-herdr/settings.json")" = keep
 
 # Git is available before Homebrew; cloning precedes package installation.
 test "$(head -n 1 "$TRACE")" = "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles"

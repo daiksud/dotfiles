@@ -25,6 +25,8 @@ cd "$repo_dir"
 
 # Source Homebrew's shell environment for the other installers.
 export HOMEBREW_NO_AUTO_UPDATE=1
+# Homebrew's automatic cleanup can remove the curl selected by an ongoing install.
+export HOMEBREW_NO_INSTALL_CLEANUP=1
 source ./homebrew/install.sh
 ./chrome/install.sh
 ./chatgpt/install.sh

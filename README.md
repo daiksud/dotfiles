@@ -12,9 +12,13 @@ Requires Git, internet access and administrator permissions. macOS may prompt fo
 
 The bootstrap clones this repository to `~/.dotfiles` when missing and installs Homebrew, Chrome, ChatGPT, Ghostty, Gitify, Herdr App, Moralerspace HW fonts, and CLI tools (including APM). It does not automatically install [daiksud/agents](https://github.com/daiksud/agents). It also configures GitHub CLI extensions and links personal configuration with GNU Stow.
 
+Bootstrap and update disable Homebrew's automatic install cleanup to prevent it from removing curl while an installation is using it. Run `brew cleanup` separately when desired.
+
 ### Herdr App
 
-Herdr App is separate from the Herdr terminal application described below. Bootstrap installs the app if needed and links the exported `daiksud` layout, Tokyo Night Storm theme, background, keys, settings and custom mods into `~/.config/herdr-app`. It preserves an existing app in `/Applications` or `~/Applications`.
+Herdr App is separate from the Herdr terminal application described below. Bootstrap refreshes Homebrew metadata and installs or upgrades the Homebrew-managed app before linking the exported `daiksud` layout, Tokyo Night Storm theme, background, keys, settings and custom mods into `~/.config/herdr-app`. It preserves a manually installed app in `/Applications` or `~/Applications` and asks for an update if it is older than the Homebrew version.
+
+The custom mods require Herdr App 0.1.16 or later. If Homebrew has not yet published a new enough cask, update the app and rerun setup when a compatible version is available.
 
 The `daiksud` layout and the `tabs-no-padding` and `workspace-status-auto-tabs` mods are modified from [Herdr App 0.1.16](https://github.com/herdrdev/herdr-app/tree/v0.1.16), licensed under [Apache License 2.0](herdr-app/LICENSE).
 
@@ -55,15 +59,15 @@ apm compile --global
 ~/.dotfiles/update.sh
 ```
 
-Bootstrap only installs missing components. Re-running it does not pull repository changes or explicitly upgrade installed tools.
+Bootstrap installs missing components and upgrades Herdr App. Re-running it does not pull repository changes or explicitly upgrade other installed tools.
 
-The updater fast-forward pulls the repository with `git pull --ff-only` and restarts from the updated script. It reruns the install-only setup to install newly declared dependencies and refresh Stow links, then upgrades Homebrew packages and the three configured GitHub CLI extensions. When `~/.apm/apm.yml` exists, it refreshes global APM dependencies, compiles global instructions, and reports remaining outdated APM packages with `apm outdated --global`.
+The updater fast-forward pulls the repository with `git pull --ff-only` and restarts from the updated script. It reruns setup to install newly declared dependencies and refresh Stow links, then upgrades Homebrew packages and the three configured GitHub CLI extensions. When `~/.apm/apm.yml` exists, it refreshes global APM dependencies, compiles global instructions, and reports remaining outdated APM packages with `apm outdated --global`.
 
 Apart from the Herdr App paths described above, Stow does not overwrite unmanaged files. Resolve any conflicts manually; do not use `--adopt`.
 
 ## Layout
 
-- `bootstrap.sh` — install-only setup entry point
+- `bootstrap.sh` — setup entry point
 - `update.sh` — update repository and installed tools
 - `homebrew/Brewfile` — CLI packages
 - `fzf/.config/fzf/options` — shared fzf display options (`FZF_DEFAULT_OPTS_FILE`)

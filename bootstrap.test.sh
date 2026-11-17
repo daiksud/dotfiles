@@ -8,6 +8,7 @@ real_stow="$(command -v stow)"
 mkdir -p "$tmp/bin" "$tmp/home" "$tmp/source" "$tmp/Applications"
 export HOME="$tmp/home" TRACE="$tmp/trace" SOURCE_DIR="$tmp/source" REAL_STOW="$real_stow"
 export PATH="$tmp/bin:$PATH"
+unset HOMEBREW_NO_INSTALL_CLEANUP
 
 # Isolate application detection without changing the production installers.
 cp -p "$source_dir/bootstrap.sh" "$SOURCE_DIR/bootstrap.sh"
@@ -40,8 +41,15 @@ if [[ "$1" == shellenv ]]; then
   echo 'export PATH="$PATH"'
 elif [[ "$1" == list && "$2" == --cask ]]; then
   [[ "${BREW_INSTALLED_CASK:-}" == "$3" ]]
+elif [[ "$1 $2" == 'info --cask' ]]; then
+  printf '%s\n' '{"casks":[{"version":"0.1.16"}]}'
 else
   printf 'brew %s\n' "$*" >>"$TRACE"
+  # Model cleanup removing Homebrew's selected curl during install or upgrade.
+  if [[ "${MOCK_CURL_CLEANUP:-}" == 1 && ( "$1" == install || "$1" == bundle || "$1" == upgrade ) && "${HOMEBREW_NO_INSTALL_CLEANUP:-}" != 1 ]]; then
+    echo 'Error: Failed to get curl path' >&2
+    exit 1
+  fi
   if [[ "$*" == 'install --cask --adopt font-moralerspace-hw' && "${MOCK_FONT_CONFLICT:-}" == 1 ]]; then
     exit 1
   fi
@@ -74,6 +82,7 @@ SH
 cat >"$tmp/bin/herdr-app" <<'SH'
 #!/usr/bin/env bash
 printf 'herdr-app %s\n' "$*" >>"$TRACE"
+if [[ "$1" == --version ]]; then echo "herdr-app ${MOCK_HERDR_VERSION:-0.1.16}"; exit 0; fi
 if [[ "${MOCK_HERDR_APP_FAIL:-}" == "$1" ]]; then exit 1; fi
 if [[ "$1" == status ]]; then printf '%s\n' '{"errors":[]}'; fi
 SH
@@ -151,7 +160,8 @@ touch "$HOME/.apm/apm.yml"
 # Simulate both old tab-label plugins for upgrade coverage.
 touch "$HOME/.mock-herdr-dev-shimada.auto-tab-name" "$HOME/.mock-herdr-daiksud.tab-agent-status"
 
-# A streamed bootstrap clones once. Neither repeat runs nor local runs upgrade tools.
+# A streamed bootstrap clones once. Other tools are not upgraded by bootstrap.
+export MOCK_CURL_CLEANUP=1
 (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | bash)
 (cd "$tmp" && cat "$SOURCE_DIR/bootstrap.sh" | bash)
 (cd "$tmp" && bash "$SOURCE_DIR/bootstrap.sh")
@@ -165,7 +175,7 @@ fi
 
 test "$(grep -Fxc "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles" "$TRACE")" -eq 1
 ! grep -Fq 'pull --ff-only' "$TRACE"
-! grep -Fq 'brew upgrade ' "$TRACE"
+! grep -Fq 'brew upgrade --no-ask' "$TRACE"
 ! grep -Fq 'gh extension upgrade ' "$TRACE"
 ! grep -Eq '^apm (update|compile|outdated)' "$TRACE"
 test "$(grep -Fc 'brew bundle --no-upgrade --file=' "$TRACE")" -eq 3
@@ -224,15 +234,39 @@ test "$(grep -Fc 'brew bundle --no-upgrade --file=' "$TRACE")" -eq 6
 test "$(grep -Fxc 'herdr plugin install shibayu36/herdr-equalize-panes --ref 0c1d940e9af09c632a48a5b179753ef25056ff13 --yes' "$TRACE")" -eq 2
 
 # Standalone installers do not reinstall casks already managed by Homebrew.
+unset MOCK_CURL_CLEANUP
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=gitify bash gitify/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=chatgpt bash chatgpt/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=google-chrome bash chrome/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=ghostty bash ghostty/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=font-moralerspace-hw bash fonts/install.sh)
 (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=herdr-app bash herdr-app/install.sh)
+test "$(grep -Fxc 'brew upgrade --cask --greedy-auto-updates --no-ask herdr-app' "$TRACE")" -eq 1
+if (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK=herdr-app MOCK_HERDR_VERSION=0.1.15 bash herdr-app/install.sh); then
+  echo 'FAIL: unsupported Homebrew Herdr App was accepted' >&2
+  exit 1
+fi
+awk '
+  /^brew update$/ { refreshed = 1 }
+  /^brew (install --cask herdr-app|upgrade --cask --greedy-auto-updates --no-ask herdr-app)$/ {
+    if (!refreshed) exit 1
+    refreshed = 0
+  }
+' "$TRACE"
 
 # Standalone installers also preserve manually installed applications and fonts.
 mkdir -p "$tmp/Applications/Gitify.app" "$tmp/Applications/ChatGPT.app" "$tmp/Applications/Google Chrome.app" "$tmp/Applications/Ghostty.app" "$tmp/Applications/Herdr.app" "$HOME/Library/Fonts"
+mkdir -p "$tmp/Applications/Herdr.app/Contents/MacOS"
+cat >"$tmp/Applications/Herdr.app/Contents/MacOS/Herdr" <<'SH'
+#!/usr/bin/env bash
+if [[ "$1" == --version ]]; then echo "herdr-app ${MOCK_HERDR_VERSION:-0.1.16}"; exit 0; fi
+exec herdr-app "$@"
+SH
+chmod +x "$tmp/Applications/Herdr.app/Contents/MacOS/Herdr"
+if (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK= MOCK_HERDR_VERSION=0.1.15 bash herdr-app/install.sh); then
+  echo 'FAIL: outdated manual Herdr App was accepted' >&2
+  exit 1
+fi
 touch "$HOME/Library/Fonts/MoralerspaceNeonHW-Regular.ttf" "$HOME/Library/Fonts/MoralerspaceArgonHW-Regular.ttf"
 for app in chrome chatgpt ghostty gitify fonts herdr-app; do
   (cd "$SOURCE_DIR" && BREW_INSTALLED_CASK= bash "$app/install.sh")
@@ -294,4 +328,4 @@ test "$(cat "$tmp/external-herdr/settings.json")" = keep
 # Git is available before Homebrew; cloning precedes package installation.
 test "$(head -n 1 "$TRACE")" = "git clone https://github.com/daiksud/dotfiles.git $HOME/.dotfiles"
 ! grep -Fq 'herdr plugin link ' "$TRACE"
-echo 'Install-only bootstrap and updater smoke tests passed'
+echo 'Bootstrap and updater smoke tests passed'

@@ -33,8 +33,45 @@ app=/Applications/Herdr.app
 if [[ ! -d "$app" && -d "$HOME/Applications/Herdr.app" ]]; then
   app="$HOME/Applications/Herdr.app"
 fi
-if ! brew list --cask herdr-app >/dev/null 2>&1 && [[ ! -d "$app" ]]; then
+# Refresh the cask metadata even when bootstrap disables automatic updates.
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+brew update
+if brew list --cask herdr-app >/dev/null 2>&1; then
+  # Herdr declares auto_updates, so include it explicitly.
+  brew upgrade --cask --greedy-auto-updates --no-ask herdr-app
+elif [[ ! -d "$app" ]]; then
   brew install --cask herdr-app
+else
+  # Keep manually installed apps in place, but do not configure an outdated one.
+  herdr_app="$app/Contents/MacOS/Herdr"
+  app_version="$("$herdr_app" --version | awk '{print $2}')"
+  cask_version="$(brew info --cask --json=v2 herdr-app | jq -er '.casks[0].version')"
+  if ! jq -en --arg app "$app_version" --arg cask "$cask_version" '
+    def version: if test("^[0-9]+(\\.[0-9]+)*$") then split(".") | map(tonumber) else error("invalid version") end;
+    ($app | version) >= ($cask | version)
+  ' >/dev/null; then
+    echo "Herdr App: manually installed $app_version is older than Homebrew's $cask_version; update $app and retry." >&2
+    exit 1
+  fi
+fi
+
+# The custom mods use APIs introduced in 0.1.16, even if the cask is behind.
+herdr_app="${herdr_app:-$(command -v herdr-app || true)}"
+if [[ -z "$herdr_app" ]]; then
+  herdr_app="$app/Contents/MacOS/Herdr"
+fi
+if [[ ! -x "$herdr_app" ]]; then
+  echo "Herdr App: executable not found in PATH or $app" >&2
+  exit 1
+fi
+app_version="$("$herdr_app" --version | awk '{print $2}')"
+if ! jq -en --arg version "$app_version" '
+  if ($version | test("^[0-9]+(\\.[0-9]+)*$")) then
+    ($version | split(".") | map(tonumber)) >= [0, 1, 16]
+  else false end
+' >/dev/null; then
+  echo "Herdr App: version 0.1.16 or later is required; found $app_version." >&2
+  exit 1
 fi
 
 mkdir -p "$config/layouts" "$config/themes" "$config/backgrounds" "$config/mods"
@@ -95,14 +132,6 @@ if [[ -f "$marker" ]]; then
   exit 0
 fi
 
-herdr_app="$(command -v herdr-app || true)"
-if [[ -z "$herdr_app" ]]; then
-  herdr_app="$app/Contents/MacOS/Herdr"
-fi
-if [[ ! -x "$herdr_app" ]]; then
-  echo "Herdr App: executable not found in PATH or $app" >&2
-  exit 1
-fi
 for mod in "${mods[@]}"; do
   "$herdr_app" check "$config/mods/$mod"
 done

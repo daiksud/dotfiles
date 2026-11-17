@@ -11,6 +11,7 @@ fi
 bash "$repo_dir/bootstrap.sh"
 
 # The bootstrap's Homebrew environment was scoped to its process.
+export HOMEBREW_NO_INSTALL_CLEANUP=1
 brew_bin="$(command -v brew || printf '%s' /opt/homebrew/bin/brew)"
 eval "$("$brew_bin" shellenv)"
 brew upgrade --no-ask

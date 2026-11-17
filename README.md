@@ -16,7 +16,7 @@ The bootstrap clones this repository to `~/.dotfiles` when missing and installs 
 
 Herdr App is separate from the Herdr terminal application described below. Bootstrap installs the app if needed and links the exported `daiksud` layout, Tokyo Night Storm theme, background, keys, settings and custom mods into `~/.config/herdr-app`. It preserves an existing app in `/Applications` or `~/Applications`.
 
-The `daiksud` layout and the `tabs-no-padding` and `workspace-status-auto-tabs` mods are modified from [Herdr App 0.1.16](https://github.com/herdrdev/herdr-app/tree/v0.1.16), licensed under [Apache License 2.0](LICENSE-APACHE-2.0).
+The `daiksud` layout and the `tabs-no-padding` and `workspace-status-auto-tabs` mods are modified from [Herdr App 0.1.16](https://github.com/herdrdev/herdr-app/tree/v0.1.16), licensed under [Apache License 2.0](herdr-app/LICENSE-APACHE-2.0).
 
 **The installer replaces existing files at those specific configuration paths, including both custom mod directories, without a backup.** Other Herdr App files, including session and window state, are left in place. Before the first run, save any settings you want to retain. Herdr App uses `Moralerspace Argon HW`; the font installer checks for both Argon and Neon.
 

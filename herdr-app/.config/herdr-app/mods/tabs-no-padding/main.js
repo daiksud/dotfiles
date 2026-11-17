@@ -1,4 +1,4 @@
-// Modified from Herdr App 0.1.16; see LICENSE-APACHE-2.0 in this repository.
+// Modified from Herdr App 0.1.16; see herdr-app/LICENSE-APACHE-2.0 in this repository.
 import { View, div, svg, image } from "gpui-kit";
 import { h_flex, ScrollHandle } from "gpui-base";
 import { spaces, panes, run, openOverlay, theme, window, shared, layout, settings } from "herdr";

@@ -1,7 +1,7 @@
 // Modified from Herdr App 0.1.16; see herdr-app/LICENSE in this repository.
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, agents, theme, run, window, keys, layout, checking } from "herdr";
+import { spaces, panes, machines, agents, theme, run, window, keys, layout, checking } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -27,6 +27,16 @@ export default class WorkspaceStatus extends View {
   render() {
     const t = theme();
     const space = spaces().find(s => s.active);
+    const hosts = machines();
+    const ready = hosts.find(m => m.name === (space?.machine ?? null))?.layout === "ready";
+    if (panes().some(p => p.terminal) || !ready) {
+      this.openingTerminal = false;
+    } else if (!checking() && !this.openingTerminal && !hosts.some(m => m.layout === "loading")) {
+      // run() queues the command; wait for its pane before requesting another.
+      this.openingTerminal = true;
+      // tab.new also creates a space when the last one has been closed.
+      run("tab.new");
+    }
     const tabBar = find(layout(), "tabs");
     if (!checking() && space && tabBar?.content?.mod === "tabs-no-padding") {
       const hide = space.tabs.length === 1;

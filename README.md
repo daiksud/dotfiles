@@ -36,6 +36,8 @@ To repeat first-run activation, remove `~/.local/state/dotfiles/herdr-app-initia
 
 The `daiksud` layout keeps at least one terminal pane open across all spaces. Once the saved layouts have loaded, it opens a shell if no terminal pane remains, including at startup and after the last shell exits or its pane, tab, or space is closed. The shell opens in a new tab in the active space, or in a new space when none remains. It waits while the target machine is unavailable; mod-only panes do not count as terminals.
 
+The status bar shows the app computer's local date and time on the right, updating every second in the format `Fri Nov 20 18:16:32` with English weekday and month names and a 24-hour clock.
+
 ### Herdr TUI
 
 Herdr uses **workspaces** for navigation and **panes** for splits, with its sidebar visible by default. Tabs are not used as a navigation unit: tab shortcuts are disabled, and the tab bar stays hidden when a workspace has one (internal) tab. Use `Ctrl+Option+H/L` for previous/next workspace. `Ctrl+Option+J` selects the next pane across all workspaces; `Ctrl+Option+K` selects the previous pane. Both wrap around the complete pane list, in workspace, internal tab, then layout order. For example, J cycles `A1 → A2 → B1 → B2 → A1`. `Ctrl+T`, then `Tab` / `Shift+Tab` still cycles within the current tab.

@@ -13,6 +13,10 @@ function find(node, id) {
 }
 
 export default class WorkspaceStatus extends View {
+  init(_props, cx) {
+    cx.timer.every(1000, (cx) => cx.notify());
+  }
+
   // The palette key as actually bound, not a hardcoded one; without a
   // binding the hint stays useful ("commands") instead of lying.
   hint(t) {
@@ -26,6 +30,7 @@ export default class WorkspaceStatus extends View {
 
   render() {
     const t = theme();
+    const now = new Date();
     const space = spaces().find(s => s.active);
     const hosts = machines();
     const ready = hosts.find(m => m.name === (space?.machine ?? null))?.layout === "ready";
@@ -51,6 +56,7 @@ export default class WorkspaceStatus extends View {
       .child(h_flex().gap(6).items_center().child(div().size(6).rounded(3).bg(t.dim)).child(`${list.length} agents`)
         .when(needs > 0, el => el.child(div().text_color(t.blocked).child(`· ${needs} needs you`))))
       .child(div().flex_1())
-      .child(div().id("palette").text_color(t.dim).on_click(() => run("app.palette")).child(this.hint(t)));
+      .child(div().id("palette").text_color(t.dim).on_click(() => run("app.palette")).child(this.hint(t)))
+      .child(div().flex_none().whitespace_nowrap().child(`${now.toDateString().slice(0, 10)} ${now.toTimeString().slice(0, 8)}`));
   }
 }

@@ -36,7 +36,7 @@ To repeat first-run activation, remove `~/.local/state/dotfiles/herdr-app-initia
 
 The `daiksud` layout keeps at least one terminal pane open across all spaces. Once the saved layouts have loaded, it opens a shell if no terminal pane remains, including at startup and after the last shell exits or its pane, tab, or space is closed. The shell opens in a new tab in the active space, or in a new space when none remains. It waits while the target machine is unavailable; mod-only panes do not count as terminals.
 
-The status bar shows the app computer's local date and time on the right, updating every second in the format `Fri Nov 20 18:16:32` with English weekday and month names and a 24-hour clock.
+The status bar shows the app computer's local date and time on the right, updating every second in the format `Fri Nov 20 18:16:32` with English weekday and month names and a 24-hour clock. The clock uses the configured monospaced terminal font to keep its characters and the adjacent command hint in place as the seconds change.
 
 ### Herdr TUI
 

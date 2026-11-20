@@ -1,7 +1,7 @@
 // Modified from Herdr App 0.1.16; see herdr-app/LICENSE in this repository.
 import { View, div, svg } from "gpui-kit";
 import { h_flex } from "gpui-base";
-import { spaces, panes, machines, agents, theme, run, window, keys, layout, checking } from "herdr";
+import { spaces, panes, machines, agents, theme, run, window, keys, layout, checking, settings } from "herdr";
 
 function find(node, id) {
   if (node?.id === id) return node;
@@ -57,6 +57,6 @@ export default class WorkspaceStatus extends View {
         .when(needs > 0, el => el.child(div().text_color(t.blocked).child(`· ${needs} needs you`))))
       .child(div().flex_1())
       .child(div().id("palette").text_color(t.dim).on_click(() => run("app.palette")).child(this.hint(t)))
-      .child(div().flex_none().whitespace_nowrap().child(`${now.toDateString().slice(0, 10)} ${now.toTimeString().slice(0, 8)}`));
+      .child(div().flex_none().whitespace_nowrap().font_family(settings().font_family).child(`${now.toDateString().slice(0, 10)} ${now.toTimeString().slice(0, 8)}`));
   }
 }
